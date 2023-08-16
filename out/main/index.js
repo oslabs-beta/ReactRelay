@@ -39,6 +39,10 @@ electron.app.whenReady().then(() => {
       createWindow();
   });
 });
+electron.ipcMain.handle("dialog", async (event, method, params) => {
+  const result = await electron.dialog[method](params);
+  return result;
+});
 electron.app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {
     electron.app.quit();
