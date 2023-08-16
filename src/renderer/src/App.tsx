@@ -5,8 +5,11 @@ import Header from './components/Header'
 import Tree from './components/Tree';
 
 function App(): JSX.Element {
-
+    const [projectName, setProjectName] = useState('');
     const [filePath, setFilePath] = useState(''); // may want to change this to some sort of redux, but useState is good for now i guess
+    const [reactFlowComponents, setReactFlowComponents] = useState({});
+    
+    
     // dialog settings
     const dialogConfig = {
     title: 'Select a project',
@@ -14,16 +17,36 @@ function App(): JSX.Element {
     properties: ['openDirectory']
   }
     // window.api.openDialog returns the filepath when the filepath is chosen from the dialog
-  const openExplorer = async (): any => {
-    const {filePaths} = await window.api.openDialog('showOpenDialog', dialogConfig)
-    const fileArray = filePaths[0].split('/')
-    setFilePath(fileArray[fileArray.length - 1]);
-    console.log(filePaths[0]);  // returns an array, so indexed at 0 to retrieve path
+    // should i add a case where user doesn't actually select a filepath
+    const openExplorer = async (): any => {
+      const {filePaths} = await window.api.openDialog('showOpenDialog', dialogConfig)
+      setFilePath(filePaths[0])
+      const fileArray = filePaths[0].split('/')
+      setProjectName(fileArray[fileArray.length - 1]);
+      console.log('this is executing')
+      console.log(filePath)
+      fetchComponents();
   }
+
+  // make a post request to backend to access AST logic and create the object with parent/children relationship
+  const fetchComponents = async (): any => {
+    const response = await fetch('http://localhost:3000/components', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'Application/JSON'
+      },
+      body: JSON.stringify({ filePath })  // sends to the componentController the filepath
+    })
+    if (response.ok) {
+      const res = await response.json()
+      setReactFlowComponents(res)
+    }
+  }
+
 
   return (
     <div className="container grid grid-rows-4 grid-flow-col gap-4 p-0 m-0">
-      <Header onClick={openExplorer} projectName={filePath}/>
+      <Header onClick={openExplorer} projectName={projectName}/>
       <header className="grid grid-cols-3	gap-4">
         <h1 className="bg-red-500">React-Relay</h1>
         <h4 id="current-app-name" className="bg-yellow-500">
@@ -32,8 +55,8 @@ function App(): JSX.Element {
       </header>
 
       {/* can we put this div inside of the tree */}
-      <div id="tree-container" className="container bg-green-500 h-max w-full">
-        <Tree />
+      <div id="tree-container" className="container bg-slate-200 h-[1000px] w-full">
+        <Tree reactFlowComponents={reactFlowComponents}/>
       </div>
 
       <div id="details-container">
