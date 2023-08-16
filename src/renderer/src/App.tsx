@@ -1,5 +1,6 @@
 // importing tailwind to use in the react components
 import 'tailwindcss/tailwind.css'
+import Tree from './components/Tree.js';
 
 function App(): JSX.Element {
     // dialog settings
@@ -26,8 +27,8 @@ function App(): JSX.Element {
         </button>
       </header>
 
-      <div id="tree-container" className="tree-container bg-green-500">
-        TREE CONTAINER
+      <div id="tree-container" style={{height: '1000px'}} className="tree-container bg-green-500">
+        <Tree />
       </div>
 
       <div id="details-container">
