@@ -2,6 +2,7 @@
 import 'tailwindcss/tailwind.css'
 import { useState } from 'react'
 import Header from './components/Header'
+import Tree from './components/Tree';
 
 function App(): JSX.Element {
 
@@ -30,8 +31,9 @@ function App(): JSX.Element {
         </h4>
       </header>
 
-      <div id="tree-container" className="tree-container bg-green-500">
-        TREE CONTAINER
+      {/* can we put this div inside of the tree */}
+      <div id="tree-container" className="container bg-green-500 h-max w-full">
+        <Tree />
       </div>
 
       <div id="details-container">
