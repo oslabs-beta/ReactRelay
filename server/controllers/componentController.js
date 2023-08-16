@@ -52,6 +52,9 @@ componentController.parseAll = (req, res, next) => {
     let mightBeComponent = false;
     const noWayThisWorksCache = {};
 
+    let fetchPrimed = false;
+    let ajaxRequests = [];
+
     //babel traverse used to traverse the passed in ast
     traverse(ast, {
 
@@ -103,6 +106,41 @@ componentController.parseAll = (req, res, next) => {
             potentialChildren[path.node.name] = componentAFP;
           }
         }
+
+        //if we find a 'callee' with the name 'fetch', we know a fetch is being invoked, so we reassign 'fetchPrimed' to true, which will trigger the program to look for the route. (directly below this)
+        if (path.isCallExpression()) {
+          const callee = path.node.callee;
+          if (callee.type === "Identifier" && callee.name === "fetch") fetchPrimed = true;
+        }
+
+        if (fetchPrimed && (path.node.type === "TemplateLiteral" || path.node.type === "StringLiteral")) {
+          let route = '';
+          let fullRoute = ``;
+          let method = '';
+          if (path.node.type === "TemplateLiteral") {
+            let quasis = path.node.quasis;
+            route = quasis[0].value.raw;
+            for (let i = 0; i<quasis.length; i++) {
+              fullRoute += quasis[i].value.raw;
+              if (i < quasis.length-1) fullRoute += '${' + path.node.expressions[i].name + '}';
+            }
+          } else if (path.node.type === "StringLiteral") fullRoute = route = path.node.value;
+          const argArrr = path.parentPath.node.arguments;
+          let objExpIdx = -1;
+          argArrr.forEach((sibling, i) => sibling.type === "ObjectExpression" ? objExpIdx = i : null); 
+          if (objExpIdx > -1) {
+            const objProps = argArrr[objExpIdx].properties;
+            objProps.forEach(prop => {
+              if (prop.key.name === 'method') method = prop.value.value;
+            })
+            
+          } else method = 'GET'
+          ajaxRequests.push({ route, fullRoute, method });
+          fetchPrimed = false;
+          console.log('this is a route?', ajaxRequests)
+        }
+
+
 
         //this is an attempt to filter out false positives from test files
         if (mightBeComponent && path.isIdentifier() && path.node.name === "describe") mightBeComponent === false;
