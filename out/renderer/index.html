@@ -6,12 +6,14 @@
     <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; connect-src 'self' http://localhost:3000; script-src 'self'; style-src 'self' 'unsafe-inline'"
+      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'"
     />
+    <script type="module" crossorigin src="./assets/index-f84300e1.js"></script>
+    <link rel="stylesheet" href="./assets/index-e07bedb2.css">
   </head>
 
   <body>
     <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
+    
   </body>
 </html>
