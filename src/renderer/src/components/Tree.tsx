@@ -85,43 +85,33 @@ type Edge = {
   animated: boolean;
 };
 
-function Tree(): JSX.Element {
+function Tree({ reactFlowComponents }): JSX.Element {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
-
+  console.log('is something happening already?')
   useEffect(() => {
-    console.log('aaaaaaaaaaa')
-    const fetchComponents = async () => {
+    console.log('is something happening in useEffect?')
+    if (!reactFlowComponents) return;
+    const newNodes: Node[] = [];
+    const newEdges: Edge[] = [];
 
-      try {
-        const res = await fetch('http://localhost:3000/components');
-        console.log(res.ok, 'res.ok', res)
-        const components = await res.json();
-        const newNodes: Node[] = [];
-        const newEdges: Edge[] = [];
+    (Object.values(reactFlowComponents) as Component[]).forEach((obj: Component) => {
+      newNodes.push({ id: obj.id, data: obj.data, position: { x: 0, y: 0 } })
+      obj.children.forEach(childId => {
+        newEdges.push({ id: (obj.id).concat(childId), source: obj.id, target: childId, type: edgeType, animated: true })
+      })
+    })
+    console.log('newNodes', newNodes)
+    console.log('newEdges', newEdges);
+    const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(
+      newNodes,
+      newEdges
+    );
+    setNodes(layoutedNodes);
+    setEdges(layoutedEdges);
+}, [reactFlowComponents]);
 
-        (Object.values(components) as Component[]).forEach((obj: Component) => {
-          newNodes.push({ id: obj.id, data: obj.data, position: { x: 0, y: 0 } })
-          obj.children.forEach(childId => {
-            newEdges.push({ id: (obj.id).concat(childId), source: obj.id, target: childId, type: edgeType, animated: true })
-          })
-        })
-        console.log('newNodes', newNodes)
-        console.log('newEdges', newEdges);
-        const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(
-          newNodes,
-          newEdges
-        );
-        setNodes(layoutedNodes);
-        setEdges(layoutedEdges);
-      } catch(err) {
-        console.error('ERROR:' + err)
-      }
-    }
-    fetchComponents();
-  }, [])
-
-  console.log(nodes, edges, 'zzzzzz')
+  // console.log(nodes, edges, 'zzzzzz')
 
   const onConnect = useCallback(
     (params) =>
