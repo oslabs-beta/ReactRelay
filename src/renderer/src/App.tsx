@@ -1,4 +1,3 @@
-// importing tailwind to use in the react components
 import 'tailwindcss/tailwind.css'
 import { useState } from 'react'
 import Header from './components/Header'
