@@ -1,4 +1,4 @@
-import { app, shell, BrowserWindow } from 'electron'
+import { app, shell, BrowserWindow, ipcMain, dialog } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
@@ -33,6 +33,8 @@ function createWindow(): void {
   } else {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   }
+
+
 }
 
 // This method will be called when Electron has finished
@@ -51,6 +53,8 @@ app.whenReady().then(() => {
 
   createWindow()
 
+  
+  
   app.on('activate', function () {
     // On macOS it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
@@ -58,6 +62,12 @@ app.whenReady().then(() => {
   })
 })
 
+  // ipcMain creates a communication channel between main and renderer --> looks for events regarding dialog
+  // async in order to wait for the user to select the filepath
+  ipcMain.handle('dialog', async (event, method, params) => {
+    const result = await dialog[method](params)
+    return result;
+  })
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
 // explicitly with Cmd + Q.
