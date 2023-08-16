@@ -4,7 +4,7 @@ import dirUpload from '../assets/images/directory-dark.png'
 function Header({onClick, projectName}) {
   // is this where we are gonna wanna start using redux, to keep track of file path state?
   return (
-    <header className='flex justify-between h-15 w-full bg-slate-900 p-8'>
+    <header className='flex justify-between bg-slate-900 p-8'>
      <h1 className='text-2xl text-white font-bold'>ReactRelay</h1>
      <div className='flex gap-7'>
        <p className='inline text-lg text-stone-100'>{projectName}</p>

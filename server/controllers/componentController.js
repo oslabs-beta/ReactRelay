@@ -111,7 +111,7 @@ componentController.parseAll = (req, res, next) => {
         if (path.isIdentifier() && (path.parent.type === "JSXExpressionContainer" || path.parentPath.parent.type === "JSXExpressionContainer") && Object.keys(potentialChildren).includes(path.node.name)) {
           isComponent === true;
           const newChildPath = potentialChildren[path.node.name];
-          
+
           if (newChildPath) children[newChildPath] = null;
           listOfChildren.add(path.node.name);
         }
@@ -121,7 +121,7 @@ componentController.parseAll = (req, res, next) => {
           isComponent = true;
           if (path.parentPath.parent.type === "JSXElement" && Object.keys(potentialChildren).includes(path.node.name)) {
             const newChildPath = potentialChildren[path.node.name];
-          
+
             if (newChildPath) children[newChildPath] = null;
 
             //this was just used for logging purposes and probably isn't necessary
@@ -136,7 +136,8 @@ componentController.parseAll = (req, res, next) => {
   }
 
   //path to project the root client directory of the project we are analyzing (***you need to change this to afp of w/e project you're analyzing***)
-  const projectPath = '/Users/cush572/Codesmith/TEST/ReacType/app/src' //'/Users/cush572/Codesmith/TEST/spearmint/src'  //'/Users/cush572/Codesmith/Week3/unit-7-react-redux/client'    //'/Users/cush572/Codesmith/Projects/ITERATION_PROJECT/fitness-tracker/src';
+  // const projectPath = '/Users/cush572/Codesmith/TEST/ReacType/app/src' //'/Users/cush572/Codesmith/TEST/spearmint/src'  //'/Users/cush572/Codesmith/Week3/unit-7-react-redux/client'    //'/Users/cush572/Codesmith/Projects/ITERATION_PROJECT/fitness-tracker/src';
+  const projectPath = '/Users/irenewang/codesmith/archive/scratch/client' //'/Users/cush572/Codesmith/TEST/spearmint/src'  //'/Users/cush572/Codesmith/Week3/unit-7-react-redux/client'    //'/Users/cush572/Codesmith/Projects/ITERATION_PROJECT/fitness-tracker/src';
 
   //invoking above 'getAllFiles' function to grab an array of all files in 'projectPath', then filtering for only files that could be react components
   const allFiles = getAllFiles(projectPath).filter((file) => file.endsWith('.jsx') || file.endsWith('.js') || file.endsWith('.tsx') || file.endsWith('.ts'));

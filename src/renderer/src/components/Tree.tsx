@@ -13,14 +13,11 @@ import dagre from 'dagre';
 import 'reactflow/dist/style.css';
 // import { get } from 'mongoose';
 
-
 // const position = { x: 0, y: 0 };
 const edgeType = 'smoothstep';
 
 // const initialNodes = [];
 // const initialEdges = [];
-
-
 
 const dagreGraph = new dagre.graphlib.Graph();
 dagreGraph.setDefaultEdgeLabel(() => ({}));
@@ -150,21 +147,22 @@ function Tree(): JSX.Element {
   };
 
   return (
-    <ReactFlow
-      nodes={nodes}
-      edges={edges}
-      onNodesChange={onNodesChange}
-      onEdgesChange={onEdgesChange}
-      onConnect={onConnect}
-      connectionLineType={ConnectionLineType.SmoothStep}
-      fitView
-      onNodeClick={onNodeClick}
-    >
-      <Panel position="top-right">
-        <button onClick={() => onLayout('TB')}>vertical layout</button>
-        <button onClick={() => onLayout('LR')}>horizontal layout</button>
-      </Panel>
-    </ReactFlow>
+      <ReactFlow
+        id="tree"
+        nodes={nodes}
+        edges={edges}
+        onNodesChange={onNodesChange}
+        onEdgesChange={onEdgesChange}
+        onConnect={onConnect}
+        connectionLineType={ConnectionLineType.SmoothStep}
+        fitView
+        onNodeClick={onNodeClick}
+      >
+        <Panel position="top-right">
+          <button onClick={() => onLayout('TB')}>vertical layout</button>
+          <button onClick={() => onLayout('LR')}>horizontal layout</button>
+        </Panel>
+      </ReactFlow>
   );
 };
 

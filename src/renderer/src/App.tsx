@@ -22,24 +22,13 @@ function App(): JSX.Element {
   }
 
   return (
-    <div className="grid grid-rows-4 grid-flow-col gap-4 p-0 m-0">
-      <Header onClick={openExplorer} projectName={filePath}/>
-      <header className="grid grid-cols-3	gap-4">
-        <h1 className="bg-red-500">React-Relay</h1>
-        <h4 id="current-app-name" className="bg-yellow-500">
-          My-React-App
-        </h4>
-      </header>
-
+    <div className="grid grid-rows-3 h-screen w-full">
+      {/* <div className="h-1/7"> */}
+        <Header onClick={openExplorer} projectName={filePath}/>
+      {/* </div> */}
       {/* can we put this div inside of the tree */}
-      <div id="tree-container" className="bg-green-500 h-max w-full">
         <Tree />
-      </div>
-
-      <div id="details-container">
-        <div id="model-container" className="bg-blue-500">
-          MODEL CONTAINER
-        </div>
+      <div id="details-container" className="bg-blue-500">
       </div>
     </div>
   )
