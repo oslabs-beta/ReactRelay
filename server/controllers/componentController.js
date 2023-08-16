@@ -8,8 +8,9 @@ const componentController = {}
 console.log('hehhyehehe')
 componentController.parseAll = (req, res, next) => {
   console.log('hehhyehehe2')
-
   const projectPath = req.body.filePath;
+  if (projectPath.length === 0) next();
+  console.log(projectPath)
   console.log('PROJECT PATH', projectPath);
   let components = {};
   const listOfChildren = new Set();

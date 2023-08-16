@@ -1,6 +1,6 @@
 // importing tailwind to use in the react components
 import 'tailwindcss/tailwind.css'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Header from './components/Header'
 import Tree from './components/Tree';
 
@@ -20,16 +20,17 @@ function App(): JSX.Element {
     // should i add a case where user doesn't actually select a filepath
     const openExplorer = async (): any => {
       const {filePaths} = await window.api.openDialog('showOpenDialog', dialogConfig)
+      // if user chooses cancel then don't do anything
+      if (filePath === '' || !filePath) return null;
       setFilePath(filePaths[0])
       const fileArray = filePaths[0].split('/')
       setProjectName(fileArray[fileArray.length - 1]);
-      console.log('this is executing')
-      console.log(filePath)
-      fetchComponents();
   }
 
   // make a post request to backend to access AST logic and create the object with parent/children relationship
   const fetchComponents = async (): any => {
+    console.log('what is the file path', filePath)
+    if (filePath === '' || !filePath) return null;
     const response = await fetch('http://localhost:3000/components', {
       method: 'POST',
       headers: {
@@ -42,7 +43,10 @@ function App(): JSX.Element {
       setReactFlowComponents(res)
     }
   }
-
+    // need to use the useEffect or else the fetchComponent will run without waiting for the setStates to update
+    useEffect(() => {
+    fetchComponents();
+    }, [filePath])
 
   return (
     <div className="container grid grid-rows-4 grid-flow-col gap-4 p-0 m-0">
