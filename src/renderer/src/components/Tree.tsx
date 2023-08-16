@@ -7,6 +7,8 @@ import ReactFlow, {
   useEdgesState,
 } from 'reactflow';
 import dagre from 'dagre';
+import horizontal from '../assets/images/flowchart-horizontal.png'
+import vertical from '../assets/images/flowchart-vertical.png'
 
 // import { initialNodes, initialEdges } from '../nodes-edges.js';
 
@@ -158,9 +160,15 @@ function Tree(): JSX.Element {
         fitView
         onNodeClick={onNodeClick}
       >
-        <Panel position="top-right">
-          <button onClick={() => onLayout('TB')}>vertical layout</button>
-          <button onClick={() => onLayout('LR')}>horizontal layout</button>
+        <Panel position="bottom-left">
+          <div id="button-section" className="flex">
+            <button className="btn m-1" onClick={() => onLayout('TB')}>
+              <img className="h-8 " src={vertical} alt='vertical layout  button'/>
+            </button>
+            <button className="btn m-1" onClick={() => onLayout('LR')} >
+              <img className="h-8" src={horizontal} alt='horizontal layout button'/>
+            </button>
+          </div>
         </Panel>
       </ReactFlow>
   );
