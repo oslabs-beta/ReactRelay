@@ -8,7 +8,7 @@ const componentController = {}
 console.log('hehhyehehe')
 componentController.parseAll = (req, res, next) => {
   console.log('hehhyehehe2')
-  const projectPath = req.body.filePath;
+  const projectPath = '/Users/cush572/Codesmith/Week4/unit-10-databases/client' //req.body.filePath;
   if (projectPath.length === 0) next();
   console.log(projectPath)
   console.log('PROJECT PATH', projectPath);
@@ -69,7 +69,7 @@ componentController.parseAll = (req, res, next) => {
         if (path.parent.type === "Program") {
 
           //if the prev code block was a component, add the information from this component to the 'components' object
-          if (current !== '' && isComponent) components[filePath] = { data: { label: current }, children: {...children}, id: filePath };
+          if (current !== '' && isComponent) components[filePath] = { data: { label: current }, children: {...children}, ajaxRequests, id: filePath };
 
           potentialChildren.push(current);
 
@@ -77,6 +77,7 @@ componentController.parseAll = (req, res, next) => {
           children = {};
           current = '';
           isComponent = false;
+          ajaxRequests = [];
 
           //if the first node in the next code block in the global space of not 1 of the following types, it cannot be a component (possibly not necessary. also, possibly don't need to include "ExpressionStatement")
           mightBeComponent = ((path.node.type === "VariableDeclaration" || path.node.type === "ClassDeclaration" || path.node.type === "FunctionDeclaration" || path.node.type === "ExpressionStatement" || path.node.type === "ExportDefaultDeclaration" || path.node.type === "ExportNamedDeclaration")) ? true : false;
@@ -173,7 +174,7 @@ componentController.parseAll = (req, res, next) => {
     })
 
     //if the component is exported in this way: "export const ComponentName = () => {...}", it might be the case that there is no code after the component code block, in which case we should check if the previous code block was a component 1 last time.
-    if (current !== '' && isComponent) components[filePath] = { data: {label: current}, children: {...children}, id: filePath };
+    if (current !== '' && isComponent) components[filePath] = { data: {label: current}, children: {...children}, ajaxRequests, id: filePath };
   }
 
   //path to project the root client directory of the project we are analyzing (***you need to change this to afp of w/e project you're analyzing***)
