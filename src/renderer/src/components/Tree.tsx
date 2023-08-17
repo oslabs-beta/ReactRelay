@@ -7,20 +7,19 @@ import ReactFlow, {
   useEdgesState,
 } from 'reactflow';
 import dagre from 'dagre';
+import horizontal from '../assets/images/flowchart-horizontal.png'
+import vertical from '../assets/images/flowchart-vertical.png'
 
 // import { initialNodes, initialEdges } from '../nodes-edges.js';
 
 import 'reactflow/dist/style.css';
 // import { get } from 'mongoose';
 
-
 // const position = { x: 0, y: 0 };
 const edgeType = 'smoothstep';
 
 // const initialNodes = [];
 // const initialEdges = [];
-
-
 
 const dagreGraph = new dagre.graphlib.Graph();
 dagreGraph.setDefaultEdgeLabel(() => ({}));
@@ -143,21 +142,28 @@ function Tree({ reactFlowComponents }): JSX.Element {
   };
 
   return (
-    <ReactFlow
-      nodes={nodes}
-      edges={edges}
-      onNodesChange={onNodesChange}
-      onEdgesChange={onEdgesChange}
-      onConnect={onConnect}
-      connectionLineType={ConnectionLineType.SmoothStep}
-      fitView
-      onNodeClick={onNodeClick}
-    >
-      <Panel position="top-right">
-        <button onClick={() => onLayout('TB')}>vertical layout</button>
-        <button onClick={() => onLayout('LR')}>horizontal layout</button>
-      </Panel>
-    </ReactFlow>
+      <ReactFlow
+        id="tree"
+        nodes={nodes}
+        edges={edges}
+        onNodesChange={onNodesChange}
+        onEdgesChange={onEdgesChange}
+        onConnect={onConnect}
+        connectionLineType={ConnectionLineType.SmoothStep}
+        fitView
+        onNodeClick={onNodeClick}
+      >
+        <Panel position="bottom-left">
+          <div id="button-section" className="flex">
+            <button className="btn m-1" onClick={() => onLayout('TB')}>
+              <img className="h-8 " src={vertical} alt='vertical layout  button'/>
+            </button>
+            <button className="btn m-1" onClick={() => onLayout('LR')} >
+              <img className="h-8" src={horizontal} alt='horizontal layout button'/>
+            </button>
+          </div>
+        </Panel>
+      </ReactFlow>
   );
 };
 

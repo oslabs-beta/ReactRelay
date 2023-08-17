@@ -18,10 +18,11 @@ app.post('/components', componentController.parseAll, (req, res) => {
 })
 
 
-
 app.get('/', (req, res) => {
   res.status(404).send('Not Found');
 });
+
+
 
 app.listen(port, () => {
   console.log(`Server listening on port ${port}`);

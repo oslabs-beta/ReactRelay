@@ -138,14 +138,14 @@ componentController.parseAll = (req, res, next) => {
           let objExpIdx = -1;
 
           //ObjectExpression node will exist in arguments array if fetch contains body as 2nd arg. if none is found, fetch method must be GET
-          argArrr.forEach((sibling, i) => sibling.type === "ObjectExpression" ? objExpIdx = i : null); 
+          argArrr.forEach((sibling, i) => sibling.type === "ObjectExpression" ? objExpIdx = i : null);
 
           if (objExpIdx > -1) {
             const objProps = argArrr[objExpIdx].properties;
             objProps.forEach(prop => {
               if (prop.key.name === 'method') method = prop.value.value;
             })
-            
+
           }
 
           //push route and method data into ajaxRequests array, which will be added to component object
@@ -163,7 +163,7 @@ componentController.parseAll = (req, res, next) => {
         if (path.isIdentifier() && (path.parent.type === "JSXExpressionContainer" || path.parentPath.parent.type === "JSXExpressionContainer") && Object.keys(potentialChildren).includes(path.node.name)) {
           isComponent === true;
           const newChildPath = potentialChildren[path.node.name];
-          
+
           if (newChildPath) children[newChildPath] = null;
           listOfChildren.add(path.node.name);
         }
@@ -173,7 +173,7 @@ componentController.parseAll = (req, res, next) => {
           isComponent = true;
           if (path.parentPath.parent.type === "JSXElement" && Object.keys(potentialChildren).includes(path.node.name)) {
             const newChildPath = potentialChildren[path.node.name];
-          
+
             if (newChildPath) children[newChildPath] = null;
 
             //this was just used for logging purposes and probably isn't necessary
@@ -187,8 +187,6 @@ componentController.parseAll = (req, res, next) => {
     if (current !== '' && isComponent) components[filePath] = { data: {label: current}, children: {...children}, ajaxRequests, id: filePath };
   }
 
-  //path to project the root client directory of the project we are analyzing (***you need to change this to afp of w/e project you're analyzing***)
-  //const projectPath = '/Users/cush572/Codesmith/TEST/ReacType/app/src' //'/Users/cush572/Codesmith/TEST/spearmint/src'  //'/Users/cush572/Codesmith/Week3/unit-7-react-redux/client'    //'/Users/cush572/Codesmith/Projects/ITERATION_PROJECT/fitness-tracker/src';
 
   //invoking above 'getAllFiles' function to grab an array of all files in 'projectPath', then filtering for only files that could be react components
   const allFiles = getAllFiles(projectPath).filter((file) => file.endsWith('.jsx') || file.endsWith('.js') || file.endsWith('.tsx') || file.endsWith('.ts'));
