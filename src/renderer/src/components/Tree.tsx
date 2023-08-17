@@ -88,9 +88,7 @@ type Edge = {
 function Tree({ reactFlowComponents }): JSX.Element {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
-  console.log('is something happening already?')
   useEffect(() => {
-    console.log('is something happening in useEffect?')
     if (!reactFlowComponents) return;
     const newNodes: Node[] = [];
     const newEdges: Edge[] = [];
