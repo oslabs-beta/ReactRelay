@@ -8,7 +8,10 @@ const componentController = {}
 console.log('hehhyehehe')
 componentController.parseAll = (req, res, next) => {
   console.log('hehhyehehe2')
-
+  const projectPath = req.body.filePath;
+  if (projectPath.length === 0) next();
+  console.log(projectPath)
+  console.log('PROJECT PATH', projectPath);
   let components = {};
   const listOfChildren = new Set();
 
@@ -52,6 +55,9 @@ componentController.parseAll = (req, res, next) => {
     let mightBeComponent = false;
     const noWayThisWorksCache = {};
 
+    let fetchPrimed = false;
+    let ajaxRequests = [];
+
     //babel traverse used to traverse the passed in ast
     traverse(ast, {
 
@@ -63,7 +69,7 @@ componentController.parseAll = (req, res, next) => {
         if (path.parent.type === "Program") {
 
           //if the prev code block was a component, add the information from this component to the 'components' object
-          if (current !== '' && isComponent) components[filePath] = { data: { label: current }, children: {...children}, id: filePath };
+          if (current !== '' && isComponent) components[filePath] = { data: { label: current }, children: {...children}, ajaxRequests, id: filePath };
 
           potentialChildren.push(current);
 
@@ -71,6 +77,7 @@ componentController.parseAll = (req, res, next) => {
           children = {};
           current = '';
           isComponent = false;
+          ajaxRequests = [];
 
           //if the first node in the next code block in the global space of not 1 of the following types, it cannot be a component (possibly not necessary. also, possibly don't need to include "ExpressionStatement")
           mightBeComponent = ((path.node.type === "VariableDeclaration" || path.node.type === "ClassDeclaration" || path.node.type === "FunctionDeclaration" || path.node.type === "ExpressionStatement" || path.node.type === "ExportDefaultDeclaration" || path.node.type === "ExportNamedDeclaration")) ? true : false;
@@ -104,6 +111,51 @@ componentController.parseAll = (req, res, next) => {
           }
         }
 
+        //if we find a 'callee' with the name 'fetch', we know a fetch is being invoked, so we reassign 'fetchPrimed' to true, which will trigger the program to look for the route (...in the condition directly below this)
+        if (path.isCallExpression()) {
+          const callee = path.node.callee;
+          if (callee.type === "Identifier" && callee.name === "fetch") fetchPrimed = true;
+        }
+
+        //the first either TemplateLiteral or StringLiteral node after fetch should be the route string
+        if (fetchPrimed && (path.node.type === "TemplateLiteral" || path.node.type === "StringLiteral")) {
+          let route = '';
+          let fullRoute = ``;
+          let method = 'GET';
+
+          //a TemplateLiteral node will have 2 properties: expressions, which store variables, and quasis, which store normal chars in the string. Order of data will always altername between quasi and expressions, and length of quasis will always be length of expressions + 1. This logic can be used to reconstruct this literal string.
+          if (path.node.type === "TemplateLiteral") {
+            let quasis = path.node.quasis;
+            route = quasis[0].value.raw;
+            for (let i = 0; i<quasis.length; i++) {
+              fullRoute += quasis[i].value.raw;
+              if (i < quasis.length-1) fullRoute += '${' + path.node.expressions[i].name + '}';
+            }
+          } else if (path.node.type === "StringLiteral") fullRoute = route = path.node.value;
+
+          //arguments prop is sibling of the above literal prop in the AST
+          const argArrr = path.parentPath.node.arguments;
+          let objExpIdx = -1;
+
+          //ObjectExpression node will exist in arguments array if fetch contains body as 2nd arg. if none is found, fetch method must be GET
+          argArrr.forEach((sibling, i) => sibling.type === "ObjectExpression" ? objExpIdx = i : null);
+
+          if (objExpIdx > -1) {
+            const objProps = argArrr[objExpIdx].properties;
+            objProps.forEach(prop => {
+              if (prop.key.name === 'method') method = prop.value.value;
+            })
+
+          }
+
+          //push route and method data into ajaxRequests array, which will be added to component object
+          ajaxRequests.push({ route, fullRoute, method });
+          fetchPrimed = false;
+          console.log('this is a route?', ajaxRequests)
+        }
+
+
+
         //this is an attempt to filter out false positives from test files
         if (mightBeComponent && path.isIdentifier() && path.node.name === "describe") mightBeComponent === false;
 
@@ -132,12 +184,9 @@ componentController.parseAll = (req, res, next) => {
     })
 
     //if the component is exported in this way: "export const ComponentName = () => {...}", it might be the case that there is no code after the component code block, in which case we should check if the previous code block was a component 1 last time.
-    if (current !== '' && isComponent) components[filePath] = { data: {label: current}, children: {...children}, id: filePath };
+    if (current !== '' && isComponent) components[filePath] = { data: {label: current}, children: {...children}, ajaxRequests, id: filePath };
   }
 
-  //path to project the root client directory of the project we are analyzing (***you need to change this to afp of w/e project you're analyzing***)
-  // const projectPath = '/Users/cush572/Codesmith/TEST/ReacType/app/src' //'/Users/cush572/Codesmith/TEST/spearmint/src'  //'/Users/cush572/Codesmith/Week3/unit-7-react-redux/client'    //'/Users/cush572/Codesmith/Projects/ITERATION_PROJECT/fitness-tracker/src';
-  const projectPath = '/Users/irenewang/codesmith/archive/iteration/src' //'/Users/cush572/Codesmith/TEST/spearmint/src'  //'/Users/cush572/Codesmith/Week3/unit-7-react-redux/client'    //'/Users/cush572/Codesmith/Projects/ITERATION_PROJECT/fitness-tracker/src';
 
   //invoking above 'getAllFiles' function to grab an array of all files in 'projectPath', then filtering for only files that could be react components
   const allFiles = getAllFiles(projectPath).filter((file) => file.endsWith('.jsx') || file.endsWith('.js') || file.endsWith('.tsx') || file.endsWith('.ts'));
