@@ -1,7 +1,8 @@
 import 'tailwindcss/tailwind.css'
 import { useState } from 'react'
 import Header from './components/Header'
-import Tree from './components/Tree';
+import Tree from './components/Tree'
+import Details from './components/Details'
 
 function App(): JSX.Element {
 
@@ -25,10 +26,9 @@ function App(): JSX.Element {
       <Header onClick={openExplorer} projectName={filePath}/>
       <div className="grid grid-rows-2 h-screen w-full">
         <Tree />
-        <div id="details-container" className="bg-blue-500 ">
-          details
-        </div>
+        <Details />
       </div>
+
     </div>
   )
 }

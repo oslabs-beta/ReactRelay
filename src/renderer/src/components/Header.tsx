@@ -6,9 +6,9 @@ function Header({onClick, projectName}) {
   return (
     <header className='flex justify-between p-8 bg-primary'>
      <h1 className='text-2xl font-bold text-black'>ReactRelay</h1>
-     <div className='flex m-0'>
-       <p className='inline text-lg'>{projectName}</p>
-       <button className="btn" onClick={onClick}><img className='h-8' src={dirUpload} alt='open folder button'/></button>
+     <div className='flex items-center'>
+       <p className='text-lg mx-2'>{projectName}</p>
+       <button className="btn" onClick={onClick}><img className='h-7' src={dirUpload} alt='open folder button'/></button>
      </div>
     </header>
   )
