@@ -19,9 +19,11 @@ function App(): JSX.Element {
     // window.api.openDialog returns the filepath when the filepath is chosen from the dialog
     // should i add a case where user doesn't actually select a filepath
     const openExplorer = async (): any => {
+      console.log('zzzzzzzzzzzzzz')
+
       const {filePaths} = await window.api.openDialog('showOpenDialog', dialogConfig)
       // if user chooses cancel then don't do anything
-      if (filePath === '' || !filePath) return null;
+      if (filePaths[0] === '' || !filePaths[0]) return null;
       setFilePath(filePaths[0])
       const fileArray = filePaths[0].split('/')
       setProjectName(fileArray[fileArray.length - 1]);
@@ -30,7 +32,7 @@ function App(): JSX.Element {
   // make a post request to backend to access AST logic and create the object with parent/children relationship
   const fetchComponents = async (): any => {
     console.log('what is the file path', filePath)
-    if (filePath === '' || !filePath) return null;
+    // if (filePath === '' || !filePath) return null;
     const response = await fetch('http://localhost:3000/components', {
       method: 'POST',
       headers: {
@@ -38,9 +40,12 @@ function App(): JSX.Element {
       },
       body: JSON.stringify({ filePath })  // sends to the componentController the filepath
     })
+    console.log('zzzzzzzzzzzzzz')
+
     if (response.ok) {
       const res = await response.json()
       setReactFlowComponents(res)
+      console.log('qqqqq', reactFlowComponents)
     }
   }
     // need to use the useEffect or else the fetchComponent will run without waiting for the setStates to update

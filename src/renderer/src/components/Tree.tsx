@@ -136,7 +136,10 @@ function Tree({ reactFlowComponents }): JSX.Element {
 
   const onNodeClick = (_, element) => {
     console.log('yoyoyoyoyoy');
-    alert(`Clicked on node: ${element.id}`);
+    let routes = '';
+    reactFlowComponents[element.id].ajaxRequests.forEach(route => routes += `\nMethod: ${route.method}\nRoute: ${route.route}\nFull Route: ${route.fullRoute}`)
+    console.log(reactFlowComponents)
+    alert(`Clicked on node: ${element.id}\nROUTES: ${routes ? routes : 'none'}`);
   };
 
   return (
