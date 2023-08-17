@@ -1,14 +1,14 @@
-import React from 'react'
-import dirUpload from '../assets/images/directory-dark.png'
+// import React from 'react'
+import dirUpload from '../assets/images/directory-black.svg'
 
 function Header({onClick, projectName}) {
   // is this where we are gonna wanna start using redux, to keep track of file path state?
   return (
-    <header className='flex justify-between h-15 w-full bg-slate-900 p-8'>
-     <h1 className='text-2xl text-white font-bold'>ReactRelay</h1>
-     <div className='flex gap-7'>
-       <p className='inline text-lg text-stone-100'>{projectName}</p>
-       <button onClick={onClick}><img className='h-8' src={dirUpload} alt='directory button'/></button>
+    <header className='flex justify-between p-8 bg-primary'>
+     <h1 className='text-2xl font-bold text-black'>ReactRelay</h1>
+     <div className='flex items-center'>
+       <p className='text-lg mx-2'>{projectName}</p>
+       <button className="btn" onClick={onClick}><img className='h-7' src={dirUpload} alt='open folder button'/></button>
      </div>
     </header>
   )
