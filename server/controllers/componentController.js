@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path2 = require('path');
 const parser = require('@babel/parser');
+const { isIdentifier, isStringLiteral } = require('typescript');
 const traverse = require('@babel/traverse').default;
 
 const componentController = {}
@@ -44,6 +45,19 @@ componentController.parseAll = (req, res, next) => {
     });
   }
 
+  const templateLiteralRouteParser = (node) => {
+    let quasis = node.quasis;
+    let fullRoute = ``;
+    for (let i = 0; i<quasis.length; i++) {
+      fullRoute += quasis[i].value.raw;
+      if (i < quasis.length-1) fullRoute += '${' + node.expressions[i].name + '}';
+    }
+    return fullRoute;
+  }
+
+
+
+
   //
   const traverseAST = (ast, filePath) => {
 
@@ -57,6 +71,9 @@ componentController.parseAll = (req, res, next) => {
 
     let fetchPrimed = false;
     let ajaxRequests = [];
+    let xmlHttpReq;
+
+    let axiosLabel;
 
     //babel traverse used to traverse the passed in ast
     traverse(ast, {
@@ -109,6 +126,9 @@ componentController.parseAll = (req, res, next) => {
             //add this imported variable as a key in potentialChildren array with its value being its AFP
             potentialChildren[path.node.name] = componentAFP;
           }
+
+          //prime axios handler if axios is imported
+          if (relativePath === "axios") axiosLabel = path.node.name;
         }
 
         //if we find a 'callee' with the name 'fetch', we know a fetch is being invoked, so we reassign 'fetchPrimed' to true, which will trigger the program to look for the route (...in the condition directly below this)
@@ -125,12 +145,8 @@ componentController.parseAll = (req, res, next) => {
 
           //a TemplateLiteral node will have 2 properties: expressions, which store variables, and quasis, which store normal chars in the string. Order of data will always altername between quasi and expressions, and length of quasis will always be length of expressions + 1. This logic can be used to reconstruct this literal string.
           if (path.node.type === "TemplateLiteral") {
-            let quasis = path.node.quasis;
-            route = quasis[0].value.raw;
-            for (let i = 0; i<quasis.length; i++) {
-              fullRoute += quasis[i].value.raw;
-              if (i < quasis.length-1) fullRoute += '${' + path.node.expressions[i].name + '}';
-            }
+            route = path.node.quasis[0].value.raw;
+            fullRoute = templateLiteralRouteParser(path.node);
           } else if (path.node.type === "StringLiteral") fullRoute = route = path.node.value;
 
           //arguments prop is sibling of the above literal prop in the AST
@@ -152,6 +168,51 @@ componentController.parseAll = (req, res, next) => {
           ajaxRequests.push({ route, fullRoute, method });
           fetchPrimed = false;
           console.log('this is a route?', ajaxRequests)
+        }
+
+        //XMLHttpRequest handlers
+        if (path.isIdentifier() && path.node.name === "XMLHttpRequest" && path.parent.type === "NewExpression") {
+            const declarationPath = path.findParent((path) => path.isVariableDeclarator());
+            if (declarationPath) xmlHttpReq = declarationPath.node.id.name;
+            console.log('xmlhttprequest')
+        }
+
+        if (path.isIdentifier() && path.node.name === xmlHttpReq && path.parent.property.name === "open") {
+          const callExpressionPath = path.findParent((path) => path.isCallExpression());
+          if (callExpressionPath) {
+            const argsArrr = callExpressionPath.node.arguments;
+            const method = argsArrr[0].value;
+            const route = argsArrr[1].value;
+            ajaxRequests.push({ route, fullRoute: route, method });
+          }
+        }
+
+        //axios handler
+        if (axiosLabel && path.isIdentifier() && path.node.name === axiosLabel && path.findParent((path) => path.isCallExpression())) {
+          let route;
+          let method;
+          let fullRoute;
+          if (path.parent.type === "MemberExpression") {
+            const callExpressionPath = path.findParent((path) => path.isCallExpression());
+            method = path.parent.property.name.toUpperCase();
+            if (callExpressionPath.node.arguments[0].type === "StringLiteral") {  
+              route = fullRoute = callExpressionPath.node.arguments[0].value;
+            } else {
+              route = callExpressionPath.node.arguments[0].quasis[0].value.raw;
+              fullRoute = templateLiteralRouteParser(callExpressionPath.node.arguments[0]);
+            }
+          } else {
+            path.parent.arguments[0].properties.forEach(prop => {
+              if (prop.key.name === "method") method = prop.value.value.toUpperCase();
+              if (prop.key.name === "url") {
+                if (prop.value.type === "TemplateLiteral") {
+                  route = prop.value.quasis[0].value.raw;
+                  fullRoute = templateLiteralRouteParser(prop.value);
+                } else route = fullRoute = prop.value.value;
+              }
+            })
+          }
+          ajaxRequests.push({ route, fullRoute, method })
         }
 
 
