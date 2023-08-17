@@ -8,7 +8,7 @@ const componentController = {}
 console.log('hehhyehehe')
 componentController.parseAll = (req, res, next) => {
   console.log('hehhyehehe2')
-  const projectPath = '/Users/cush572/Codesmith/Week4/unit-10-databases/client' //req.body.filePath;
+  const projectPath = req.body.filePath;
   if (projectPath.length === 0) next();
   console.log(projectPath)
   console.log('PROJECT PATH', projectPath);
@@ -111,16 +111,19 @@ componentController.parseAll = (req, res, next) => {
           }
         }
 
-        //if we find a 'callee' with the name 'fetch', we know a fetch is being invoked, so we reassign 'fetchPrimed' to true, which will trigger the program to look for the route. (directly below this)
+        //if we find a 'callee' with the name 'fetch', we know a fetch is being invoked, so we reassign 'fetchPrimed' to true, which will trigger the program to look for the route (...in the condition directly below this)
         if (path.isCallExpression()) {
           const callee = path.node.callee;
           if (callee.type === "Identifier" && callee.name === "fetch") fetchPrimed = true;
         }
 
+        //the first either TemplateLiteral or StringLiteral node after fetch should be the route string
         if (fetchPrimed && (path.node.type === "TemplateLiteral" || path.node.type === "StringLiteral")) {
           let route = '';
           let fullRoute = ``;
-          let method = '';
+          let method = 'GET';
+
+          //a TemplateLiteral node will have 2 properties: expressions, which store variables, and quasis, which store normal chars in the string. Order of data will always altername between quasi and expressions, and length of quasis will always be length of expressions + 1. This logic can be used to reconstruct this literal string.
           if (path.node.type === "TemplateLiteral") {
             let quasis = path.node.quasis;
             route = quasis[0].value.raw;
@@ -129,16 +132,23 @@ componentController.parseAll = (req, res, next) => {
               if (i < quasis.length-1) fullRoute += '${' + path.node.expressions[i].name + '}';
             }
           } else if (path.node.type === "StringLiteral") fullRoute = route = path.node.value;
+
+          //arguments prop is sibling of the above literal prop in the AST
           const argArrr = path.parentPath.node.arguments;
           let objExpIdx = -1;
+
+          //ObjectExpression node will exist in arguments array if fetch contains body as 2nd arg. if none is found, fetch method must be GET
           argArrr.forEach((sibling, i) => sibling.type === "ObjectExpression" ? objExpIdx = i : null); 
+
           if (objExpIdx > -1) {
             const objProps = argArrr[objExpIdx].properties;
             objProps.forEach(prop => {
               if (prop.key.name === 'method') method = prop.value.value;
             })
             
-          } else method = 'GET'
+          }
+
+          //push route and method data into ajaxRequests array, which will be added to component object
           ajaxRequests.push({ route, fullRoute, method });
           fetchPrimed = false;
           console.log('this is a route?', ajaxRequests)
