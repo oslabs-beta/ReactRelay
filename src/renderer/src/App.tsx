@@ -2,7 +2,6 @@ import 'tailwindcss/tailwind.css'
 import { useState, useEffect } from 'react'
 import Header from './components/Header'
 import Tree from './components/Tree'
-import Details from './components/Details'
 
 function App(): JSX.Element {
     const [projectName, setProjectName] = useState('');
@@ -28,7 +27,6 @@ function App(): JSX.Element {
 
   // make a post request to backend to access AST logic and create the object with parent/children relationship
   const fetchComponents = async (): any => {
-    console.log('what is the file path', filePath)
     if (filePath === '' || !filePath) return null;
     const response = await fetch('http://localhost:3000/components', {
       method: 'POST',
@@ -40,7 +38,7 @@ function App(): JSX.Element {
     if (response.ok) {
       const res = await response.json()
       setReactFlowComponents(res)
-      console.log('reactFlowComponents response is ok', reactFlowComponents)
+      // console.log('reactFlowComponents response is ok', reactFlowComponents)
     }
   }
     // need to use the useEffect or else the fetchComponent will run without waiting for the setStates to update
@@ -53,7 +51,6 @@ function App(): JSX.Element {
       <Header onClick={openExplorer} projectName={projectName}/>
       <div className="grid grid-rows-2 h-screen w-full">
         <Tree reactFlowComponents={reactFlowComponents}/>
-        <Details />
       </div>
 
     </div>

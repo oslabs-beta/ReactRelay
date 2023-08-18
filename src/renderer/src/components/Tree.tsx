@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import ReactFlow, {
   addEdge,
   ConnectionLineType,
@@ -13,6 +13,7 @@ import vertical from '../assets/images/flowchart-vertical.png'
 // import { initialNodes, initialEdges } from '../nodes-edges.js';
 
 import 'reactflow/dist/style.css';
+import Details from './Details';
 // import { get } from 'mongoose';
 
 // const position = { x: 0, y: 0 };
@@ -87,9 +88,9 @@ type Edge = {
 function Tree({ reactFlowComponents }): JSX.Element {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
-  console.log('is something happening already?')
+  const [nodeInfo, setNodeInfo] = useState([]);
+  const [componentName, setComponentName] = useState('')
   useEffect(() => {
-    console.log('is something happening in useEffect?')
     if (!reactFlowComponents) return;
     const newNodes: Node[] = [];
     const newEdges: Edge[] = [];
@@ -100,8 +101,7 @@ function Tree({ reactFlowComponents }): JSX.Element {
         newEdges.push({ id: (obj.id).concat(childId), source: obj.id, target: childId, type: edgeType, animated: true })
       })
     })
-    console.log('newNodes', newNodes)
-    console.log('newEdges', newEdges);
+
     const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(
       newNodes,
       newEdges
@@ -110,7 +110,6 @@ function Tree({ reactFlowComponents }): JSX.Element {
     setEdges(layoutedEdges);
 }, [reactFlowComponents]);
 
-  // console.log(nodes, edges, 'zzzzzz')
 
   const onConnect = useCallback(
     (params) =>
@@ -133,15 +132,26 @@ function Tree({ reactFlowComponents }): JSX.Element {
     [nodes, edges]
   );
 
+  // on nodeClick we will want to set the state of the node info
   const onNodeClick = (_, element) => {
-    console.log('yoyoyoyoyoy');
-    let routes = '';
-    reactFlowComponents[element.id].ajaxRequests.forEach(route => routes += `\nMethod: ${route.method}\nRoute: ${route.route}\nFull Route: ${route.fullRoute}`)
-    console.log(reactFlowComponents)
-    alert(`Clicked on node: ${element.id}\nROUTES: ${routes ? routes : 'none'}`);
+    // console.log('yoyoyoyoyoy');
+    // let routes = '';
+    // reactFlowComponents[element.id].ajaxRequests.forEach(route => routes += `\nMethod: ${route.method}\nRoute: ${route.route}\nFull Route: ${route.fullRoute}`);
+    // console.log(reactFlowComponents);
+    // alert(`Clicked on node: ${element.id}\nROUTES: ${routes ? routes : 'none'}`);
+    const compName = getComponentName(element.id);
+    setComponentName(compName);
+    setNodeInfo(reactFlowComponents[element.id].ajaxRequests);
   };
 
+  const getComponentName = (string) => {
+    const splitString = string.split('/');
+    return splitString[splitString.length - 1];
+  }
+
+
   return (
+    <div>
       <ReactFlow
         id="tree"
         nodes={nodes}
@@ -164,6 +174,8 @@ function Tree({ reactFlowComponents }): JSX.Element {
           </div>
         </Panel>
       </ReactFlow>
+      <Details componentName={componentName} nodeInfo={nodeInfo}/>
+    </div>
   );
 };
 
