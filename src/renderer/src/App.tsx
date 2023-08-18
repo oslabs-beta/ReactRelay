@@ -27,7 +27,6 @@ function App(): JSX.Element {
 
   // make a post request to backend to access AST logic and create the object with parent/children relationship
   const fetchComponents = async (): any => {
-    console.log('what is the file path', filePath)
     if (filePath === '' || !filePath) return null;
     const response = await fetch('http://localhost:3000/components', {
       method: 'POST',
