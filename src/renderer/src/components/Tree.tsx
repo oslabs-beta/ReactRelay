@@ -85,22 +85,123 @@ type Edge = {
   animated: boolean;
 };
 
+
+
 function Tree({ reactFlowComponents }): JSX.Element {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [nodeInfo, setNodeInfo] = useState([]);
   const [componentName, setComponentName] = useState('')
+
+  const getComponentFromNodeId = (id: string): Component => {
+    let i = id.length-1;
+    while (/[0-9]/.test(id[i]) && i > 10) i--;
+    return reactFlowComponents[id.slice(0,i+1)];
+  }
+
   useEffect(() => {
     if (!reactFlowComponents) return;
     const newNodes: Node[] = [];
     const newEdges: Edge[] = [];
 
+    const childCount = {};
+    const listOfChildIds = new Set();
+
     (Object.values(reactFlowComponents) as Component[]).forEach((obj: Component) => {
-      newNodes.push({ id: obj.id, data: obj.data, position: { x: 0, y: 0 } })
-      obj.children.forEach(childId => {
-        newEdges.push({ id: (obj.id).concat(childId), source: obj.id, target: childId, type: edgeType, animated: true })
+      obj.children.forEach(childId => listOfChildIds.add(childId));
+    });
+
+
+    // (Object.values(reactFlowComponents) as Component[]).forEach((obj: Component) => {
+    //   let childrenArray = obj.children;
+    //   const childCount = () => {
+    //     childrenArray.forEach(childId => {
+    //       childCount[childId] ? childCount[childId]++ : childCount[childId] = 1;
+    //       temp.push(childId);
+    //     })
+    //   }
+      
+
+    //   obj.children.forEach(childId => {
+    //     childCount[childId] ? childCount[childId]++ : childCount[childId] = 1;
+    //     while (reactFlowComponents[childId].children) {
+    //       reactFlowComponents[childId].children.forEach(grandChild => {
+    //         childCount[grandChild] ? childCount[grandChild]++ : childCount[grandChild] = 1;
+    //       })
+    //     }
+    //   })
+    // });
+
+    const gatherChildren = (root: Component, ripCord: string[] = []): void => {
+      // console.log('component', root)
+      root.children.forEach(childId => {
+        if (Object.hasOwn(reactFlowComponents, childId) && !ripCord.includes(childId)) {
+          childCount[childId] ? childCount[childId]++ : childCount[childId] = 1;
+          ripCord.push(childId);
+          gatherChildren(reactFlowComponents[childId], ripCord);
+        }
       })
-    })
+    }
+    console.log('listttttt', listOfChildIds);
+    const roots = Object.values(reactFlowComponents).filter((obj: any): obj is Component => !listOfChildIds.has(obj.id));
+    console.log('roots', roots)
+    if (roots.length) roots.forEach(root => gatherChildren(root));
+
+
+    console.log(childCount, 'childCount');
+
+    (Object.values(reactFlowComponents) as Component[]).forEach((obj: Component) => {
+      let i = childCount[obj.id] || 1;
+      while (i >= 1) {
+        newNodes.push({ id: obj.id + i, data: obj.data, position: { x: 0, y: 0 } });
+        i--;
+      }
+    });
+
+    // let sortedChildCount = JSON.parse(JSON.stringify(childCount));
+    // let f = 0;
+    // while (Object.keys(sortedChildCount).length && f < 100) {
+    //   f++;
+    //   console.log('f',f)
+    //   const sortedKeys = Object.keys(sortedChildCount).sort((a,b) => sortedChildCount[b] - sortedChildCount[a]);
+    //   sortedChildCount = sortedKeys.reduce((acc, curr) => {
+    //     console.log(acc, curr, 'acc,curr')
+    //     acc[curr] = sortedChildCount[curr]
+    //     return acc;
+    //   }, {})
+    //   console.log('sortedChildCount', sortedChildCount)
+
+    //   const firstOne = Object.values(sortedChildCount).indexOf(1);
+    //   sortedChildCount = sortedChildCount.slice(0, firstOne);
+    //   Object.keys(sortedChildCount).forEach(key => {
+    //     reactFlowComponents[key].children.forEach(childId => {
+    //       let i = sortedChildCount[key];
+    //       let j: any = sortedChildCount[childId];
+    //       while (i > 1) {
+    //         j++;
+    //         newNodes.push({ id: childId + j, data: reactFlowComponents[childId].data, position: { x: 0, y: 0 } });
+    //         i--;
+    //       }
+    //     })
+    //   })
+    // }
+
+    // const firstOne = Object.values(childCount).indexOf(1);
+    // sortedChildCount.slice(0, firstOne).forEach(key => {
+    //   if (childCount[key] > 1) {
+    //     reactFlowComponents[key]
+    //   }
+    // })
+
+    //iterate through newNodes instead of RFC?
+    newNodes.forEach(obj => {
+      const component = getComponentFromNodeId(obj.id);
+      component.children.forEach(childId => {
+        let child = childCount[childId] || 1;
+        newEdges.push({ id: (obj.id).concat(childId + child), source: obj.id, target: childId + child, type: edgeType, animated: true })
+        childCount[childId]--;
+      })
+    });
 
     const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(
       newNodes,
@@ -139,9 +240,11 @@ function Tree({ reactFlowComponents }): JSX.Element {
     // reactFlowComponents[element.id].ajaxRequests.forEach(route => routes += `\nMethod: ${route.method}\nRoute: ${route.route}\nFull Route: ${route.fullRoute}`);
     // console.log(reactFlowComponents);
     // alert(`Clicked on node: ${element.id}\nROUTES: ${routes ? routes : 'none'}`);
+    console.log('element', element)
+    const component = getComponentFromNodeId(element.id);
     const compName = getComponentName(element.id);
     setComponentName(compName);
-    setNodeInfo(reactFlowComponents[element.id].ajaxRequests);
+    setNodeInfo(reactFlowComponents[component.id].ajaxRequests);
   };
 
   const getComponentName = (string) => {
@@ -160,7 +263,7 @@ function Tree({ reactFlowComponents }): JSX.Element {
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
         connectionLineType={ConnectionLineType.SmoothStep}
-        fitView
+        fitView={true}
         onNodeClick={onNodeClick}
       >
         <Panel position="bottom-left">

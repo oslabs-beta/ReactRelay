@@ -11,8 +11,6 @@ componentController.parseAll = (req, res, next) => {
   console.log('hehhyehehe2')
   const projectPath = req.body.filePath;
   if (projectPath.length === 0) next();
-  console.log(projectPath)
-  console.log('PROJECT PATH', projectPath);
   let components = {};
   const listOfChildren = new Set();
 
@@ -68,13 +66,14 @@ componentController.parseAll = (req, res, next) => {
     let isComponent = false;
     let mightBeComponent = false;
     const noWayThisWorksCache = {};
+    let hardNO = false;
 
     let fetchPrimed = false;
     let ajaxRequests = [];
     let xmlHttpReq;
 
     let axiosLabel;
-
+    
     //babel traverse used to traverse the passed in ast
     traverse(ast, {
 
@@ -84,10 +83,10 @@ componentController.parseAll = (req, res, next) => {
         //check if we are in the global scope within the file (i.e. not nested). if so, we
         //should check if the previously traversed code block was a component
         if (path.parent.type === "Program") {
-
           //if the prev code block was a component, add the information from this component to the 'components' object
-          if (current !== '' && isComponent) components[filePath] = { data: { label: current }, children: {...children}, ajaxRequests, id: filePath };
-
+          if (current !== '' && isComponent && !hardNO) {
+            components[filePath] = { data: { label: current }, children: {...children}, ajaxRequests, id: filePath };
+          }
           potentialChildren.push(current);
 
           //reset component information whenever global space is re-entered
@@ -95,6 +94,7 @@ componentController.parseAll = (req, res, next) => {
           current = '';
           isComponent = false;
           ajaxRequests = [];
+          hardNO = false;
 
           //if the first node in the next code block in the global space of not 1 of the following types, it cannot be a component (possibly not necessary. also, possibly don't need to include "ExpressionStatement")
           mightBeComponent = ((path.node.type === "VariableDeclaration" || path.node.type === "ClassDeclaration" || path.node.type === "FunctionDeclaration" || path.node.type === "ExpressionStatement" || path.node.type === "ExportDefaultDeclaration" || path.node.type === "ExportNamedDeclaration")) ? true : false;
@@ -167,14 +167,14 @@ componentController.parseAll = (req, res, next) => {
           //push route and method data into ajaxRequests array, which will be added to component object
           ajaxRequests.push({ route, fullRoute, method });
           fetchPrimed = false;
-          console.log('this is a route?', ajaxRequests)
+          // console.log('this is a route?', ajaxRequests)
         }
 
         //XMLHttpRequest handlers
         if (path.isIdentifier() && path.node.name === "XMLHttpRequest" && path.parent.type === "NewExpression") {
             const declarationPath = path.findParent((path) => path.isVariableDeclarator());
             if (declarationPath) xmlHttpReq = declarationPath.node.id.name;
-            console.log('xmlhttprequest')
+            // console.log('xmlhttprequest')
         }
 
         if (path.isIdentifier() && path.node.name === xmlHttpReq && path.parent.property.name === "open") {
@@ -188,37 +188,37 @@ componentController.parseAll = (req, res, next) => {
         }
 
         //axios handler
-        if (axiosLabel && path.isIdentifier() && path.node.name === axiosLabel && path.findParent((path) => path.isCallExpression())) {
-          let route;
-          let method;
-          let fullRoute;
-          if (path.parent.type === "MemberExpression") {
-            const callExpressionPath = path.findParent((path) => path.isCallExpression());
-            method = path.parent.property.name.toUpperCase();
-            if (callExpressionPath.node.arguments[0].type === "StringLiteral") {  
-              route = fullRoute = callExpressionPath.node.arguments[0].value;
-            } else {
-              route = callExpressionPath.node.arguments[0].quasis[0].value.raw;
-              fullRoute = templateLiteralRouteParser(callExpressionPath.node.arguments[0]);
-            }
-          } else {
-            path.parent.arguments[0].properties.forEach(prop => {
-              if (prop.key.name === "method") method = prop.value.value.toUpperCase();
-              if (prop.key.name === "url") {
-                if (prop.value.type === "TemplateLiteral") {
-                  route = prop.value.quasis[0].value.raw;
-                  fullRoute = templateLiteralRouteParser(prop.value);
-                } else route = fullRoute = prop.value.value;
-              }
-            })
-          }
-          ajaxRequests.push({ route, fullRoute, method })
-        }
+        // if (axiosLabel && path.isIdentifier() && path.node.name === axiosLabel && path.findParent((path) => path.isCallExpression())) {
+        //   let route;
+        //   let method;
+        //   let fullRoute;
+        //   if (path.parent.type === "MemberExpression") {
+        //     const callExpressionPath = path.findParent((path) => path.isCallExpression());
+        //     method = path.parent.property.name.toUpperCase();
+        //     if (callExpressionPath.node.arguments[0].type === "StringLiteral") {  
+        //       route = fullRoute = callExpressionPath.node.arguments[0].value;
+        //     } else {
+        //       route = callExpressionPath.node.arguments[0].quasis[0].value.raw;
+        //       fullRoute = templateLiteralRouteParser(callExpressionPath.node.arguments[0]);
+        //     }
+        //   } else {
+        //     path.parent.arguments[0].properties.forEach(prop => {
+        //       if (prop.key.name === "method") method = prop.value.value.toUpperCase();
+        //       if (prop.key.name === "url") {
+        //         if (prop.value.type === "TemplateLiteral") {
+        //           route = prop.value.quasis[0].value.raw;
+        //           fullRoute = templateLiteralRouteParser(prop.value);
+        //         } else route = fullRoute = prop.value.value;
+        //       }
+        //     })
+        //   }
+        //   ajaxRequests.push({ route, fullRoute, method })
+        // }
 
 
 
         //this is an attempt to filter out false positives from test files
-        if (mightBeComponent && path.isIdentifier() && path.node.name === "describe") mightBeComponent === false;
+        if (path.isIdentifier() && (path.node.name === "describe" || path.node.name === "xdescribe" || path.node.name === "test" || path.node.name === "xtest") && path.parent.type === "CallExpression" && path.parentPath.parent.type === "ExpressionStatement") hardNO = true;
 
         //I'm blanking on what edge case this logic was necessary for, but it's essentially the same as the following conditional check
         if (path.isIdentifier() && (path.parent.type === "JSXExpressionContainer" || path.parentPath.parent.type === "JSXExpressionContainer") && Object.keys(potentialChildren).includes(path.node.name)) {
@@ -245,7 +245,7 @@ componentController.parseAll = (req, res, next) => {
     })
 
     //if the component is exported in this way: "export const ComponentName = () => {...}", it might be the case that there is no code after the component code block, in which case we should check if the previous code block was a component 1 last time.
-    if (current !== '' && isComponent) components[filePath] = { data: {label: current}, children: {...children}, ajaxRequests, id: filePath };
+    if (current !== '' && isComponent && !hardNO) components[filePath] = { data: {label: current}, children: {...children}, ajaxRequests, id: filePath };
   }
 
 
@@ -281,7 +281,7 @@ componentController.parseAll = (req, res, next) => {
   //set root node to be the "root"
   const componentTree = components[path2.join(projectPath, 'index.js')]; //Object.keys(components).filter(component => !listOfChildren.has(component)) //&& Object.keys(components[component].children).length > 0) //components[Object.keys(components).filter(component => !listOfChildren.has(component) && Object.keys(components[component].children).length > 0)];
 
-  console.log(components)
+  // console.log(components)
   res.locals.components = components
   next();
 

@@ -13,7 +13,7 @@ const componentController = require('./controllers/componentController');
 app.use(express.json());
 
 app.post('/components', componentController.parseAll, (req, res) => {
-  console.log('hello', res.locals.components);
+  // console.log('hello', res.locals.components);
   res.status(200).json(res.locals.components);
 })
 
