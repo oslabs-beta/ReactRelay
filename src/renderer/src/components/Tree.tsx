@@ -25,8 +25,8 @@ const edgeType = 'smoothstep';
 const dagreGraph = new dagre.graphlib.Graph();
 dagreGraph.setDefaultEdgeLabel(() => ({}));
 
-const nodeWidth = 172;
-const nodeHeight = 36;
+const nodeWidth = 125;
+const nodeHeight = 25;
 
 const getLayoutedElements = (nodes, edges, direction = 'TB') => {
   const isHorizontal = direction === 'LR';
@@ -122,6 +122,7 @@ function Tree({ reactFlowComponents }): JSX.Element {
           childCount[childId] ? childCount[childId]++ : childCount[childId] = 1;
           ripCord.push(childId);
           gatherChildren(reactFlowComponents[childId], ripCord);
+          ripCord.pop();
         }
       })
     }

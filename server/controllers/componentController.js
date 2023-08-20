@@ -187,33 +187,36 @@ componentController.parseAll = (req, res, next) => {
           }
         }
 
-        //axios handler
-        // if (axiosLabel && path.isIdentifier() && path.node.name === axiosLabel && path.findParent((path) => path.isCallExpression())) {
-        //   let route;
-        //   let method;
-        //   let fullRoute;
-        //   if (path.parent.type === "MemberExpression") {
-        //     const callExpressionPath = path.findParent((path) => path.isCallExpression());
-        //     method = path.parent.property.name.toUpperCase();
-        //     if (callExpressionPath.node.arguments[0].type === "StringLiteral") {  
-        //       route = fullRoute = callExpressionPath.node.arguments[0].value;
-        //     } else {
-        //       route = callExpressionPath.node.arguments[0].quasis[0].value.raw;
-        //       fullRoute = templateLiteralRouteParser(callExpressionPath.node.arguments[0]);
-        //     }
-        //   } else {
-        //     path.parent.arguments[0].properties.forEach(prop => {
-        //       if (prop.key.name === "method") method = prop.value.value.toUpperCase();
-        //       if (prop.key.name === "url") {
-        //         if (prop.value.type === "TemplateLiteral") {
-        //           route = prop.value.quasis[0].value.raw;
-        //           fullRoute = templateLiteralRouteParser(prop.value);
-        //         } else route = fullRoute = prop.value.value;
-        //       }
-        //     })
-        //   }
-        //   ajaxRequests.push({ route, fullRoute, method })
-        // }
+        // axios handler
+        if (axiosLabel && path.isIdentifier() && path.node.name === axiosLabel && path.findParent((path) => path.isCallExpression())) {
+          let route;
+          let method;
+          let fullRoute;
+          if (path.parent.type === "MemberExpression") {
+            const callExpressionPath = path.findParent((path) => path.isCallExpression());
+            method = path.parent.property.name.toUpperCase();
+            const callExpArgsArr = callExpressionPath.node.arguments[0];
+            if (callExpArgsArr.type === "StringLiteral") {  
+              route = fullRoute = callExpArgsArr.value;
+            } else if (callExpArgsArr.type === "TemplateLiteral") {
+              route = callExpArgsArr.quasis[0].value.raw;
+              fullRoute = templateLiteralRouteParser(callExpArgsArr);
+            } else if (callExpArgsArr.type === "MemberExpression") {
+              route = fullroute = `${callExpArgsArr.object.name}.${callExpArgsArr.property.name}`;
+            }
+          } else {
+            path.parent.arguments[0].properties.forEach(prop => {
+              if (prop.key.name === "method") method = prop.value.value.toUpperCase();
+              if (prop.key.name === "url") {
+                if (prop.value.type === "TemplateLiteral") {
+                  route = prop.value.quasis[0].value.raw;
+                  fullRoute = templateLiteralRouteParser(prop.value);
+                } else route = fullRoute = prop.value.value;
+              }
+            })
+          }
+          ajaxRequests.push({ route, fullRoute, method });
+        }
 
 
 
