@@ -93,6 +93,7 @@ function Tree({ reactFlowComponents }): JSX.Element {
   const [nodeInfo, setNodeInfo] = useState([]);
   const [componentName, setComponentName] = useState('')
 
+  //components that are re-used are given unique id's by adding a number to the end of the AFP. this function converts that id back to the AFP (i.e. as it appears in reactFlowComponents), then return the object associated with this AFP key in reactFlowComponents.
   const getComponentFromNodeId = (id: string): Component => {
     let i = id.length-1;
     while (/[0-9]/.test(id[i]) && i > 10) i--;
@@ -107,31 +108,13 @@ function Tree({ reactFlowComponents }): JSX.Element {
     const childCount = {};
     const listOfChildIds = new Set();
 
+
+    //create a Set containing all components that are children of other components (used to isolate 'roots' array below)
     (Object.values(reactFlowComponents) as Component[]).forEach((obj: Component) => {
       obj.children.forEach(childId => listOfChildIds.add(childId));
     });
 
-
-    // (Object.values(reactFlowComponents) as Component[]).forEach((obj: Component) => {
-    //   let childrenArray = obj.children;
-    //   const childCount = () => {
-    //     childrenArray.forEach(childId => {
-    //       childCount[childId] ? childCount[childId]++ : childCount[childId] = 1;
-    //       temp.push(childId);
-    //     })
-    //   }
-      
-
-    //   obj.children.forEach(childId => {
-    //     childCount[childId] ? childCount[childId]++ : childCount[childId] = 1;
-    //     while (reactFlowComponents[childId].children) {
-    //       reactFlowComponents[childId].children.forEach(grandChild => {
-    //         childCount[grandChild] ? childCount[grandChild]++ : childCount[grandChild] = 1;
-    //       })
-    //     }
-    //   })
-    // });
-
+    //recursive func that increments the value of component id in "childCount" array by 1 for each instance of that child, then invokes gatherChildren passing in the obj in reactFlowComponents that represents that child component
     const gatherChildren = (root: Component, ripCord: string[] = []): void => {
       // console.log('component', root)
       root.children.forEach(childId => {
@@ -142,6 +125,8 @@ function Tree({ reactFlowComponents }): JSX.Element {
         }
       })
     }
+
+    //filter for components that have no parent, then invoke 'gatherChildren' on each of them
     console.log('listttttt', listOfChildIds);
     const roots = Object.values(reactFlowComponents).filter((obj: any): obj is Component => !listOfChildIds.has(obj.id));
     console.log('roots', roots)
@@ -150,6 +135,7 @@ function Tree({ reactFlowComponents }): JSX.Element {
 
     console.log(childCount, 'childCount');
 
+    //iterate through all components in reactFlowComponents. Whatever the value of that componentId is in childCount, create that many new nodes for this component. (create just 1 node if it doesn't appear in childCount);
     (Object.values(reactFlowComponents) as Component[]).forEach((obj: Component) => {
       let i = childCount[obj.id] || 1;
       while (i >= 1) {
@@ -158,42 +144,7 @@ function Tree({ reactFlowComponents }): JSX.Element {
       }
     });
 
-    // let sortedChildCount = JSON.parse(JSON.stringify(childCount));
-    // let f = 0;
-    // while (Object.keys(sortedChildCount).length && f < 100) {
-    //   f++;
-    //   console.log('f',f)
-    //   const sortedKeys = Object.keys(sortedChildCount).sort((a,b) => sortedChildCount[b] - sortedChildCount[a]);
-    //   sortedChildCount = sortedKeys.reduce((acc, curr) => {
-    //     console.log(acc, curr, 'acc,curr')
-    //     acc[curr] = sortedChildCount[curr]
-    //     return acc;
-    //   }, {})
-    //   console.log('sortedChildCount', sortedChildCount)
-
-    //   const firstOne = Object.values(sortedChildCount).indexOf(1);
-    //   sortedChildCount = sortedChildCount.slice(0, firstOne);
-    //   Object.keys(sortedChildCount).forEach(key => {
-    //     reactFlowComponents[key].children.forEach(childId => {
-    //       let i = sortedChildCount[key];
-    //       let j: any = sortedChildCount[childId];
-    //       while (i > 1) {
-    //         j++;
-    //         newNodes.push({ id: childId + j, data: reactFlowComponents[childId].data, position: { x: 0, y: 0 } });
-    //         i--;
-    //       }
-    //     })
-    //   })
-    // }
-
-    // const firstOne = Object.values(childCount).indexOf(1);
-    // sortedChildCount.slice(0, firstOne).forEach(key => {
-    //   if (childCount[key] > 1) {
-    //     reactFlowComponents[key]
-    //   }
-    // })
-
-    //iterate through newNodes instead of RFC?
+    //for each node, for each of its children, create a connection (edge) between that node and one of the nodes that represents the child. Pick the child node whos id ends with the value of the child node in the 'childCount' object. Then decrement this value in 'childCount' so that no child has multiple parents.
     newNodes.forEach(obj => {
       const component = getComponentFromNodeId(obj.id);
       component.children.forEach(childId => {
