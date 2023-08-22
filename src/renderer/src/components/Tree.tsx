@@ -25,8 +25,8 @@ const edgeType = 'smoothstep';
 const dagreGraph = new dagre.graphlib.Graph();
 dagreGraph.setDefaultEdgeLabel(() => ({}));
 
-const nodeWidth = 125;
-const nodeHeight = 25;
+const nodeWidth = 150;
+const nodeHeight = 250;
 
 const getLayoutedElements = (nodes, edges, direction = 'TB') => {
   const isHorizontal = direction === 'LR';
@@ -216,6 +216,7 @@ function Tree({ reactFlowComponents }): JSX.Element {
         onConnect={onConnect}
         connectionLineType={ConnectionLineType.SmoothStep}
         fitView={true}
+        minZoom ={0.1}
         onNodeClick={onNodeClick}
       >
         <Panel position="bottom-left">

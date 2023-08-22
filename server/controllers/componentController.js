@@ -9,28 +9,11 @@ const componentController = {}
 console.log('hehhyehehe')
 componentController.parseAll = (req, res, next) => {
   console.log('hehhyehehe2')
-  const projectPath = req.body.filePath;
-  if (projectPath.length === 0) next();
+  // const projectPath = req.body.filePath;
+  // if (projectPath.length === 0) next();
   let components = {};
   const listOfChildren = new Set();
 
-
-  //dirPath is initially the root directory. This function recursively navigates
-  //through this directory, passing each file path into arrayOfFiles, and eventually
-  //returning this array
-  const getAllFiles = (dirPath, arrayOfFiles = []) => {
-    const files = fs.readdirSync(dirPath);
-
-
-    files.forEach((file) => {
-      if (fs.statSync(path2.join(dirPath, file)).isDirectory()) {
-        arrayOfFiles = getAllFiles(path2.join(dirPath, file), arrayOfFiles);
-      } else {
-        arrayOfFiles.push(path2.join(dirPath, file));
-      }
-    })
-    return arrayOfFiles;
-  }
 
   //readFileSync method of the fs module is used to grab all the code from 'filePath',
   //then the parse method in babel parser is used to create and return an AST version of
@@ -52,9 +35,6 @@ componentController.parseAll = (req, res, next) => {
     }
     return fullRoute;
   }
-
-
-
 
   //
   const traverseAST = (ast, filePath) => {
@@ -252,9 +232,7 @@ componentController.parseAll = (req, res, next) => {
   }
 
 
-  //invoking above 'getAllFiles' function to grab an array of all files in 'projectPath', then filtering for only files that could be react components
-  const allFiles = getAllFiles(projectPath).filter((file) => file.endsWith('.jsx') || file.endsWith('.js') || file.endsWith('.tsx') || file.endsWith('.ts'));
-
+  const allFiles = res.locals.allFiles;
   console.log(allFiles);
 
   //iterate through array of files, convert each to AST, and invoke above function to traverse the AST
@@ -282,7 +260,7 @@ componentController.parseAll = (req, res, next) => {
   })
 
   //set root node to be the "root"
-  const componentTree = components[path2.join(projectPath, 'index.js')]; //Object.keys(components).filter(component => !listOfChildren.has(component)) //&& Object.keys(components[component].children).length > 0) //components[Object.keys(components).filter(component => !listOfChildren.has(component) && Object.keys(components[component].children).length > 0)];
+  // const componentTree = components[path2.join(projectPath, 'index.js')]; //Object.keys(components).filter(component => !listOfChildren.has(component)) //&& Object.keys(components[component].children).length > 0) //components[Object.keys(components).filter(component => !listOfChildren.has(component) && Object.keys(components[component].children).length > 0)];
 
   // console.log(components)
   res.locals.components = components
