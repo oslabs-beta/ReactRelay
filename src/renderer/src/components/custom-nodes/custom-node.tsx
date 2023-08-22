@@ -12,9 +12,7 @@ const CustomNode = ({ data }) => {
 
   return (
     <div
-      className={`custom-node ${
-        data ? 'bg-primary' : 'bg-secondary'
-      } cursor-pointer min-h-4 p-1 shadow-md bg-blend-normal rounded-md border-2 border-slate-500 text-xs bg`}
+      className={`custom-node bg-primary cursor-pointer min-h-4 p-1 shadow-md bg-blend-normal rounded-md border-2 border-slate-500 text-xs bg`}
       onClick={() => console.log('clicked', data)}
     >
       <Handle type='target' position={Position.Left} />
