@@ -5,13 +5,20 @@ import ReactFlow, {
   Panel,
   useNodesState,
   useEdgesState,
+  Controls,
+  MiniMap,
 } from 'reactflow';
 import dagre from 'dagre';
-import horizontal from '../assets/images/flowchart-horizontal.png'
-import vertical from '../assets/images/flowchart-vertical.png'
+import horizontal from '../assets/images/flowchart-horizontal.png';
+import vertical from '../assets/images/flowchart-vertical.png';
 
 // import { initialNodes, initialEdges } from '../nodes-edges.js';
+// importing the custom node
+import CustomNode from './custom-nodes/custom-node';
 
+const nodeTypes = {
+  CustomNode,
+};
 import 'reactflow/dist/style.css';
 import Details from './Details';
 // import { get } from 'mongoose';
@@ -74,7 +81,8 @@ type Component = {
 type Node = {
   id: string;
   data: any;
-  position: { x: number, y: number };
+  position: { x: number; y: number };
+  type: string;
 };
 
 type Edge = {
@@ -85,20 +93,18 @@ type Edge = {
   animated: boolean;
 };
 
-
-
 function Tree({ reactFlowComponents }): JSX.Element {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [nodeInfo, setNodeInfo] = useState([]);
-  const [componentName, setComponentName] = useState('')
+  const [componentName, setComponentName] = useState('');
 
   //components that are re-used are given unique id's by adding a number to the end of the AFP. this function converts that id back to the AFP (i.e. as it appears in reactFlowComponents), then return the object associated with this AFP key in reactFlowComponents.
   const getComponentFromNodeId = (id: string): Component => {
-    let i = id.length-1;
+    let i = id.length - 1;
     while (/[0-9]/.test(id[i]) && i > 10) i--;
-    return reactFlowComponents[id.slice(0,i+1)];
-  }
+    return reactFlowComponents[id.slice(0, i + 1)];
+  };
 
   useEffect(() => {
     if (!reactFlowComponents) return;
@@ -108,51 +114,72 @@ function Tree({ reactFlowComponents }): JSX.Element {
     const childCount = {};
     const listOfChildIds = new Set();
 
-
     //create a Set containing all components that are children of other components (used to isolate 'roots' array below)
-    (Object.values(reactFlowComponents) as Component[]).forEach((obj: Component) => {
-      obj.children.forEach(childId => listOfChildIds.add(childId));
-    });
+    (Object.values(reactFlowComponents) as Component[]).forEach(
+      (obj: Component) => {
+        obj.children.forEach((childId) => listOfChildIds.add(childId));
+      }
+    );
 
     //recursive func that increments the value of component id in "childCount" array by 1 for each instance of that child, then invokes gatherChildren passing in the obj in reactFlowComponents that represents that child component
     const gatherChildren = (root: Component, ripCord: string[] = []): void => {
       // console.log('component', root)
-      root.children.forEach(childId => {
-        if (Object.hasOwn(reactFlowComponents, childId) && !ripCord.includes(childId)) {
-          childCount[childId] ? childCount[childId]++ : childCount[childId] = 1;
+      root.children.forEach((childId) => {
+        if (
+          Object.hasOwn(reactFlowComponents, childId) &&
+          !ripCord.includes(childId)
+        ) {
+          childCount[childId]
+            ? childCount[childId]++
+            : (childCount[childId] = 1);
           ripCord.push(childId);
           gatherChildren(reactFlowComponents[childId], ripCord);
           ripCord.pop();
         }
-      })
-    }
+      });
+    };
 
     //filter for components that have no parent, then invoke 'gatherChildren' on each of them
     console.log('listttttt', listOfChildIds);
-    const roots = Object.values(reactFlowComponents).filter((obj: any): obj is Component => !listOfChildIds.has(obj.id));
-    console.log('roots', roots)
-    if (roots.length) roots.forEach(root => gatherChildren(root));
-
+    const roots = Object.values(reactFlowComponents).filter(
+      (obj: any): obj is Component => !listOfChildIds.has(obj.id)
+    );
+    console.log('roots', roots);
+    if (roots.length) roots.forEach((root) => gatherChildren(root));
 
     console.log(childCount, 'childCount');
 
     //iterate through all components in reactFlowComponents. Whatever the value of that componentId is in childCount, create that many new nodes for this component. (create just 1 node if it doesn't appear in childCount);
-    (Object.values(reactFlowComponents) as Component[]).forEach((obj: Component) => {
-      let i = childCount[obj.id] || 1;
-      while (i >= 1) {
-        newNodes.push({ id: obj.id + i, data: obj.data, position: { x: 0, y: 0 } });
-        i--;
+    (Object.values(reactFlowComponents) as Component[]).forEach(
+      (obj: Component) => {
+        // obj.ajaxRequests --> check if this is empty or has values
+        let i = childCount[obj.id] || 1;
+        while (i >= 1) {
+          newNodes.push({
+            id: obj.id + i,
+            data: obj.data,
+            position: { x: 0, y: 0 },
+            type: obj.ajaxRequests.length ? 'CustomNode' : 'default',
+          });
+          i--;
+        }
       }
-    });
+    );
 
     //for each node, for each of its children, create a connection (edge) between that node and one of the nodes that represents the child. Pick the child node whos id ends with the value of the child node in the 'childCount' object. Then decrement this value in 'childCount' so that no child has multiple parents.
-    newNodes.forEach(obj => {
+    newNodes.forEach((obj) => {
       const component = getComponentFromNodeId(obj.id);
-      component.children.forEach(childId => {
+      component.children.forEach((childId) => {
         let child = childCount[childId] || 1;
-        newEdges.push({ id: (obj.id).concat(childId + child), source: obj.id, target: childId + child, type: edgeType, animated: true })
+        newEdges.push({
+          id: obj.id.concat(childId + child),
+          source: obj.id,
+          target: childId + child,
+          type: edgeType,
+          animated: true,
+        });
         childCount[childId]--;
-      })
+      });
     });
 
     const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(
@@ -161,23 +188,22 @@ function Tree({ reactFlowComponents }): JSX.Element {
     );
     setNodes(layoutedNodes);
     setEdges(layoutedEdges);
-}, [reactFlowComponents]);
-
+  }, [reactFlowComponents]);
 
   const onConnect = useCallback(
     (params) =>
       setEdges((eds) =>
-        addEdge({ ...params, type: ConnectionLineType.SmoothStep, animated: true }, eds)
+        addEdge(
+          { ...params, type: ConnectionLineType.SmoothStep, animated: true },
+          eds
+        )
       ),
     []
   );
   const onLayout = useCallback(
     (direction) => {
-      const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(
-        nodes,
-        edges,
-        direction
-      );
+      const { nodes: layoutedNodes, edges: layoutedEdges } =
+        getLayoutedElements(nodes, edges, direction);
 
       setNodes([...layoutedNodes]);
       setEdges([...layoutedEdges]);
@@ -192,23 +218,35 @@ function Tree({ reactFlowComponents }): JSX.Element {
     // reactFlowComponents[element.id].ajaxRequests.forEach(route => routes += `\nMethod: ${route.method}\nRoute: ${route.route}\nFull Route: ${route.fullRoute}`);
     // console.log(reactFlowComponents);
     // alert(`Clicked on node: ${element.id}\nROUTES: ${routes ? routes : 'none'}`);
-    console.log('element', element)
+    console.log('element', element);
     const component = getComponentFromNodeId(element.id);
     const compName = getComponentName(element.id);
     setComponentName(compName);
     setNodeInfo(reactFlowComponents[component.id].ajaxRequests);
   };
 
+  // TO-DO: MAY WANT TO REFACTOR THIS LATER
   const getComponentName = (string) => {
+    console.log('component string', string);
+    // splitting the file path by / characters
     const splitString = string.split('/');
-    return splitString[splitString.length - 1];
-  }
-
+    // getting the final file of the directory
+    const componentExtension = splitString[splitString.length - 1];
+    // splitting the file path from its file extension
+    const splitFileType = componentExtension.split('.');
+    // selecting whatever comes as the final extension
+    splitFileType[splitFileType.length - 1] = splitFileType[
+      // replace any numbers in the file extension with an empty string
+      splitFileType.length - 1
+    ].replaceAll(/[0-9]/g, '');
+    // re-join the file extension with a '.' to properly re-form it
+    return splitFileType.join('.');
+  };
 
   return (
     <div>
       <ReactFlow
-        id="tree"
+        id='tree'
         nodes={nodes}
         edges={edges}
         onNodesChange={onNodesChange}
@@ -218,22 +256,33 @@ function Tree({ reactFlowComponents }): JSX.Element {
         fitView={true}
         minZoom ={0.1}
         onNodeClick={onNodeClick}
+        minZoom={0.2}
+        nodeTypes={nodeTypes}
       >
-        <Panel position="bottom-left">
-          <div id="button-section" className="flex">
-            <button className="btn m-1" onClick={() => onLayout('TB')}>
-              <img className="h-8 " src={vertical} alt='vertical layout  button'/>
+        <Panel position='bottom-left'>
+          <div id='button-section' className='flex ml-9'>
+            <button className='btn m-1' onClick={() => onLayout('TB')}>
+              <img
+                className='h-8 '
+                src={vertical}
+                alt='vertical layout  button'
+              />
             </button>
-            <button className="btn m-1" onClick={() => onLayout('LR')} >
-              <img className="h-8" src={horizontal} alt='horizontal layout button'/>
+            <button className='btn m-1' onClick={() => onLayout('LR')}>
+              <img
+                className='h-8'
+                src={horizontal}
+                alt='horizontal layout button'
+              />
             </button>
           </div>
         </Panel>
+        <Controls />
+        <MiniMap className='mini-map max' />
       </ReactFlow>
-      <Details componentName={componentName} nodeInfo={nodeInfo}/>
+      <Details componentName={componentName} nodeInfo={nodeInfo} />
     </div>
   );
-};
+}
 
 export default Tree;
-
