@@ -21,6 +21,7 @@ const nodeTypes = {
 };
 import 'reactflow/dist/style.css';
 import Details from './Details';
+import Draggable from './Draggable';
 // import { get } from 'mongoose';
 
 // const position = { x: 0, y: 0 };
