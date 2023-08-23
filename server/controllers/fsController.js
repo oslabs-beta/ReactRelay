@@ -4,7 +4,7 @@ const path = require('path');
 const fsController = {};
 
 fsController.getArrayOfFilePaths = (req, res, next) => {
-  const projectPath = req.body.filePath //'/Users/cush572/Codesmith/TEST/ReacType/server' //'/Users/cush572/Codesmith/Week4/unit-10-databases/server' //req.body.filePath;
+  const projectPath = req.body.filePath; //'/Users/cush572/Codesmith/TEST/ReacType/server' //'/Users/cush572/Codesmith/Week4/unit-10-databases/server'  //'/Users/cush572/Codesmith/Week4/unit-10-databases/server' //req.body.filePath //'/Users/cush572/Codesmith/TEST/ReacType/server'  //req.body.filePath;
   if (projectPath.length === 0) next();
 
   //dirPath is initially the root directory. This function recursively navigates

@@ -1,6 +1,3 @@
-
-
-
 //BREAKDOWN
 //1. IDENTIFY FILE TYPE AS EITHER: 1) SERVER.JS 2) ROUTER 3) CONTROLLER 4) MODEL
 //2. PASS FILE INTO ANOTHER TRAVERSAL FUNCTION SPECIFIC FOR THAT FILE TYPE
@@ -9,7 +6,7 @@
 
 //SERVER.JS LOGIC
 //-LOOK FOR IMPORTED FILES THAT ARE INCLUDED IN ARRAY OF ALL SERVER FILES
-    //DETERMINE AFP AND SAVE THIS AFP ALONG WITH THE VARIABLE NAME IT IS IMPORTED AS
+    //DETERMINE AFP (ABSOLUTE FILES PATH) AND SAVE THIS AFP ALONG WITH THE VARIABLE NAME IT IS IMPORTED AS
 //-ALSO IDENTIFY THE LABEL OF EXPRESS INSTANCE
 //-WHEN 'USE' METHOD IS INVOKED ON EXPRESS INSTANCE, AND FIRST ARG IS A ROUTE:
   //IF 2ND ARG IS THE EXACT MATCH OF ONE OF THE IMPORT LABELS, IT MUST BE A ROUTER (?)
@@ -48,7 +45,6 @@ serverASTController.parseAll = (req, res, next) => {
 
   const routesObj = {};
   const routesArray = [];
-
   //readFileSync method of the fs module is used to grab all the code from 'filePath',
   //then the parse method in babel parser is used to create and return an AST version of
   //this file. plugins necessary to work with JSX and typescript.
@@ -60,6 +56,7 @@ serverASTController.parseAll = (req, res, next) => {
     });
   }
 
+  //helper functions
   const findVariableName = (curr) => {
     const varDecPath = curr.findParent(curr => curr.isVariableDeclarator());
     return varDecPath.node.id.name;
@@ -70,19 +67,29 @@ serverASTController.parseAll = (req, res, next) => {
     return importDecPath.node.specifiers[0].local.name;
   }
 
-  const mapControllerPath = (instance, output) => {
-    const method = curr.parent.property.name;
-    const callExpPath = curr.findParent(curr => curr.isCallExpression());
-    const arguments = callExpPath.node.arguments;
-    const route = arguments[0].value;
-    arguments.slice(1,-1).forEach(arg => {
-      if (Object.hasOwn(importLabels, arg.object.name)) {
-        const middlewareMethod = { method, [importLabels[arg.object.name]]: arg.property.name }
-        controllerPaths[route] ? controllerPaths[route].push(middlewareMethod) : controllerPaths[route] = null//[middlewareMethod]
-      }
-    })
+  const addES6Import = (curr, filePath, importLabels) => {
+    const importLabel = findImportLabel(curr);//grab the directory of this file
+    const currDirectory = path.dirname(filePath)//grab the absolute filepath of the imported file //IRENE: using directory name of current filepath
+    const afp = path.resolve(currDirectory, curr.node.value);
+    console.log('afp', afp)
+    const afpArray = allFiles.filter(file => file.includes(afp)); //if imported file exists in server directory, add its label name as a key in importLabels obj w value being its afp
+    if (afpArray.length) importLabels[importLabel] = afpArray[0];
+    // console.log(importLabels, 'importLabels');  // importLabels = {starWarsController: /Users/Codesmith/App/Controllers/starWarsControllers.js} this is temporary 
+    return importLabels;
   }
 
+  addES5Import = (curr, filePath, importLabels) => {
+    const importLabel = findVariableName(curr);
+    const currDirectory = path.dirname(filePath);
+    const afp = path.resolve(currDirectory, curr.node.value);
+
+    const afpArray = allFiles.filter(file => file.includes(afp));
+    if (afpArray.length) importLabels[importLabel] = afpArray[0];
+    // console.log(importLabels, 'importLabels')
+    return importLabels;
+  }
+
+  //traversal
   const traverseServerAST = (ast, filePath) => {
     let importExpress = false;
     let importMongoose = false;
@@ -100,25 +107,24 @@ serverASTController.parseAll = (req, res, next) => {
 
         if (curr.isIdentifier() && curr.node.name === "require" && curr.parent.type === "CallExpression") {
           const argument = curr.parent.arguments[0];
-           if (argument.type === "StringLiteral") {
-            if (argument.value === "express") importExpress = true;
-            if (argument.value === "mongoose") importMongoose = true;
-           } else if (argument.type === "TemplateLiteral") {
-            if (argument.quasis[0].value.raw === "express") importExpress = true;
-            if (argument.quasis[0].value.raw === "mongoose") importMongoose = true;
+          if (argument.type === "StringLiteral") {
+          if (argument.value === "express") importExpress = true;
+          if (argument.value === "mongoose") importMongoose = true;
+          } else if (argument.type === "TemplateLiteral") {
+          if (argument.quasis[0].value.raw === "express") importExpress = true;
+          if (argument.quasis[0].value.raw === "mongoose") importMongoose = true;
 
-           }
-           if (importExpress || importMongoose) {
-            const label = findVariableName(curr);
-            importExpress ? expressLabel = label : mongooseLabel = label;
-            console.log(expressLabel, 'expressLabel');
-            importExpress = importLabel = false;
-           }
+          }
+          if (importExpress || importMongoose) {
+          const label = findVariableName(curr);
+          label === "express" ? expressLabel = label : importMongoose ? mongooseLabel = label : null;
+          // console.log(expressLabel, 'expressLabel');
+          importExpress = importLabel = false;
+          }
 
         }
 
         if (curr.isStringLiteral() && (curr.node.value === "mongoose" || curr.node.value === "express") && curr.parent.type === "ImportDeclaration") {
-          console.log('aaaajlkfajsf;')
           if (curr.node.value === "mongoose") {
             importMongoose = true;
             mongooseLabel = curr.parent.specifiers[0].local.name;
@@ -132,13 +138,13 @@ serverASTController.parseAll = (req, res, next) => {
 
         if (curr.isIdentifier() && curr.node.name === expressLabel && curr.parent.type === "CallExpression" && curr.parent.arguments.length === 0) {
           expressInstance = findVariableName(curr);
-          console.log('expinst', expressInstance)
+          // console.log('expinst', expressInstance)
           traverseServerFile(ast, filePath, expressLabel, expressInstance);
         }
 
         if (curr.isIdentifier() && curr.node.name === expressLabel && curr.parent.type === "MemberExpression" && curr.parent.property.name === "Router") {
           routerInstance = findVariableName(curr);
-          console.log('routerInstance', routerInstance);
+          // console.log('routerInstance', routerInstance);
           traverseRouterFile(ast, filePath, expressLabel, routerInstance);
         }
 
@@ -150,6 +156,8 @@ serverASTController.parseAll = (req, res, next) => {
           }
         }
 
+        //if found instance of (req, res, next) set var "hasReqResNext" to true;
+        // if ()
 
       }
 
@@ -158,104 +166,159 @@ serverASTController.parseAll = (req, res, next) => {
   }
 
   const linksToRouter = {};
-  const controllerPaths = {};
+  const allServerRoutesLeadingToController= {}; //obj to hold all server routes that lead to a controller
+  //TODO: STILL NEED TO ACCOUNT FOR MIDDLEWARE FUNCTIONALITY EXPLICITLY FOUND IN THE SERVER.JS FILE
 
   const traverseServerFile = (ast, filePath, expressLabel, expressInstance) => {
-    const importLabels = {};
+    let importLabels = {};
 
     traverse(ast, {
       enter(curr) {
 
+        //check for files imported locally using ES6 console.log
         if (curr.isStringLiteral() && curr.node.value.includes('./') && curr.parent.type === "ImportDeclaration") {
-          const importLabel = findImportLabel(curr);
-
-          //grab the directory of this file
-          const currDirectory = path.dirname(filePath)
-
-          //grab the absolute filepath of the imported file
-          const afp = path.resolve(currDirectory, curr.node.value);
-
-          console.log('afp', afp)
-
-          const afpArray = allFiles.filter(file => file.includes(afp));
-          if (afpArray.length) importLabels[importLabel] = afpArray[0];
-          console.log(importLabels, 'importLabels');
+          importLabels = addES6Import(curr, filePath, importLabels);
         }
 
-        if (curr.isIdentifier() && curr.node.name === expressInstance && curr.parent.type === "MemberExpression" && curr.parent.property.name === "use") {
-          const callExpPath = curr.findParent(curr => curr.isCallExpression());
-          const arguments = callExpPath.node.arguments;
-          // console.log('y not in b', arguments.length, 'import labels', importLabels)
-          if (arguments.length > 1 && Object.hasOwn(importLabels, arguments[1].name)) {
-            console.log('we in dis b')
-            linksToRouter[importLabels[arguments[1].name]] = arguments[0].value;
+        //check for files imported locally using ES5 syntax
+        if (curr.isStringLiteral() && curr.node.value.includes('./') && curr.parent.type === "CallExpression") {
+          if (curr.parent.callee.name === "require") {
+            importLabels = addES5Import(curr, filePath, importLabels);
           }
         }
 
+        //filter for invocations of the use method on the express instance (app.use(...))
+        if (curr.isIdentifier() && curr.node.name === expressInstance && curr.parent.type === "MemberExpression" && curr.parent.property.name === "use") {
+
+          //pinpoint the array of args passed to this method invocation
+          const callExpPath = curr.findParent(curr => curr.isCallExpression());
+          const arguments = callExpPath.node.arguments;
+
+          //check for links to router files imported above
+          if (arguments.length > 1 && Object.hasOwn(importLabels, arguments[1].name)) {
+            console.log('importLabels', importLabels)
+            // linksToRouter[importLabels[arguments[1].name]] = arguments[0].value;
+            linksToRouter[arguments[0].value] = importLabels[arguments[1].name]
+            //    '/auth': '/Users/cush572/Codesmith/TEST/ReacType/server/routers/auth.ts',
+            //   '/user-styles': '/Users/cush572/Codesmith/TEST/ReacType/server/routers/stylesRouter.ts'
+          }
+        }
+
+//TODO: refactor and turn into helper function since this is similar to the condition inside traverseRouterFile function
         if (curr.isIdentifier() && curr.node.name === expressInstance && curr.parent.type === "MemberExpression" && CRUDMETHODS.includes(curr.parent.property.name)) {
           const method = curr.parent.property.name;
           const callExpPath = curr.findParent(curr => curr.isCallExpression());
           const arguments = callExpPath.node.arguments;
-          const route = arguments[0].value;
+          const endpoint = arguments[0].value;
           arguments.slice(1,-1).forEach(arg => {
-            if (Object.hasOwn(importLabels, arg.object.name)) {
-              const middlewareMethod = { method, [importLabels[arg.object.name]]: arg.property.name }
-              controllerPaths[route] ? controllerPaths[route].push(middlewareMethod) : controllerPaths[route] = [middlewareMethod]
+            if (Object.hasOwn(importLabels, arg.object.name)) { //check if import label exists (we found import label arg.object.name inside the imports at top of page)
+              const middlewareMethod = {path: importLabels[arg.object.name], middlewareName: arg.property.name}//     { path: ${absoluteFilePathOfController}, middlewareName: ${nameOfMiddleware}}
+              if (allServerRoutesLeadingToController[filePath]) {
+                if (allServerRoutesLeadingToController[filePath][endpoint]) {
+                  if (allServerRoutesLeadingToController[filePath][endpoint][method]) {
+                    allServerRoutesLeadingToController[filePath][endpoint][method].push(middlewareMethod);
+                  } else {
+                    allServerRoutesLeadingToController[filePath][endpoint][method] = [middlewareMethod];
+                  }
+                } else {
+                  allServerRoutesLeadingToController[filePath][endpoint] = { [method]: [middlewareMethod] };
+                }
+              } else {
+                // console.log('doesn’t exist');
+                allServerRoutesLeadingToController[filePath] = { [endpoint]: { [method]: [middlewareMethod] } };
+              }
             }
           })
         }
-
-
       }
-
     })
-    console.log(linksToRouter, 'linksToRouter', controllerPaths, 'controllerPaths')
-    
+    // console.log(linksToRouter, 'linksToRouter', allServerRoutesLeadingToController, 'allServerRoutesLeadingToController')
   }
 
   const routerPathExtensions = {};
+  const allRouterRoutesLeadingToController = {}; //all routes in router that lead to controller
 
   const traverseRouterFile = (ast, filePath, expressLabel, routerInstance) => {
-
+    let importLabels = {};
     traverse(ast, {
       enter(curr) {
-
-        if (curr.isIdentifier() && curr.node.name === routerInstance && curr.parent.type === "MemberExpression" && CRUDMETHODS.includes(curr.parent.property.name)) {
-          mapControllerPath(routerInstance, routerPathExtensions);
+        //GET LOCALLY IMPORTED FILE LABEL:
+        if (curr.isStringLiteral() && curr.node.value.includes('./') && curr.parent.type === "ImportDeclaration") { //IRENE: provides access to all the imports at the top of the file
+          importLabels = addES6Import(curr, filePath, importLabels);
         }
 
+        if (curr.isStringLiteral() && curr.node.value.includes('./') && curr.parent.type === "CallExpression") {
+          if (curr.parent.callee.name === "require") importLabels = addES5Import(curr, filePath, importLabels);
+        }
 
-
-
+        //FIND INSTANCE OF ROUTER AND FILTERING FOR THE CRUD METHODS WITHIN IT
+//TODO: refactor to helper function (same as function from above)
+        if (curr.isIdentifier() && curr.node.name === routerInstance && curr.parent.type === "MemberExpression" && CRUDMETHODS.includes(curr.parent.property.name)) { //IRENE: finding instance of router
+          const method = curr.parent.property.name; //IRENE: trying to understand what specific method is being invoked here
+          const callExpPath = curr.findParent(curr => curr.isCallExpression()); //IRENE:
+          const arguments = callExpPath.node.arguments; //IRENE: trying to find the arguments of router.METHOD()
+          const endpoint = arguments[0].value; //IRENE: we know first arg will always be the endpoint
+          arguments.slice(1,-1).forEach(arg => { //IRENE: we know last arg will be the middleware that handles sending the response back to client. we now need to just look at the arguments between the first and last so we can identify the controller/middleware
+            if (Object.hasOwn(importLabels, arg.object.name)) { //IRENE: check if name of the argument in the argument object matches the label in importLabels object
+              const middlewareMethod = {path: importLabels[arg.object.name], middlewareName: arg.property.name}//   {path: ${absoluteFilePathOfController}, middlewareName: ${nameOfMiddleware}}
+                //{{path: ${absoluteFilePathOfController}, middlewareName: ${nameOfMiddleware}}} 
+              if (allRouterRoutesLeadingToController[filePath]) {
+                if (allRouterRoutesLeadingToController[filePath][endpoint]) {
+                  if (allRouterRoutesLeadingToController[filePath][endpoint][method]) {
+                    allRouterRoutesLeadingToController[filePath][endpoint][method].push(middlewareMethod);
+                  } else {
+                    allRouterRoutesLeadingToController[filePath][endpoint][method] = [middlewareMethod];
+                  }
+                } else {
+                  allRouterRoutesLeadingToController[filePath][endpoint] = { [method]: [middlewareMethod] };
+                }
+              } else {
+                console.log('doesn’t exist');
+                allRouterRoutesLeadingToController[filePath] = { [endpoint]: { [method]: [middlewareMethod] } };
+              }
+                //TEMPLATE: allRouterRoutesLeadingToController = {
+                //   [filePath]: {
+                //     [endpoint]: {
+                //       [GET]: [middlewareMethod],
+                //       [POST]: [middlewareMEthod]
+                //     }
+                //   }
+                // }
+                
+                //END RESULT: allRouterRoutesLeadingToController{
+                //   '/Users/cush572/Codesmith/Week4/unit-10-databases/server/routes/api.js': {
+                //     '/': { get: Array },
+                //     '/species': { get: Array },
+                //     '/homeworld': { get: Array },
+                //     '/film': { get: Array },
+                //     '/character': { post: Array, delete: Array }
+                //   }
+                // }
+            }
+          })
+        }
       }
     })
-
-
-
-    return;
-
+    // console.log('allRouterRoutes....', allRouterRoutesLeadingToController)
   }
 
   const traverseControllerFile = (ast, filePath, label, instance) => {
-    return;
+    
+    console.log('CONTROLLER FILE PATH', filePath);
 
+
+    return;
   }
 
   const schemas = {};
   const schemaKey = {};
 
   const traverseMongooseFile = (ast, filePath, mongooseLabel, schemaInstance) => {
-    
-    console.log('hey.........')
-
     traverse(ast, {
       enter(curr) {
-
-        //check for new schema instances
-        if (curr.isIdentifier() && curr.node.name === schemaInstance && curr.parent.type === "NewExpression") {
+        if (curr.isIdentifier() && curr.node.name === schemaInstance && curr.parent.type === "NewExpression") { //check for new schema instances
           const propsArray = curr.parent.arguments[0].properties;
           const schemaName = findVariableName(curr)
-
           const populateSchema = (propsArray) => {
             const output = {};
             propsArray.forEach(prop => {
@@ -276,17 +339,11 @@ serverASTController.parseAll = (req, res, next) => {
             schemaKey[schemaExport] = schemas[callExpPath.node.arguments[1].name];
           }
         }
-
-
       }
     })
-    console.log(schemaKey, 'schemaKey');
+    // console.log(schemaKey, 'schemaKey');
     return
   }
-
-
-
-
 
   const allFiles = res.locals.allFiles;
 

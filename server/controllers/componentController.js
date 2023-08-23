@@ -53,6 +53,8 @@ componentController.parseAll = (req, res, next) => {
     let xmlHttpReq;
 
     let axiosLabel;
+
+    let nextJSLinkImported = false;
     
     //babel traverse used to traverse the passed in ast
     traverse(ast, {
@@ -224,6 +226,42 @@ componentController.parseAll = (req, res, next) => {
             listOfChildren.add(path.node.name)
           }
         }
+
+        //preliminary logic for handling next.JS
+        if (path.isStringLiteral() && path.node.value === "next/link" && path.parent.type === "ImportDeclaration") {
+          const specifiers = path.parent.specifiers;
+          specifiers.forEach(obj => {
+            if (obj.local.name === "Link") nextJSLinkImported = true;
+          })
+        }
+
+        if (nextJSLinkImported && path.isJSXIdentifier() && path.node.name === "Link" && path.parent.type === "JSXOpeningElement") {
+          const attributes = path.parent.attributes;
+          attributes.forEach(obj => {
+            let route;
+            if (obj.name.name === "href") {
+              console.log(obj, "OBJJJJJJJ")
+              let route = obj.value.type === "StringLiteral" ? obj.value.value : null;
+              let expression = route ? null : obj.value.expression;
+              if (!route) {
+                if (expression.type === "StringLiteral") {
+                  route = expression.value;
+                } else if (expression.type === "TemplateLiteral") {
+                  route = expression.quasis[0].value.raw;
+                }
+              }
+              const currDirectory = path2.dirname(filePath);
+              const childFilePath = path2.resolve(currDirectory, route)
+              const afp = allFiles.filter(file => file.includes(childFilePath))[0];
+              children[afp] = null;
+            }
+          })
+
+          //TODO: if we find a Link tag, store this link tag and the filePath it is located in inside of a "links" object. After traversing all files, identify the component for which the link component is a child. add the route as a child of that component.(?)
+          
+        }
+
+
       }
     })
 

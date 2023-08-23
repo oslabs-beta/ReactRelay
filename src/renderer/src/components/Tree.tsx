@@ -33,7 +33,7 @@ const dagreGraph = new dagre.graphlib.Graph();
 dagreGraph.setDefaultEdgeLabel(() => ({}));
 
 const nodeWidth = 150;
-const nodeHeight = 250;
+const nodeHeight = 100;
 
 const getLayoutedElements = (nodes, edges, direction = 'TB') => {
   const isHorizontal = direction === 'LR';
@@ -256,7 +256,6 @@ function Tree({ reactFlowComponents }): JSX.Element {
         fitView={true}
         minZoom ={0.1}
         onNodeClick={onNodeClick}
-        minZoom={0.2}
         nodeTypes={nodeTypes}
       >
         <Panel position='bottom-left'>
@@ -278,7 +277,7 @@ function Tree({ reactFlowComponents }): JSX.Element {
           </div>
         </Panel>
         <Controls />
-        <MiniMap className='mini-map max' />
+        <MiniMap pannable='true' className='mini-map max' />
       </ReactFlow>
       <Details componentName={componentName} nodeInfo={nodeInfo} />
     </div>
