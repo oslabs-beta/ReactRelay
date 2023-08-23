@@ -3,14 +3,15 @@ import '../assets/prism.css';
 import { useEffect } from 'react';
 
 function ModelPreview() {
- useEffect(() => {
+  useEffect(() => {
   Prism.highlightAll();
- }, [])
+  }, [])
 
- return (
-   <div className='w-1/3'>
-    <pre className='bg-base-100'>
-     <code className='language-js'>
+  return (
+    <div className='w-1/3'>
+    <h3>Expected Data Structure</h3>
+    <pre className='bg-base-100 rounded-md z-2'>
+      <code className='language-js'>
       {`const Schema = mongoose.Schema;
 
 const billSchema = new Schema({
@@ -28,9 +29,9 @@ const billSchema = new Schema({
   }
 });
       `}
-     </code>
+      </code>
     </pre>
-   </div> 
+    </div> 
   )
 }
 

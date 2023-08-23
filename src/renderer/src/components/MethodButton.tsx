@@ -1,20 +1,21 @@
-import React from 'react'
+
 
 const MethodButton = ({methodName, endPointName}) => {
- const infoObj = {
-   methodName,
-   endPointName
- }
+  const infoObj = {
+    methodName,
+    endPointName
+  }
 
- const colorCode = {
-  'GET': 'text-[#579972]',
-  'POST': 'text-[#f2cc44]',
-  'PUT': 'text-[#6ea2e6]',
-  'PATCH': 'text-[#b49ed3]',
-  'DELETE': 'text-[#f79a8d]'
- }
- 
- const fetchReq = () => {
+  //FIXME: colors are a bit hard to read
+  const colorCode = {
+    'GET': 'text-[#579972]',
+    'POST': 'text-[#f2cc44]',
+    'PUT': 'text-[#6ea2e6]',
+    'PATCH': 'text-[#b49ed3]',
+    'DELETE': 'text-[#f79a8d]'
+  }
+
+  const fetchReq = () => {
   fetch('http://localhost:3000/backendAST', {
       method: 'POST',
       headers: {
@@ -22,19 +23,19 @@ const MethodButton = ({methodName, endPointName}) => {
       },
       body: JSON.stringify(infoObj)  // sends to the componentController the filepath
     })
-   .then(resp => {
+    .then(resp => {
     console.log(resp.json());
-   })
-   .catch(error => console.log(`Error: ${error}`))
- }
+    })
+    .catch(error => console.log(`Error: ${error}`))
+  }
 
- const testClick = () => {
+  const testClick = () => {
   console.log(infoObj);
- }
+  }
 
 
 
- return (
+  return (
     <button className='btn' onClick={() => testClick()}><span className={`font-extrabold text-lg ${colorCode[methodName]}`}>{methodName}</span> <span className='font-extralight'>{endPointName}</span></button>
   )
 }

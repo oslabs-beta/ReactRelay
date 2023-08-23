@@ -16,8 +16,8 @@ function App(): JSX.Element {
     }
     // window.api.openDialog returns the filepath when the filepath is chosen from the dialog
     // should i add a case where user doesn't actually select a filepath
-    const openExplorer = async (): any => {
-      const {filePaths} = await window.api.openDialog('showOpenDialog', dialogConfig)
+    const openFileExplorer = async (): any => { //FIXME: add to type
+      const {filePaths} = await window.api.openDialog('showOpenDialog', dialogConfig) //TODO: add to type
       // if user chooses cancel then don't do anything
       if (filePaths[0] === '' || !filePaths[0]) return null;
       setFilePath(filePaths[0])
@@ -40,6 +40,7 @@ function App(): JSX.Element {
       setReactFlowComponents(res)
       // console.log('reactFlowComponents response is ok', reactFlowComponents)
     }
+    // TODO: add error catching !!!!!!!!!!!!!
   }
     // need to use the useEffect or else the fetchComponent will run without waiting for the setStates to update
     useEffect(() => {
@@ -48,8 +49,8 @@ function App(): JSX.Element {
 
   return (
     <div>
-      <Header onClick={openExplorer} projectName={projectName}/>
       <div className="h-full w-full">
+      <Header openFileExplorer={openFileExplorer} projectName={projectName}/>
         <Tree reactFlowComponents={reactFlowComponents}/>
       </div>
 
