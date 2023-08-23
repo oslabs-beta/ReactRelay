@@ -244,7 +244,7 @@ function Tree({ reactFlowComponents }): JSX.Element {
   };
 
   return (
-    <div>
+    <div className="grid grid-rows-2 h-screen w-full">
       <ReactFlow
         id='tree'
         nodes={nodes}

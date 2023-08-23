@@ -31,6 +31,7 @@
     "electron-updater": "^5.3.0",
     "fs": "^0.0.1-security",
     "path": "^0.12.7",
+    "prismjs": "^1.29.0",
     "reactflow": "^11.8.2"
   },
   "devDependencies": {
@@ -43,8 +44,8 @@
     "@typescript-eslint/parser": "^5.62.0",
     "@vitejs/plugin-react": "^4.0.3",
     "autoprefixer": "^10.4.15",
-    "daisyui": "^3.5.1",
     "concurrently": "^8.2.0",
+    "daisyui": "^3.5.1",
     "electron": "^24.6.2",
     "electron-builder": "^23.6.0",
     "electron-vite": "^1.0.27",

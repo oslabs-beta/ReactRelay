@@ -42,10 +42,10 @@ function Details({ componentName, nodeInfo }): JSX.Element {
 
 
   return (
-    <div className='w-full'>
-    <div className={`absolute bottom-0 w-full flex flex-col bg-primary rounded-t-xl resize-y mt-9 bottom-0 z-5`} id='resize' style={{height: `${height}px`}}>
+    <div className='h-100 w-full'>
+    <div className={`absolute bottom-0 min-h-[4rem] mb-[-15rem] h-full w-full flex flex-col bg-primary rounded-t-xl resize-y mt-9 z-1`} id='resize' style={{height: `${height}px`}}>
       <div onMouseDown = {handler} className="pointer-events-auto self-center top-1/2 right-0 -mt-7 p-2 hidden md:block cursor-ns-resize"  draggable="false">
-        <div className="w-8 h-1.5 bg-slate-500/60 rounded-full"></div>
+        <div className="w-8 h-1.5 bg-slate-500/60 rounded-full z-2"></div>
       </div>
       <h1 className='text-3xl font-bold ml-8 mt-8'>{componentName}</h1>
       <div className='flex justify-center gap-[8rem] h-full mt-10'>

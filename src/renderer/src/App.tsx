@@ -49,7 +49,7 @@ function App(): JSX.Element {
   return (
     <div>
       <Header onClick={openExplorer} projectName={projectName}/>
-      <div className="grid grid-rows-2 h-screen w-full">
+      <div className="h-full w-full">
         <Tree reactFlowComponents={reactFlowComponents}/>
       </div>
 
