@@ -26,12 +26,18 @@ const nodeTypes = {
 import 'reactflow/dist/style.css';
 // importing the Details component
 import Details from './Details';
-//
+// import { get } from 'mongoose';
+
+// const position = { x: 0, y: 0 };
 const edgeType = 'smoothstep';
+
+// const initialNodes = [];
+// const initialEdges = [];
 
 const dagreGraph = new dagre.graphlib.Graph();
 dagreGraph.setDefaultEdgeLabel(() => ({}));
 
+// controls spacing between nodes
 const nodeWidth = 100;
 const nodeHeight = 34;
 
@@ -53,29 +59,24 @@ const getLayoutedElements = (nodes, edges, direction = 'TB') => {
     const nodeWithPosition = dagreGraph.node(node.id);
     node.targetPosition = isHorizontal ? 'left' : 'top';
     node.sourcePosition = isHorizontal ? 'right' : 'bottom';
-
     // We are shifting the dagre node position (anchor=center center) to the top left
     // so it matches the React Flow node anchor point (top left).
     node.position = {
       x: nodeWithPosition.x - nodeWidth / 2,
       y: nodeWithPosition.y - nodeHeight / 2,
     };
-
     return node;
   });
-
   return { nodes, edges };
 };
 
-// const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(
-//   initialNodes,
-//   initialEdges
-// );
+// setting the types for different components
 
 type Component = {
   id: string;
   data: any;
   children: string[];
+  ajaxRequests: string[];
 };
 
 type Node = {
@@ -111,7 +112,6 @@ function Tree({ reactFlowComponents }): JSX.Element {
     if (!reactFlowComponents) return;
     const newNodes: Node[] = [];
     const newEdges: Edge[] = [];
-
     const childCount = {};
     const listOfChildIds = new Set();
 
@@ -130,6 +130,8 @@ function Tree({ reactFlowComponents }): JSX.Element {
           Object.hasOwn(reactFlowComponents, childId) &&
           !ripCord.includes(childId)
         ) {
+          // Used to prevent infinite loop of when a child may create its
+          // parent conditionally. If that occurs, the recursive function ends.
           childCount[childId]
             ? childCount[childId]++
             : (childCount[childId] = 1);
@@ -140,20 +142,24 @@ function Tree({ reactFlowComponents }): JSX.Element {
     };
 
     //filter for components that have no parent, then invoke 'gatherChildren' on each of them
-    console.log('listttttt', listOfChildIds);
+    // console.log('list of children and their id ---> ', listOfChildIds);
     const roots = Object.values(reactFlowComponents).filter(
       (obj: any): obj is Component => !listOfChildIds.has(obj.id)
     );
-    console.log('roots', roots);
-    if (roots.length) roots.forEach((root) => gatherChildren(root));
+    // console.log('ROOTS ----> ', roots);
+    if (roots.length) roots.forEach((root) => gatherChildren(root)); //iterate thru each root and gather it's children
 
-    console.log(childCount, 'childCount');
+    // console.log(childCount, '<---- childCount');
 
     //iterate through all components in reactFlowComponents. Whatever the value of that componentId is in childCount, create that many new nodes for this component. (create just 1 node if it doesn't appear in childCount);
     (Object.values(reactFlowComponents) as Component[]).forEach(
       (obj: Component) => {
         // obj.ajaxRequests --> check if this is empty or has values
+        // to change the node's styling using custom nodes
         let i = childCount[obj.id] || 1;
+        // adds the number of components which are present, as there could be multiple copies 
+        //TODO: determine whether or not we need multiple copies.
+        // takes care of a component that is used in more than just 1 component
         while (i >= 1) {
           newNodes.push({
             id: obj.id + i,
@@ -167,7 +173,7 @@ function Tree({ reactFlowComponents }): JSX.Element {
       }
     );
 
-    //for each node, for each of its children, create a connection (edge) between that node and one of the nodes that represents the child. Pick the child node whos id ends with the value of the child node in the 'childCount' object. Then decrement this value in 'childCount' so that no child has multiple parents.
+    //for each node, for each of its children, create a connection (edge) between that node and one of the nodes that represents the child. Pick the child node whose id ends with the value of the child node in the 'childCount' object. Then decrement this value in 'childCount' so that no child has multiple parents.
     newNodes.forEach((obj) => {
       const component = getComponentFromNodeId(obj.id);
       component.children.forEach((childId) => {
@@ -193,7 +199,7 @@ function Tree({ reactFlowComponents }): JSX.Element {
 
   const onConnect = useCallback(
     (params) =>
-      setEdges((eds) =>
+      setEdges((eds) => //eds is previous value of the edge's variable
         addEdge(
           { ...params, type: ConnectionLineType.SmoothStep, animated: true },
           eds
@@ -203,9 +209,7 @@ function Tree({ reactFlowComponents }): JSX.Element {
   );
   const onLayout = useCallback(
     (direction) => {
-      const { nodes: layoutedNodes, edges: layoutedEdges } =
-        getLayoutedElements(nodes, edges, direction);
-
+      const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(nodes, edges, direction);
       setNodes([...layoutedNodes]);
       setEdges([...layoutedEdges]);
     },
@@ -214,38 +218,28 @@ function Tree({ reactFlowComponents }): JSX.Element {
 
   // on nodeClick we will want to set the state of the node info
   const onNodeClick = (_, element) => {
-    // console.log('yoyoyoyoyoy');
-    // let routes = '';
-    // reactFlowComponents[element.id].ajaxRequests.forEach(route => routes += `\nMethod: ${route.method}\nRoute: ${route.route}\nFull Route: ${route.fullRoute}`);
-    // console.log(reactFlowComponents);
-    // alert(`Clicked on node: ${element.id}\nROUTES: ${routes ? routes : 'none'}`);
-    console.log('element', element);
     const component = getComponentFromNodeId(element.id);
     const compName = getComponentName(element.id);
     setComponentName(compName);
     setNodeInfo(reactFlowComponents[component.id].ajaxRequests);
   };
 
-  // TO-DO: MAY WANT TO REFACTOR THIS LATER
+  // TODO: REFACTOR THIS
   const getComponentName = (string) => {
-    console.log('component string', string);
-    // splitting the file path by / characters
-    const splitString = string.split('/');
-    // getting the final file of the directory
-    const componentExtension = splitString[splitString.length - 1];
-    // splitting the file path from its file extension
-    const splitFileType = componentExtension.split('.');
-    // selecting whatever comes as the final extension
-    splitFileType[splitFileType.length - 1] = splitFileType[
+    const splitString = string.split('/'); // splitting the file path by / characters
+    const componentExtension = splitString[splitString.length - 1]; // getting the final file of the directory
+    const splitFileType = componentExtension.split('.'); // splitting the file path from its file extension
+    splitFileType[splitFileType.length - 1] = splitFileType[ 
+      // selecting whatever comes as the final extension
       // replace any numbers in the file extension with an empty string
       splitFileType.length - 1
     ].replaceAll(/[0-9]/g, '');
-    // re-join the file extension with a '.' to properly re-form it
-    return splitFileType.join('.');
+    return splitFileType.join('.'); // re-join the file extension with a '.' to properly re-form it
   };
 
+  //TODO: add fragment so that you can return without a div
   return (
-    <div>
+    <div className="grid grid-rows-2 h-screen w-full bg-base-100">
       <ReactFlow
         id='tree'
         nodes={nodes}
@@ -261,14 +255,14 @@ function Tree({ reactFlowComponents }): JSX.Element {
       >
         <Panel position='bottom-left'>
           <div id='button-section' className='flex ml-9'>
-            <button className='btn m-1' onClick={() => onLayout('TB')}>
+            <button className='btn m-1 bg-white' onClick={() => onLayout('TB')}>
               <img
                 className='h-8 '
                 src={vertical}
-                alt='vertical layout  button'
+                alt='vertical layout button'
               />
             </button>
-            <button className='btn m-1' onClick={() => onLayout('LR')}>
+            <button className='btn m-1 bg-white' onClick={() => onLayout('LR')}>
               <img
                 className='h-8'
                 src={horizontal}
@@ -280,7 +274,8 @@ function Tree({ reactFlowComponents }): JSX.Element {
         <Controls />
         <MiniMap pannable='true' zoomable='true' className='mini-map max' />
       </ReactFlow>
-      <Details componentName={componentName} nodeInfo={nodeInfo} />
+      {componentName !== '' && 
+      <Details componentName={componentName} nodeInfo={nodeInfo} />}
     </div>
   );
 }
