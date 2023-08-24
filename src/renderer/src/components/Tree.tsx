@@ -223,7 +223,7 @@ function Tree({ reactFlowComponents }): JSX.Element {
 
   //TODO: add fragment so that you can return without a div
   return (
-    <div className="grid grid-rows-2 h-screen w-full">
+    <div className="grid grid-rows-2 h-screen w-full bg-base-100">
       <ReactFlow
         id='tree'
         nodes={nodes}
@@ -239,14 +239,14 @@ function Tree({ reactFlowComponents }): JSX.Element {
       >
         <Panel position='bottom-left'>
           <div id='button-section' className='flex ml-9'>
-            <button className='btn m-1' onClick={() => onLayout('TB')}>
+            <button className='btn m-1 bg-white' onClick={() => onLayout('TB')}>
               <img
                 className='h-8 '
                 src={vertical}
                 alt='vertical layout button'
               />
             </button>
-            <button className='btn m-1' onClick={() => onLayout('LR')}>
+            <button className='btn m-1 bg-white' onClick={() => onLayout('LR')}>
               <img
                 className='h-8'
                 src={horizontal}
