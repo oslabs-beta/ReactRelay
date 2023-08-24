@@ -5,6 +5,7 @@ import ReactFlow, {
   Panel,
   useNodesState,
   useEdgesState,
+  // this is where you import the Controls and MiniMap components from ReactFlow
   Controls,
   MiniMap,
 } from 'reactflow';
@@ -12,28 +13,27 @@ import dagre from 'dagre';
 import horizontal from '../assets/images/flowchart-horizontal.png';
 import vertical from '../assets/images/flowchart-vertical.png';
 
-// import { initialNodes, initialEdges } from '../nodes-edges.js';
 // importing the custom node
 import CustomNode from './custom-nodes/custom-node';
+// importing the custom node
+import CustomNode2 from './custom-nodes/custom-node2';
 
 const nodeTypes = {
   CustomNode,
+  CustomNode2,
 };
+// importing the default ReactFlow styles
 import 'reactflow/dist/style.css';
+// importing the Details component
 import Details from './Details';
-// import { get } from 'mongoose';
-
-// const position = { x: 0, y: 0 };
+//
 const edgeType = 'smoothstep';
-
-// const initialNodes = [];
-// const initialEdges = [];
 
 const dagreGraph = new dagre.graphlib.Graph();
 dagreGraph.setDefaultEdgeLabel(() => ({}));
 
-const nodeWidth = 150;
-const nodeHeight = 100;
+const nodeWidth = 100;
+const nodeHeight = 34;
 
 const getLayoutedElements = (nodes, edges, direction = 'TB') => {
   const isHorizontal = direction === 'LR';
@@ -83,6 +83,7 @@ type Node = {
   data: any;
   position: { x: number; y: number };
   type: string;
+  ajaxRequests: string[];
 };
 
 type Edge = {
@@ -159,7 +160,8 @@ function Tree({ reactFlowComponents }): JSX.Element {
             id: obj.id + i,
             data: obj.data,
             position: { x: 0, y: 0 },
-            type: obj.ajaxRequests.length ? 'CustomNode' : 'default',
+            type: obj.ajaxRequests.length ? 'CustomNode' : 'CustomNode2',
+            ajaxRequests: obj.ajaxRequests,
           });
           i--;
         }
@@ -277,7 +279,7 @@ function Tree({ reactFlowComponents }): JSX.Element {
           </div>
         </Panel>
         <Controls />
-        <MiniMap pannable='true' className='mini-map max' />
+        <MiniMap pannable='true' zoomable='true' className='mini-map max' />
       </ReactFlow>
       <Details componentName={componentName} nodeInfo={nodeInfo} />
     </div>
