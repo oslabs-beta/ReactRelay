@@ -48,13 +48,7 @@ function App(): JSX.Element {
     }, [filePath])
 
   return (
-    <div>
-      <div className="h-full w-full">
-      <Header openFileExplorer={openFileExplorer} projectName={projectName}/>
-        <Tree reactFlowComponents={reactFlowComponents}/>
-      </div>
-
-    </div>
+      <Tree reactFlowComponents={reactFlowComponents} openFileExplorer={openFileExplorer} projectName={projectName} />
   )
 }
 

@@ -28,6 +28,8 @@ import 'reactflow/dist/style.css';
 import Details from './Details';
 // import { get } from 'mongoose';
 
+import Header from './Header'
+
 // const position = { x: 0, y: 0 };
 const edgeType = 'smoothstep';
 
@@ -95,7 +97,7 @@ type Edge = {
   animated: boolean;
 };
 
-function Tree({ reactFlowComponents }): JSX.Element {
+function Tree({ reactFlowComponents, openFileExplorer, projectName }): JSX.Element {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [nodeInfo, setNodeInfo] = useState([]);
@@ -240,7 +242,8 @@ function Tree({ reactFlowComponents }): JSX.Element {
 
   //TODO: add fragment so that you can return without a div
   return (
-    <>
+    <div className="flex flex-col h-screen w-full">
+      <Header openFileExplorer={openFileExplorer} projectName={projectName}/>
       <ReactFlow
         id='tree'
         nodes={nodes}
@@ -277,7 +280,7 @@ function Tree({ reactFlowComponents }): JSX.Element {
       </ReactFlow>
       {componentName !== '' && 
       <Details componentName={componentName} nodeInfo={nodeInfo} />}
-    </>
+    </div>
   );
 }
 

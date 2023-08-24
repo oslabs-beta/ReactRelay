@@ -32,7 +32,7 @@ function Details({ componentName, nodeInfo }): JSX.Element {
 
   return (
     <>
-      <div id="draggable-container" className={`bottom-0 w-full flex flex-col bg-primary rounded-t-lg resize-y mt-9 z-1`}  style={{height: `${height}px`, minHeight: '0', maxHeight: '700px'}}>
+      <div id="draggable-container" className={`w-full flex flex-col bg-primary rounded-t-lg resize-y mt-9 z-1`}  style={{height: `${height}px`}} >
         <div id="drag-bar" onMouseDown = {handler} className="pointer-events-auto self-center top-1/2 right-0 -mt-7 p-2 hidden md:block cursor-ns-resize z-3"  draggable="false">
           <div className="w-10 h-2 bg-slate-500/60 rounded-full"></div>
         </div>
