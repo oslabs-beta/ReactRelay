@@ -1,21 +1,10 @@
-import MethodButton from './MethodButton';
 import { useState, useEffect } from 'react';
 import ModelPreview from './ModelPreview';
+import MethodButtonContainer from '@renderer/containers/MethodButtonContainer';
 
 function Details({ componentName, nodeInfo }): JSX.Element {
-  const [methodButtons, setMethodButtons] = useState([]);
   const [height, setHeight] = useState(200);
 
-  useEffect(() => {
-    const buttons = nodeInfo.map((nodeObj) => (
-      <MethodButton
-        methodName={nodeObj.method}
-        endPointName={nodeObj.fullRoute}
-      />
-    ));
-    setMethodButtons(buttons);
-  }, [nodeInfo]);
-  
   const handler = (mouseDownEvent) => {
     const startHeight = height;
     const startPosition = mouseDownEvent.pageY;
@@ -47,11 +36,9 @@ function Details({ componentName, nodeInfo }): JSX.Element {
         <div id="drag-bar" onMouseDown = {handler} className="pointer-events-auto self-center top-1/2 right-0 -mt-7 p-2 hidden md:block cursor-ns-resize"  draggable="false">
           <div className="w-10 h-2 bg-slate-500/60 rounded-full z-2"></div>
         </div>
-        <h1 id="component-tab-label" className='inline rounded-t-xl text-2xl bg-primary font-bold mt-[-50px] ml-[40px] px-8 pt-5 pb-1 w-fit'>{componentName}</h1>
-        <div className='flex justify-center gap-[30rem] h-full mt-10'>
-          <div id='method-btn-container' className='flex flex-col gap-3 w-fit'>
-          {nodeInfo.length !== 0 && methodButtons}
-        </div >
+        <h1 id="component-tab-label" className='inline rounded-t-xl text-2xl bg-primary font-bold mt-[-48px] ml-[40px] px-8 pt-4 pb-1 w-fit'>{componentName}</h1>
+        <div className='flex justify-center h-full mt-10 p-10'>
+          <MethodButtonContainer nodeInfo={nodeInfo}/>
           <ModelPreview />
         </div>
       </div>

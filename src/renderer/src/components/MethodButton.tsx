@@ -8,11 +8,11 @@ const MethodButton = ({methodName, endPointName}) => {
 
   //FIXME: colors are a bit hard to read
   const colorCode = {
-    'GET': 'text-[#579972]',
-    'POST': 'text-[#f2cc44]',
-    'PUT': 'text-[#6ea2e6]',
-    'PATCH': 'text-[#b49ed3]',
-    'DELETE': 'text-[#f79a8d]'
+    'GET': 'bg-[#579972]',
+    'POST': 'bg-[#f2cc44]',
+    'PUT': 'bg-[#6ea2e6]',
+    'PATCH': 'bg-[#b49ed3]',
+    'DELETE': 'bg-[#f79a8d]'
   }
 
   const fetchReq = () => {
@@ -29,14 +29,22 @@ const MethodButton = ({methodName, endPointName}) => {
     .catch(error => console.log(`Error: ${error}`))
   }
 
-  const testClick = () => {
-  console.log(infoObj);
-  }
+  // const testClick = () => {
+  // console.log(infoObj);
+  // }
 
 
-
+    // <button className='btn' onClick={() => testClick()}><span className={`font-extrabold text-lg ${colorCode[methodName]}`}>{methodName}</span> <span className='font-extralight'>{endPointName}</span></button>
+//TODO: one day, on click of 
   return (
-    <button className='btn' onClick={() => testClick()}><span className={`font-extrabold text-lg ${colorCode[methodName]}`}>{methodName}</span> <span className='font-extralight'>{endPointName}</span></button>
+
+    <tr className="bg-base-100 rounded-md">
+      <td style={{width:'5px'}} className={`m-1 p-1 rounded-md min-w-min text-white	text-center font-bold ${colorCode[methodName]}`}>{methodName}</td>
+      {/* <td style={{width:'5px'}} className={`p-2 rounded-md min-w-min text-white bg-[#579972]`}>DELETE</td> */}
+      {/* <td style={{width:'5px'}}><div className={`m-1 p-2 rounded-md min-w-min text-white	 ${colorCode[methodName]}`}>DSLKFLDSIKJFDK</div></td> */}
+      <td className='pl-10 w-min'>{endPointName}</td>
+    </tr>
+
   )
 }
 

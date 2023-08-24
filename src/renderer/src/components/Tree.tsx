@@ -258,7 +258,8 @@ function Tree({ reactFlowComponents }): JSX.Element {
         <Controls />
         <MiniMap className='mini-map max' />
       </ReactFlow>
-      <Details componentName={componentName} nodeInfo={nodeInfo} />
+      {componentName !== '' && 
+      <Details componentName={componentName} nodeInfo={nodeInfo} />}
     </div>
   );
 }
