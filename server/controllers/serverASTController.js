@@ -59,7 +59,8 @@ serverASTController.parseAll = (req, res, next) => {
   //helper functions
   const findVariableName = (curr) => {
     const varDecPath = curr.findParent(curr => curr.isVariableDeclarator());
-    return varDecPath.node.id.name;
+    if (varDecPath.node.id.name) return varDecPath.node.id.name;
+    if (varDecPath.node.id.properties) return varDecPath.node.id.properties.map(prop => prop.value.name);
   }
 
   const findImportLabel = (curr) => {
@@ -175,7 +176,7 @@ serverASTController.parseAll = (req, res, next) => {
     traverse(ast, {
       enter(curr) {
 
-        //check for files imported locally using ES6 console.log
+        //check for files imported locally using ES6 syntax
         if (curr.isStringLiteral() && curr.node.value.includes('./') && curr.parent.type === "ImportDeclaration") {
           importLabels = addES6Import(curr, filePath, importLabels);
         }
@@ -232,7 +233,7 @@ serverASTController.parseAll = (req, res, next) => {
         }
       }
     })
-    // console.log(linksToRouter, 'linksToRouter', allServerRoutesLeadingToController, 'allServerRoutesLeadingToController')
+    console.log(linksToRouter, 'linksToRouter', allServerRoutesLeadingToController, 'allServerRoutesLeadingToController')
   }
 
   const routerPathExtensions = {};
@@ -299,15 +300,99 @@ serverASTController.parseAll = (req, res, next) => {
         }
       }
     })
-    // console.log('allRouterRoutes....', allRouterRoutesLeadingToController)
+    console.log('allRouterRoutes....', allRouterRoutesLeadingToController)
   }
 
+  // const addES6Import = (curr, filePath, importLabels) => {
+  //   const importLabel = findImportLabel(curr);//grab the directory of this file
+  //   const currDirectory = path.dirname(filePath)//grab the absolute filepath of the imported file //IRENE: using directory name of current filepath
+  //   const afp = path.resolve(currDirectory, curr.node.value);
+  //   console.log('afp', afp)
+  //   const afpArray = allFiles.filter(file => file.includes(afp)); //if imported file exists in server directory, add its label name as a key in importLabels obj w value being its afp
+  //   if (afpArray.length) importLabels[importLabel] = afpArray[0];
+  //   // console.log(importLabels, 'importLabels');  // importLabels = {starWarsController: /Users/Codesmith/App/Controllers/starWarsControllers.js} this is temporary 
+  //   return importLabels;
+  // }
+
+  // addES5Import = (curr, filePath, importLabels) => {
+  //   const importLabel = findVariableName(curr);
+  //   const currDirectory = path.dirname(filePath);
+  //   const afp = path.resolve(currDirectory, curr.node.value);
+
+  //   const afpArray = allFiles.filter(file => file.includes(afp));
+  //   if (afpArray.length) importLabels[importLabel] = afpArray[0];
+  //   // console.log(importLabels, 'importLabels')
+  //   return importLabels;
+  // }
+
+  controllerSchemas = {};
+
   const traverseControllerFile = (ast, filePath, label, instance) => {
+    const imports = {};
+    const schemaInteractions = {};
+    let currentControllerMethod;
+    let expressionStatementPossible = false;
+    let variableStatementPossible = false;
     
     console.log('CONTROLLER FILE PATH', filePath);
+    traverse(ast, {
+      enter(curr) {
+
+        if (variableStatementPossible && currentControllerMethod && curr.parent.type === "ObjectExpression") currentControllerMethod = '';
+
+        if (curr.parent.type === "Program") {
+          if (currentControllerMethod && Object.keys(schemaInteractions).length) controllerSchemas[filePath] = schemaInteractions;
+
+          currentControllerMethod = '';
+          if (curr.node.type === "ExpressionStatement") expressionStatementPossible = true;
+          if (curr.node.type === "VariableDeclaration") variableStatementPossible = true;
+        }
 
 
-    return;
+        //check for files imported locally using ES6 syntax
+        if (curr.isStringLiteral() && curr.node.value.includes('./') && curr.parent.type === "ImportDeclaration") {
+          const importDecPath = curr.findParent(curr => curr.isImportDeclaration());
+          const importLabels = importDecPath.node.specifiers.map(obj => obj.local.name);
+          const currDirectory = path.dirname(filePath);
+          const afp = path.resolve(currDirectory, curr.node.value);
+          const afpArray = allFiles.filter(file => file.includes(afp));
+          if (afpArray.length) importLabels.forEach(label => imports[label] = afpArray[0]);
+        }
+
+        //check for files imported locally using ES5 syntax
+        if (curr.isStringLiteral() && curr.node.value.includes('./') && curr.parent.type === "CallExpression") {
+          if (curr.parent.callee.name === "require") {
+            let importLabel = findVariableName(curr);
+            const currDirectory = path.dirname(filePath);
+            const afp = path.resolve(currDirectory, curr.node.value);
+
+            const afpArray = allFiles.filter(file => file.includes(afp));
+            if (typeof importLabel === 'string') importLabel = [importLabel]
+            if (afpArray.length) importLabel.forEach(label => imports[label] = afpArray[0]);
+          }
+        }
+
+        //filtering for IDENTIFIER:
+          //that has a parent that is an OBJECT PROPERTY, where the object property has a child VALUE that is of type FUNCTIONEXPRESSION or ARROWFUNCTIONEXPRESSION
+          if ((expressionStatementPossible || variableStatementPossible) && !currentControllerMethod && curr.isIdentifier() && curr.parent.type === "ObjectProperty" && curr.parent.value.type === "ArrowFunctionExpression") {
+            currentControllerMethod = curr.node.name;
+          }
+
+        //OR: 
+          //that has a parent that is a MEMBEREXPRESSION, a grandparent that is an ASSIGNMENTEXPRESSION, and an uncle RIGHT property that is an ARROWFUNCTIONEXPRESSION with a params child of length 3;
+          if (variableStatementPossible && !currentControllerMethod && curr.isIdentifier() && curr.parent.property && curr.parent.type === "MemberExpression" && curr.parentPath.parent.type === "AssignmentExpression" && curr.parentPath.parent.right) {
+            if (curr.parent.property.name === curr.node.name) currentControllerMethod = curr.node.name;
+          }
+
+          if (currentControllerMethod && curr.isIdentifier() && Object.hasOwn(imports, curr.node.name) && curr.parent.type === "MemberExpression" && curr.parent.property) {
+            schemaInteractions[currentControllerMethod] ? schemaInteractions[currentControllerMethod].push(curr.node.name) : schemaInteractions[currentControllerMethod] = [curr.node.name];
+          }
+
+
+
+      }
+    })
+    console.log('schemaInteractions', schemaInteractions, 'imports', imports);
   }
 
   const schemas = {};
@@ -341,7 +426,7 @@ serverASTController.parseAll = (req, res, next) => {
         }
       }
     })
-    // console.log(schemaKey, 'schemaKey');
+    console.log(schemaKey, 'schemaKey');
     return
   }
 
@@ -353,6 +438,50 @@ serverASTController.parseAll = (req, res, next) => {
     // console.log('ast');
     traverseServerAST(ast, filePath);
   })
+
+  console.log('here')
+  const output = {};
+
+  Object.keys(linksToRouter).forEach(route => {
+    if (Object.hasOwn(allRouterRoutesLeadingToController, linksToRouter[route])) {
+      Object.keys(allRouterRoutesLeadingToController[linksToRouter[route]]).forEach(key => {
+        Object.keys(allRouterRoutesLeadingToController[linksToRouter[route]][key]).forEach(method => {
+          allRouterRoutesLeadingToController[linksToRouter[route]][key][method].forEach(controllerMethod => {
+            if (Object.hasOwn(controllerSchemas, controllerMethod.path)) {
+              if (Object.hasOwn(controllerSchemas[controllerMethod.path], controllerMethod.middlewareName)) {
+                controllerSchemas[controllerMethod.path][controllerMethod.middlewareName].forEach(schema => {
+                  if (schemaKey[schema]) {
+                    if (output[route+key]) {
+                      if (output[route+key][method] && !output[route+key][method][schema]) {
+                      output[route+key][method][schema] = schemaKey[schema];
+                      } else if (!output[route+key][method]) {
+                        output[route+key][method] = { [schema]: schemaKey[schema] }
+                      }
+                    } else {
+                      output[route+key] = { [method]: { [schema]: schemaKey[schema] } }
+                    }
+                  }
+                })
+              }
+            }
+          })
+        })
+      })
+    }
+  })
+
+  // { '/api/': {
+  //     'GET': { 'Person': { 'name': 'String' } }, 
+  //     'POST': { 'Species': { 'type': 'String' } }
+  //   }, 
+  //   { '/api/homeworld': { 
+  //       'GET': { 'Person': 'String' } }
+  //   }
+  // }
+
+  // Object.keys(allServerRoutesLeadingToController) 
+
+  console.log('plz work...', output)
 
   next();
 }
