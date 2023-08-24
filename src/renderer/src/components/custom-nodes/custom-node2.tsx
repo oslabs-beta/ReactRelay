@@ -5,25 +5,22 @@ const handleStyle = {
 };
 import 'tailwindcss/tailwind.css';
 
-const CustomNode2 = ({ data }) => {
+const CustomNode2 = ({ data, sourcePosition, targetPosition }) => {
   const { label } = data;
 
   return (
     <div
-      className={` bg-secondary cursor-pointer min-h-4 p-1 shadow-md bg-blend-normal rounded-md border-2 border-slate-500 text-xs bg`}
+      className={`custom-node flex flex-column items-center font-semibold bg-secondary cursor-pointer min-h-4 max-h-8 p-1 shadow-md bg-blend-normal rounded-lg border-2 border-slate-500 text-xs bg`}
       onClick={() => console.log('clicked', data)}
     >
-      <Handle type='target' position={Position.Left} />
-      <div>
-        <strong className='label flex-wrap min '>{label}</strong>
-      </div>
+      <Handle type='target' position={targetPosition} />
+      <strong className='label flex-wrap min '>{label}</strong>
       <Handle
         type='source'
-        position={Position.Right}
+        position={sourcePosition}
         id='a'
         className='source-handle '
       />
-      {/* <button className='button bg-blue-300'>GET</button> */}
     </div>
   );
 };
