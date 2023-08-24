@@ -4,9 +4,9 @@ import appLogo from '../assets/images/ReactRelay-logos/ReactRelay-logos_white.pn
 
 function Header({openFileExplorer, projectName}) {
   return (
-    <header className='flex justify-between p-8 bg-primary'>
-      <div>
-        <img className='object-none h-[45px] w-[440px]' src={appLogo}/>
+    <header className='flex justify-between p-3 bg-primary'>
+      <div className="w-[300px]">
+        <img className='object-cover h-[50px] ml-[-35px] w-full' src={appLogo}/>
       </div>
       <div className='flex items-center'>
 
