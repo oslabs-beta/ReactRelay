@@ -9,28 +9,11 @@ const componentController = {}
 console.log('hehhyehehe')
 componentController.parseAll = (req, res, next) => {
   console.log('hehhyehehe2')
-  const projectPath = req.body.filePath;
-  if (projectPath.length === 0) next();
+  // const projectPath = req.body.filePath;
+  // if (projectPath.length === 0) next();
   let components = {};
   const listOfChildren = new Set();
 
-
-  //dirPath is initially the root directory. This function recursively navigates
-  //through this directory, passing each file path into arrayOfFiles, and eventually
-  //returning this array
-  const getAllFiles = (dirPath, arrayOfFiles = []) => {
-    const files = fs.readdirSync(dirPath);
-
-
-    files.forEach((file) => {
-      if (fs.statSync(path2.join(dirPath, file)).isDirectory()) {
-        arrayOfFiles = getAllFiles(path2.join(dirPath, file), arrayOfFiles);
-      } else {
-        arrayOfFiles.push(path2.join(dirPath, file));
-      }
-    })
-    return arrayOfFiles;
-  }
 
   //readFileSync method of the fs module is used to grab all the code from 'filePath',
   //then the parse method in babel parser is used to create and return an AST version of
@@ -53,9 +36,6 @@ componentController.parseAll = (req, res, next) => {
     return fullRoute;
   }
 
-
-
-
   //
   const traverseAST = (ast, filePath) => {
 
@@ -73,6 +53,8 @@ componentController.parseAll = (req, res, next) => {
     let xmlHttpReq;
 
     let axiosLabel;
+
+    let nextJSLinkImported = false;
     
     //babel traverse used to traverse the passed in ast
     traverse(ast, {
@@ -187,33 +169,36 @@ componentController.parseAll = (req, res, next) => {
           }
         }
 
-        //axios handler
-        // if (axiosLabel && path.isIdentifier() && path.node.name === axiosLabel && path.findParent((path) => path.isCallExpression())) {
-        //   let route;
-        //   let method;
-        //   let fullRoute;
-        //   if (path.parent.type === "MemberExpression") {
-        //     const callExpressionPath = path.findParent((path) => path.isCallExpression());
-        //     method = path.parent.property.name.toUpperCase();
-        //     if (callExpressionPath.node.arguments[0].type === "StringLiteral") {  
-        //       route = fullRoute = callExpressionPath.node.arguments[0].value;
-        //     } else {
-        //       route = callExpressionPath.node.arguments[0].quasis[0].value.raw;
-        //       fullRoute = templateLiteralRouteParser(callExpressionPath.node.arguments[0]);
-        //     }
-        //   } else {
-        //     path.parent.arguments[0].properties.forEach(prop => {
-        //       if (prop.key.name === "method") method = prop.value.value.toUpperCase();
-        //       if (prop.key.name === "url") {
-        //         if (prop.value.type === "TemplateLiteral") {
-        //           route = prop.value.quasis[0].value.raw;
-        //           fullRoute = templateLiteralRouteParser(prop.value);
-        //         } else route = fullRoute = prop.value.value;
-        //       }
-        //     })
-        //   }
-        //   ajaxRequests.push({ route, fullRoute, method })
-        // }
+        // axios handler
+        if (axiosLabel && path.isIdentifier() && path.node.name === axiosLabel && path.findParent((path) => path.isCallExpression())) {
+          let route;
+          let method;
+          let fullRoute;
+          if (path.parent.type === "MemberExpression") {
+            const callExpressionPath = path.findParent((path) => path.isCallExpression());
+            method = path.parent.property.name.toUpperCase();
+            const callExpArgsArr = callExpressionPath.node.arguments[0];
+            if (callExpArgsArr.type === "StringLiteral") {  
+              route = fullRoute = callExpArgsArr.value;
+            } else if (callExpArgsArr.type === "TemplateLiteral") {
+              route = callExpArgsArr.quasis[0].value.raw;
+              fullRoute = templateLiteralRouteParser(callExpArgsArr);
+            } else if (callExpArgsArr.type === "MemberExpression") {
+              route = fullroute = `${callExpArgsArr.object.name}.${callExpArgsArr.property.name}`;
+            }
+          } else if (path.parent.arguments[0].properties) {
+            path.parent.arguments[0].properties.forEach(prop => {
+              if (prop.key.name === "method") method = prop.value.value.toUpperCase();
+              if (prop.key.name === "url") {
+                if (prop.value.type === "TemplateLiteral") {
+                  route = prop.value.quasis[0].value.raw;
+                  fullRoute = templateLiteralRouteParser(prop.value);
+                } else route = fullRoute = prop.value.value;
+              }
+            })
+          }
+          ajaxRequests.push({ route, fullRoute, method });
+        }
 
 
 
@@ -241,6 +226,42 @@ componentController.parseAll = (req, res, next) => {
             listOfChildren.add(path.node.name)
           }
         }
+
+        //preliminary logic for handling next.JS
+        if (path.isStringLiteral() && path.node.value === "next/link" && path.parent.type === "ImportDeclaration") {
+          const specifiers = path.parent.specifiers;
+          specifiers.forEach(obj => {
+            if (obj.local.name === "Link") nextJSLinkImported = true;
+          })
+        }
+
+        if (nextJSLinkImported && path.isJSXIdentifier() && path.node.name === "Link" && path.parent.type === "JSXOpeningElement") {
+          const attributes = path.parent.attributes;
+          attributes.forEach(obj => {
+            let route;
+            if (obj.name.name === "href") {
+              console.log(obj, "OBJJJJJJJ")
+              let route = obj.value.type === "StringLiteral" ? obj.value.value : null;
+              let expression = route ? null : obj.value.expression;
+              if (!route) {
+                if (expression.type === "StringLiteral") {
+                  route = expression.value;
+                } else if (expression.type === "TemplateLiteral") {
+                  route = expression.quasis[0].value.raw;
+                }
+              }
+              const currDirectory = path2.dirname(filePath);
+              const childFilePath = path2.resolve(currDirectory, route)
+              const afp = allFiles.filter(file => file.includes(childFilePath))[0];
+              children[afp] = null;
+            }
+          })
+
+          //TODO: if we find a Link tag, store this link tag and the filePath it is located in inside of a "links" object. After traversing all files, identify the component for which the link component is a child. add the route as a child of that component.(?)
+          
+        }
+
+
       }
     })
 
@@ -249,9 +270,7 @@ componentController.parseAll = (req, res, next) => {
   }
 
 
-  //invoking above 'getAllFiles' function to grab an array of all files in 'projectPath', then filtering for only files that could be react components
-  const allFiles = getAllFiles(projectPath).filter((file) => file.endsWith('.jsx') || file.endsWith('.js') || file.endsWith('.tsx') || file.endsWith('.ts'));
-
+  const allFiles = res.locals.allFiles;
   console.log(allFiles);
 
   //iterate through array of files, convert each to AST, and invoke above function to traverse the AST
@@ -279,7 +298,7 @@ componentController.parseAll = (req, res, next) => {
   })
 
   //set root node to be the "root"
-  const componentTree = components[path2.join(projectPath, 'index.js')]; //Object.keys(components).filter(component => !listOfChildren.has(component)) //&& Object.keys(components[component].children).length > 0) //components[Object.keys(components).filter(component => !listOfChildren.has(component) && Object.keys(components[component].children).length > 0)];
+  // const componentTree = components[path2.join(projectPath, 'index.js')]; //Object.keys(components).filter(component => !listOfChildren.has(component)) //&& Object.keys(components[component].children).length > 0) //components[Object.keys(components).filter(component => !listOfChildren.has(component) && Object.keys(components[component].children).length > 0)];
 
   // console.log(components)
   res.locals.components = components

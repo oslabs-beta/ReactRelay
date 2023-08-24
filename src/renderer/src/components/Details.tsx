@@ -3,7 +3,7 @@ import ModelPreview from './ModelPreview';
 import MethodButtonContainer from '@renderer/containers/MethodButtonContainer';
 
 function Details({ componentName, nodeInfo }): JSX.Element {
-  const [height, setHeight] = useState(200);
+  const [height, setHeight] = useState(0);
 
   const handler = (mouseDownEvent) => {
     const startHeight = height;
@@ -31,8 +31,8 @@ function Details({ componentName, nodeInfo }): JSX.Element {
 
 
   return (
-    <div className='h-auto w-full'>
-      <div id="draggable-container" className={`absolute bottom-0 min-h-[4rem] max-h-min mb-[-15rem] w-full flex flex-col bg-primary rounded-t-lg resize-y mt-9 z-1`}  style={{height: `${height}px`, maxHeight: '700px'}}>
+    <>
+      <div id="draggable-container" className={`w-full flex flex-col bg-primary rounded-t-lg resize-y mt-9 z-1`}  style={{height: `${height}px`}} >
         <div id="drag-bar" onMouseDown = {handler} className="pointer-events-auto self-center top-1/2 right-0 -mt-7 p-2 hidden md:block cursor-ns-resize z-3"  draggable="false">
           <div className="w-10 h-2 bg-slate-500/60 rounded-full"></div>
         </div>
@@ -43,7 +43,7 @@ function Details({ componentName, nodeInfo }): JSX.Element {
           <ModelPreview />
         </div>}
       </div>
-    </div>
+    </>
   );
 }
 

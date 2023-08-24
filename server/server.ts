@@ -1,3 +1,4 @@
+
 const express = require('express');
 const app = express();
 // port will be listening on 3000
@@ -8,14 +9,20 @@ app.use(cors({
   origin: 'http://localhost:5173',
 }));
 
+const fsController = require('./controllers/fsController');
 const componentController = require('./controllers/componentController');
+const serverASTController = require('./controllers/serverASTController');
 
 app.use(express.json());
 
-app.post('/components', componentController.parseAll, (req, res) => {
+app.post('/components', fsController.getArrayOfFilePaths, componentController.parseAll, (req, res) => {
   // console.log('hello', res.locals.components);
-  res.status(200).json(res.locals.components);
+  res.status(201).json(res.locals.components);
 })
+
+// app.post('/components', fsController.getArrayOfFilePaths, serverASTController.parseAll, (req, res) => {
+//   res.status(201).json({})
+// })
 
 
 app.get('/', (req, res) => {

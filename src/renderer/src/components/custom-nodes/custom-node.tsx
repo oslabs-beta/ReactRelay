@@ -22,7 +22,6 @@ const CustomNode = ({ data, sourcePosition, targetPosition, ajaxRequests }) => {
         position={sourcePosition}
         id='a'
         className='source-handle'
-        style={handleStyle}
       />
     </div>
   );
