@@ -32,7 +32,7 @@ const edgeType = 'smoothstep';
 const dagreGraph = new dagre.graphlib.Graph();
 dagreGraph.setDefaultEdgeLabel(() => ({}));
 
-const nodeWidth = 100;
+const nodeWidth = 150;
 const nodeHeight = 34;
 
 const getLayoutedElements = (nodes, edges, direction = 'TB') => {
