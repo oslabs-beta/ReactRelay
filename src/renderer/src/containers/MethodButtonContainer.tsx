@@ -15,7 +15,7 @@ function MethodButtonContainer({nodeInfo}) {
   }, [nodeInfo]); 
 
   return (
-    <div className='flex flex-col gap-[1rem] bg-success h-min'>
+    <div className='col-span-5 flex flex-col gap-[1rem] h-min mr-5'>
       {nodeInfo.length !== 0 && methodButtons}
     </div> 
   )

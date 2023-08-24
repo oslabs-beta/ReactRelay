@@ -38,7 +38,7 @@ function Details({ componentName, nodeInfo }): JSX.Element {
         </div>
         <h1 id="component-tab-label" className='inline rounded-t-xl text-2xl bg-primary font-bold mt-[-48px] ml-[40px] px-8 pt-4 pb-1 w-fit'>{componentName}</h1>
         { nodeInfo.length !== 0 &&
-        <div id='detail-container' className='flex justify-between h-min mt-10 p-10 gap-[1rem] bg-white'>
+        <div id='detail-container' className='grid grid-cols-12 h-min mt-10 p-10 gap-[1rem]'>
           <MethodButtonContainer nodeInfo={nodeInfo}/>
           <ModelPreview />
         </div>}
