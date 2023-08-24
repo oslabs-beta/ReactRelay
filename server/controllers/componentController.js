@@ -186,7 +186,7 @@ componentController.parseAll = (req, res, next) => {
             } else if (callExpArgsArr.type === "MemberExpression") {
               route = fullroute = `${callExpArgsArr.object.name}.${callExpArgsArr.property.name}`;
             }
-          } else {
+          } else if (path.parent.arguments[0].properties) {
             path.parent.arguments[0].properties.forEach(prop => {
               if (prop.key.name === "method") method = prop.value.value.toUpperCase();
               if (prop.key.name === "url") {
