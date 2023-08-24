@@ -240,7 +240,7 @@ function Tree({ reactFlowComponents }): JSX.Element {
 
   //TODO: add fragment so that you can return without a div
   return (
-    <div className="grid grid-rows-2 h-screen w-full bg-base-100">
+    <>
       <ReactFlow
         id='tree'
         nodes={nodes}
@@ -277,7 +277,7 @@ function Tree({ reactFlowComponents }): JSX.Element {
       </ReactFlow>
       {componentName !== '' && 
       <Details componentName={componentName} nodeInfo={nodeInfo} />}
-    </div>
+    </>
   );
 }
 
