@@ -8,7 +8,7 @@ function ModelPreview() {
   }, [])
 
   return (
-    <div className='w-7/12 bg-error'>
+    <div className='w-7/12 bg-error h-min'>
     <h3>Expected Data Structure</h3>
     <pre className='bg-base-100 rounded-md z-2'>
       <code className='language-js'>

@@ -32,15 +32,16 @@ function Details({ componentName, nodeInfo }): JSX.Element {
 
   return (
     <div className='h-auto w-full'>
-      <div id="draggable-container" className={`absolute bottom-0 min-h-[4rem] max-h-content content mb-[-15rem] h-full w-full flex flex-col bg-primary rounded-t-lg resize-y mt-9 z-1`}  style={{height: `${height}px`}}>
-        <div id="drag-bar" onMouseDown = {handler} className="pointer-events-auto self-center top-1/2 right-0 -mt-7 p-2 hidden md:block cursor-ns-resize"  draggable="false">
-          <div className="w-10 h-2 bg-slate-500/60 rounded-full z-2"></div>
+      <div id="draggable-container" className={`absolute bottom-0 min-h-[4rem] max-h-min mb-[-15rem] w-full flex flex-col bg-primary rounded-t-lg resize-y mt-9 z-1`}  style={{height: `${height}px`, maxHeight: '700px'}}>
+        <div id="drag-bar" onMouseDown = {handler} className="pointer-events-auto self-center top-1/2 right-0 -mt-7 p-2 hidden md:block cursor-ns-resize z-3"  draggable="false">
+          <div className="w-10 h-2 bg-slate-500/60 rounded-full"></div>
         </div>
         <h1 id="component-tab-label" className='inline rounded-t-xl text-2xl bg-primary font-bold mt-[-48px] ml-[40px] px-8 pt-4 pb-1 w-fit'>{componentName}</h1>
-        <div id='detail-container' className='flex justify-between h-full mt-10 p-10 gap-[1rem] bg-white'>
+        { nodeInfo.length !== 0 &&
+        <div id='detail-container' className='flex justify-between h-min mt-10 p-10 gap-[1rem] bg-white'>
           <MethodButtonContainer nodeInfo={nodeInfo}/>
           <ModelPreview />
-        </div>
+        </div>}
       </div>
     </div>
   );

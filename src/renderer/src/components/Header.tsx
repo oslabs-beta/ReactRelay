@@ -1,9 +1,10 @@
 import dirUpload from '../assets/images/directory-black.svg'
+import appLogo from '../assets/images/ReactRelay.svg'
 
 function Header({openFileExplorer, projectName}) {
   return (
     <header className='flex justify-between p-8 bg-primary'>
-      <h1 className='text-2xl font-bold text-black'>ReactRelay</h1>
+      <img className='object-none h-[45px] w-[440px]' src={appLogo}/>
       <div className='flex items-center'>
         
         <p className='text-lg mx-2'>{projectName}</p>
