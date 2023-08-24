@@ -11,7 +11,7 @@ import ReactFlow, {
 import dagre from 'dagre';
 import horizontal from '../assets/images/flowchart-horizontal.png';
 import vertical from '../assets/images/flowchart-vertical.png';
-import CustomNode from './custom-nodes/CustomNode'; // importing the custom node
+import CustomNode from './custom-nodes/custom-node'; // importing the custom node
 
 const nodeTypes = {
   CustomNode,
