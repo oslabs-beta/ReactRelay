@@ -15,14 +15,14 @@ const serverASTController = require('./controllers/serverASTController');
 
 app.use(express.json());
 
-// app.post('/components', fsController.getArrayOfFilePaths, componentController.parseAll, (req, res) => {
-//   // console.log('hello', res.locals.components);
-//   res.status(201).json(res.locals.components);
-// })
-
-app.post('/components', fsController.getArrayOfFilePaths, serverASTController.parseAll, (req, res) => {
-  res.status(201).json({})
+app.post('/components', fsController.getArrayOfFilePaths, componentController.parseAll, (req, res) => {
+  // console.log('hello', res.locals.components);
+  res.status(201).json(res.locals.components);
 })
+
+// app.post('/components', fsController.getArrayOfFilePaths, serverASTController.parseAll, (req, res) => {
+//   res.status(201).json({})
+// })
 
 
 app.get('/', (req, res) => {
