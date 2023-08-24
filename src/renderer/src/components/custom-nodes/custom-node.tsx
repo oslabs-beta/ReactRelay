@@ -7,26 +7,23 @@ const handleStyle = { //why is this decalred but never read
   style: 'bg-primary',
 };
 
-const CustomNode = ({ data }) => {
+const CustomNode = ({ data, sourcePosition, targetPosition, ajaxRequests }) => {
   const { label } = data;
-
+  console.log(ajaxRequests);
   return (
     <div
-      className='custom-node bg-primary cursor-pointer min-h-4 p-1 shadow-md bg-blend-normal rounded-md border-2 border-slate-500 text-xs bg'
+      className={`custom-node flex flex-column items-center font-semibold bg-primary cursor-pointer min-h-4 max-h-8 p-1 shadow-md bg-blend-normal rounded-lg border-2 border-slate-500 text-xs bg`}
     >
       {/* Handle are the dotes on the edge of the node where the lines connect */}
-      <Handle type='target' position={Position.Left} />
-      <div>
-        <strong className='label flex-wrap min '>{label}</strong>
-      </div>
+      <Handle type='target' position={targetPosition} />
+      <strong className='label flex-wrap min '>{label}</strong>
       <Handle
         type='source'
-        position={Position.Right}
+        position={sourcePosition}
         id='a'
         className='source-handle'
         style={handleStyle}
       />
-      {/* <button className='button bg-blue-300'>GET</button> */}
     </div>
   );
 };

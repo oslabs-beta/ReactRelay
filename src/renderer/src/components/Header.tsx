@@ -9,7 +9,7 @@ function Header({openFileExplorer, projectName}) {
         
         <p className='text-lg mx-2'>{projectName}</p>
         <div className="tooltip tooltip-left" data-tip="Open a new project">  
-          <button className="btn bg-accent" onClick={openFileExplorer}><img className='h-7' src={dirUpload} alt='open folder button'/></button>
+          <button className="btn" onClick={openFileExplorer}><img className='h-7' src={dirUpload} alt='open folder button'/></button>
           
         </div>
 
