@@ -17,3 +17,8 @@ body {
   margin: 0 auto;
   padding: 15px 30px 0 30px;
 } */
+
+.edgeClass {
+  stroke: 'purple' !important;
+  stroke-width: '3px' !important;
+}
