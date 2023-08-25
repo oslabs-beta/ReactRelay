@@ -23,7 +23,7 @@ const nodeTypes = {
   CustomNode2,
 };
 
-import '../assets/index.css'
+import '../assets/index.css';
 
 // importing the default ReactFlow styles
 import 'reactflow/dist/style.css';
@@ -31,7 +31,7 @@ import 'reactflow/dist/style.css';
 import Details from './Details';
 // import { get } from 'mongoose';
 
-import Header from './Header'
+import Header from './Header';
 
 // const position = { x: 0, y: 0 };
 const edgeType = 'smoothstep';
@@ -46,7 +46,7 @@ dagreGraph.setDefaultEdgeLabel(() => ({}));
 const nodeWidth = 100;
 const nodeHeight = 34;
 
-const getLayoutedElements = (nodes, edges, direction = 'TB') => {
+const getLayoutedElements = (nodes, edges, direction = 'LR') => {
   const isHorizontal = direction === 'LR';
   dagreGraph.setGraph({ rankdir: direction });
 
@@ -101,7 +101,11 @@ type Edge = {
   className: string;
 };
 
-function Tree({ reactFlowComponents, openFileExplorer, projectName }): JSX.Element {
+function Tree({
+  reactFlowComponents,
+  openFileExplorer,
+  projectName,
+}): JSX.Element {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [nodeInfo, setNodeInfo] = useState([]);
@@ -164,7 +168,7 @@ function Tree({ reactFlowComponents, openFileExplorer, projectName }): JSX.Eleme
         // obj.ajaxRequests --> check if this is empty or has values
         // to change the node's styling using custom nodes
         let i = childCount[obj.id] || 1;
-        // adds the number of components which are present, as there could be multiple copies 
+        // adds the number of components which are present, as there could be multiple copies
         //TODO: determine whether or not we need multiple copies.
         // takes care of a component that is used in more than just 1 component
         while (i >= 1) {
@@ -191,7 +195,7 @@ function Tree({ reactFlowComponents, openFileExplorer, projectName }): JSX.Eleme
           target: childId + child,
           type: edgeType,
           animated: true,
-          className: 'edgeClass'
+          className: 'edgeClass',
         });
         childCount[childId]--;
       });
@@ -207,17 +211,21 @@ function Tree({ reactFlowComponents, openFileExplorer, projectName }): JSX.Eleme
 
   const onConnect = useCallback(
     (params) =>
-      setEdges((eds) => //eds is previous value of the edge's variable
-        addEdge(
-          { ...params, type: ConnectionLineType.SmoothStep, animated: true },
-          eds
-        )
+      setEdges(
+        (
+          eds //eds is previous value of the edge's variable
+        ) =>
+          addEdge(
+            { ...params, type: ConnectionLineType.SmoothStep, animated: true },
+            eds
+          )
       ),
     []
   );
   const onLayout = useCallback(
     (direction) => {
-      const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(nodes, edges, direction);
+      const { nodes: layoutedNodes, edges: layoutedEdges } =
+        getLayoutedElements(nodes, edges, direction);
       setNodes([...layoutedNodes]);
       setEdges([...layoutedEdges]);
     },
@@ -237,7 +245,7 @@ function Tree({ reactFlowComponents, openFileExplorer, projectName }): JSX.Eleme
     const splitString = string.split('/'); // splitting the file path by / characters
     const componentExtension = splitString[splitString.length - 1]; // getting the final file of the directory
     const splitFileType = componentExtension.split('.'); // splitting the file path from its file extension
-    splitFileType[splitFileType.length - 1] = splitFileType[ 
+    splitFileType[splitFileType.length - 1] = splitFileType[
       // selecting whatever comes as the final extension
       // replace any numbers in the file extension with an empty string
       splitFileType.length - 1
@@ -247,8 +255,8 @@ function Tree({ reactFlowComponents, openFileExplorer, projectName }): JSX.Eleme
 
   //TODO: add fragment so that you can return without a div
   return (
-    <div className="flex flex-col h-screen w-full">
-      <Header openFileExplorer={openFileExplorer} projectName={projectName}/>
+    <div className='flex flex-col h-screen w-full'>
+      <Header openFileExplorer={openFileExplorer} projectName={projectName} />
       <ReactFlow
         id='tree'
         nodes={nodes}
@@ -258,12 +266,12 @@ function Tree({ reactFlowComponents, openFileExplorer, projectName }): JSX.Eleme
         onConnect={onConnect}
         connectionLineType={ConnectionLineType.SmoothStep}
         fitView={true}
-        minZoom ={0.1}
+        minZoom={0.1}
         onNodeClick={onNodeClick}
         nodeTypes={nodeTypes}
       >
         <Panel position='bottom-left'>
-          <div id='button-section' className='flex ml-9'>
+          <div id='button-section' className='flex'>
             <button className='btn m-1 bg-white' onClick={() => onLayout('TB')}>
               <img
                 className='h-8 '
@@ -280,11 +288,12 @@ function Tree({ reactFlowComponents, openFileExplorer, projectName }): JSX.Eleme
             </button>
           </div>
         </Panel>
-        <Controls />
+        <Controls position='top-right' />
         <MiniMap pannable='true' zoomable='true' className='mini-map max' />
       </ReactFlow>
-      {componentName !== '' && 
-      <Details componentName={componentName} nodeInfo={nodeInfo} />}
+      {componentName !== '' && (
+        <Details componentName={componentName} nodeInfo={nodeInfo} />
+      )}
     </div>
   );
 }
