@@ -1,12 +1,24 @@
-import 'tailwindcss/tailwind.css'
-import { useState, useEffect } from 'react'
-import Header from './components/Header'
-import Tree from './components/Tree'
+import 'tailwindcss/tailwind.css';
+import { useState, useEffect } from 'react';
+import Header from './components/Header';
+import Tree from './components/Tree';
+import {
+  TERipple,
+  TEModal,
+  TEModalDialog,
+  TEModalContent,
+  TEModalHeader,
+  TEModalBody,
+  TEModalFooter,
+} from "tw-elements-react";
+
+
 
 function App(): JSX.Element {
     const [projectName, setProjectName] = useState('');
     const [filePath, setFilePath] = useState(''); // may want to change this to some sort of redux, but useState is good for now i guess
     const [reactFlowComponents, setReactFlowComponents] = useState({});
+    const [showFileModal, setShowFileModal] = useState(false)
   
     // dialog settings
     const dialogConfig = {
@@ -48,7 +60,20 @@ function App(): JSX.Element {
     }, [filePath])
 
   return (
+    <>
+      <TEModal show={showFileModal} setShow={setShowFileModal}>
+        <TEModalDialog>
+          <TEModalContent>
+            <TEModalHeader>
+              <h2>Select component src path and server path</h2>
+              <button onClick={()=>setShowFileModal(false)}>X</button>
+            </TEModalHeader>
+            
+          </TEModalContent>
+        </TEModalDialog>
+      </TEModal>
       <Tree reactFlowComponents={reactFlowComponents} openFileExplorer={openFileExplorer} projectName={projectName} />
+    </>
   )
 }
 
