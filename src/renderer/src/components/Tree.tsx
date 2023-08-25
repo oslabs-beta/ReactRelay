@@ -43,8 +43,8 @@ const dagreGraph = new dagre.graphlib.Graph();
 dagreGraph.setDefaultEdgeLabel(() => ({}));
 
 // controls spacing between nodes
-const nodeWidth = 100;
-const nodeHeight = 34;
+const nodeWidth = 250;
+const nodeHeight = 50;
 
 const getLayoutedElements = (nodes, edges, direction = 'LR') => {
   const isHorizontal = direction === 'LR';
@@ -266,6 +266,7 @@ function Tree({
         onConnect={onConnect}
         connectionLineType={ConnectionLineType.SmoothStep}
         fitView={true}
+        fitViewOptions={{ padding: 1 }}
         minZoom={0.1}
         onNodeClick={onNodeClick}
         nodeTypes={nodeTypes}
