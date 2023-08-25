@@ -479,7 +479,31 @@ serverASTController.parseAll = (req, res, next) => {
   //   }
   // }
 
-  // Object.keys(allServerRoutesLeadingToController) 
+  Object.keys(allServerRoutesLeadingToController).forEach(file => {
+    Object.keys(allServerRoutesLeadingToController[file]).forEach(route => {
+      Object.keys(allServerRoutesLeadingToController[file][route]).forEach(method => {
+        allServerRoutesLeadingToController[file][route][method].forEach(middlewareMethod => {
+          if (Object.hasOwn(controllerSchemas, middlewareMethod.path)) {
+            if (Object.hasOwn(controllerSchemas[middlewareMethod.path], middlewareMethod.middlewareName)) {
+              controllerSchemas[middlewareMethod.path][middlewareMethod.middlewareName].forEach(schema => {
+                if (schemaKey[schema]) {
+                  console.log('here!!!!11', schemaKey[schema], schema, route)
+                  if (output[route]) {
+                    
+                    if (output[route][method] && !output[route][method][schema]) {
+                      output[route][method][schema] = schemaKey[schema];
+                    } else if (!output[route][method]) {
+                      output[route][method] = { [schema]: schemaKey[schema] }
+                    }
+                  } else output[route] = { [method]: { [schema]: schemaKey[schema] } }
+                }
+              })
+            }
+          }
+        })
+      })
+    })
+  })
 
   console.log('plz work...', output)
 

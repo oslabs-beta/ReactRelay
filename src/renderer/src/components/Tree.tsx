@@ -22,6 +22,9 @@ const nodeTypes = {
   CustomNode,
   CustomNode2,
 };
+
+import '../assets/index.css'
+
 // importing the default ReactFlow styles
 import 'reactflow/dist/style.css';
 // importing the Details component
@@ -95,6 +98,7 @@ type Edge = {
   target: string;
   type: string;
   animated: boolean;
+  className: string;
 };
 
 function Tree({ reactFlowComponents, openFileExplorer, projectName }): JSX.Element {
@@ -187,6 +191,7 @@ function Tree({ reactFlowComponents, openFileExplorer, projectName }): JSX.Eleme
           target: childId + child,
           type: edgeType,
           animated: true,
+          className: 'edgeClass'
         });
         childCount[childId]--;
       });
