@@ -45,6 +45,7 @@ const dialogConfig = {
     // TODO: add error catching !!!!!!!!!!!!!
   }
 
+  //TODO: ADD FUNCTIONALITY TO BUTTONS!
 
 
   return (
