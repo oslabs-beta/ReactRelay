@@ -24,6 +24,7 @@ const dialogConfig = {
       if (filePaths[0] === '' || !filePaths[0]) return null;
       if (pathType === 'component') setComponentPath(filePaths[0])
       else setServerPath(filePaths[0])
+      console.log(filePaths[0])
   }
 
 
@@ -76,21 +77,35 @@ const dialogConfig = {
       // <dialog id="my_modal_1" className="modal">
   <dialog id="openExplorerModal" className="modal">
     <form method="dialog" className="modal-box">
-      <h3 className="font-bold text-lg">Select component src path and server path</h3>
-        <div className=''>
-                <label>Components: </label>
-                <input type='text' placeholder='Components file path'></input>
-                <button id='component-folder'className='text-sm bg-slate-300 rounded-md p-1' onClick={openFileExplorer}>Choose folder</button>
-              </div>
-              <div>
-                <label>Server: </label>
-                <input type='text' placeholder='Server file path'></input>
-                <button id='server-folder'className='text-sm bg-slate-300 rounded-md p-1' onClick={openFileExplorer}>Choose folder</button>
-              </div>
-      <div className="modal-action">
-        {/* if there is a button in form, it will close the modal */}
-        <button className="btn">Close</button>
+      <h3 className="font-bold text-lg">Open Project</h3>
+      <div id='file-input-container' className='w-full'>
+        <div className="form-control w-full max-w-xs">
+          <label className="label">
+            <span className="label-text">Component Folder</span>
+          </label>
+          <input type="file" className="file-input file-input-primary w-full file-input-bordered file-input-md max-w-xs" onClick={openFileExplorer}/>
+        </div>
+        <div>
+          <div className="form-control w-full max-w-xs">
+            <label className="label">
+              <span className="label-text">Server Folder</span>
+            </label>
+            <input type="file" className="file-input file-input-primary file-input-bordered file-input-md w-full max-w-xs" />
+            <label className="label">
+            </label>
+          </div>
+        </div>
       </div>
+      <div className='flex justify-between items-end'>
+        <div className="modal-action">
+          {/* if there is a button in form, it will close the modal */}
+          <button className="btn bg-error" >Cancel</button>
+        </div>
+        <div>
+          <button className='btn bg-primary'>Continue</button>
+        </div>
+      </div>
+
     </form>
   </dialog>
 
