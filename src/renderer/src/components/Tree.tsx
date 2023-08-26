@@ -107,6 +107,7 @@ function Tree({ reactFlowComponents, openFileExplorer, projectName }): JSX.Eleme
   const [componentName, setComponentName] = useState('');
   const [treeContainerClick, setTreeContainerClick] = useState(true)
   const [active, setActive] = useState(null);
+  const [activeComponentCode, setActiveComponentCode] = useState('');
 
   //components that are re-used are given unique id's by adding a number to the end of the AFP. this function converts that id back to the AFP (i.e. as it appears in reactFlowComponents), then return the object associated with this AFP key in reactFlowComponents.
   const getComponentFromNodeId = (id: string): Component => {
@@ -231,7 +232,8 @@ function Tree({ reactFlowComponents, openFileExplorer, projectName }): JSX.Eleme
   );
 
   // on nodeClick we will want to set the state of the node info
-  const onNodeClick = (_, element) => {
+  const onNodeClick = async (_, element) => {
+
     const component = getComponentFromNodeId(element.id);
     const compName = getComponentName(element.id);
     setComponentName(compName);
@@ -241,6 +243,13 @@ function Tree({ reactFlowComponents, openFileExplorer, projectName }): JSX.Eleme
     })
     setActive(element.id);
     setNodes(updatedNodes);
+    const encodedId = encodeURIComponent(component.id)
+    const componentCode = await fetch(`http://localhost:3000/code?id=${encodedId}`);
+    console.log(componentCode, 'componentCode')
+    const data = await componentCode.json();
+    console.log('data', data)
+    setActiveComponentCode(data);
+
   };
 
   // TODO: REFACTOR THIS
@@ -297,7 +306,7 @@ function Tree({ reactFlowComponents, openFileExplorer, projectName }): JSX.Eleme
         <MiniMap pannable='true' zoomable='true' className='mini-map max' />
       </ReactFlow>
       {componentName !== '' && 
-      <Details componentName={componentName} nodeInfo={nodeInfo} treeContainerClick={treeContainerClick} />}
+      <Details componentName={componentName} nodeInfo={nodeInfo} treeContainerClick={treeContainerClick} activeComponentCode={activeComponentCode} />}
     </div>
   );
 }
