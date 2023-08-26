@@ -116,8 +116,9 @@ function Tree({ reactFlowComponents, openFileExplorer, projectName }): JSX.Eleme
   };
 
   const handleTreeContainerClick = (e) => {
-    if (!e.target.closest('.react-flow__node'))
+    if (!e.target.closest('.react-flow__node')) {
       setTreeContainerClick((prev) => !prev)
+    }
   }
 
   useEffect(() => {

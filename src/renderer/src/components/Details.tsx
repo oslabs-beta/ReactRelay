@@ -9,7 +9,7 @@ function Details({ componentName, nodeInfo, treeContainerClick }): JSX.Element {
     console.log('changeeeeeee', nodeInfo)
     if (nodeInfo.length) {
       console.log('hey')
-      setHeight('auto');
+      window.innerHeight > 800 ? setHeight('auto') : setHeight('30vh');
     } else {
       console.log('hooo')
       setHeight(0);
@@ -19,8 +19,8 @@ function Details({ componentName, nodeInfo, treeContainerClick }): JSX.Element {
 
   useEffect(() => {
     console.log('height', height)
-    const newHeight = height === 'auto' ? '20vh' : 0;
-    setHeight(newHeight)
+      const newHeight = height === 'auto' ? '20vh' : 0;
+      setHeight(newHeight)
   }, [treeContainerClick])
 
   const handler = (mouseDownEvent) => {
