@@ -51,7 +51,7 @@ function App(): JSX.Element {
     }, [filePath])
 
   return (
-      <Tree reactFlowComponents={reactFlowComponents} openFileExplorer={openFileExplorer} projectName={projectName}/>
+      <Tree openFileExplorer={openFileExplorer} projectName={projectName}/>
   )
 }
 

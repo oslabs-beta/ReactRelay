@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import {
   TERipple,
   TEModal,
@@ -8,8 +8,14 @@ import {
   TEModalBody,
   TEModalFooter,
 } from "tw-elements-react";
+import { useSelector, useDispatch } from 'react-redux';
+import { addPath } from '../features/projectInfo/addProjectSlice'
+import { setComponents } from '../features/projectInfo/reactFlowSlice'
 
-function ProjectPathModal({showFileModal, setShowFileModal, setComponentPath, setServerPath}) {
+function ProjectPathModal({showFileModal, setShowFileModal}) {
+
+  const dispatch = useDispatch();
+  const componentPath = useSelector(state => state.addProject.componentPath)
 
 const dialogConfig = {
       title: 'Select a project',
@@ -22,26 +28,23 @@ const dialogConfig = {
       const {filePaths} = await window.api.openDialog('showOpenDialog', dialogConfig) //TODO: add to type
       // if user chooses cancel then don't do anything
       if (filePaths[0] === '' || !filePaths[0]) return null;
-      if (pathType === 'component') setComponentPath(filePaths[0])
-      else setServerPath(filePaths[0])
+      dispatch(addPath([pathType, filePaths[0]]));
   }
 
-
   const fetchComponents = async (): any => {
-    if (filePath === '' || !filePath) return null;
+    console.log('this is the path', componentPath)
+    if (componentPath === '' || !componentPath) return null;
     const response = await fetch('http://localhost:3000/components', {
       method: 'POST',
       headers: {
         'Content-Type': 'Application/JSON'
       },
-      body: JSON.stringify({ filePath })  // sends to the componentController the filepath
+      body: JSON.stringify({ filePath: componentPath })  // sends to the componentController the filepath
     })
     if (response.ok) {
       const res = await response.json()
-      setReactFlowComponents(res)
-      // console.log('reactFlowComponents response is ok', reactFlowComponents)
+      dispatch(setComponents(res))
     }
-    // TODO: add error catching !!!!!!!!!!!!!
   }
 
 
@@ -57,18 +60,18 @@ const dialogConfig = {
            <TEModalBody className='flex flex-col gap-3'>
              <div className=''>
                <label>Components: </label> 
-               <input type='text' placeholder='Components file path'></input>
-               <button id='component-folder'className='text-sm bg-slate-300 rounded-md p-1' onClick={openFileExplorer}>Choose folder</button>
+               <input type='text' placeholder='Components file path' value={componentPath}></input>
+               <button id='component-folder'className='text-sm bg-slate-300 rounded-md p-1' onClick={()=>openFileExplorer('componentPath')}>Choose folder</button>
              </div>
              <div>
                <label>Server: </label> 
                <input type='text' placeholder='Server file path'></input>
-               <button id='server-folder'className='text-sm bg-slate-300 rounded-md p-1' onClick={openFileExplorer}>Choose folder</button>
+               <button id='server-folder'className='text-sm bg-slate-300 rounded-md p-1' onClick={()=>openFileExplorer('serverPath')}>Choose folder</button>
              </div>
            </TEModalBody>  
            <TEModalFooter>
             <button className='rounded-md bg-slate-200 p-1'>Cancel</button>
-            <button className='rounded-md bg-primary py-1 px-3'>OK</button>
+            <button onClick={fetchComponents} className='rounded-md bg-primary py-1 px-3'>OK</button>
            </TEModalFooter>     
          </TEModalContent>
        </TEModalDialog>

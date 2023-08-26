@@ -19,8 +19,8 @@ import 'reactflow/dist/style.css';
 import Details from './Details';// import { get } from 'mongoose';
 import Header from './Header'
 import ProjectPathModal from './ProjectPathModal';
-
-
+import { useSelector, useDispatch } from 'react-redux'
+import { setNodeInfo, setComponentName } from '../features/projectInfo/reactFlowSlice'
 const nodeTypes = {
   CustomNode,
   CustomNode2,
@@ -62,6 +62,8 @@ const getLayoutedElements = (nodes, edges, direction = 'LR') => {
   return { nodes, edges };
 };
 
+
+
 // setting the types for different components
 
 type Component = {
@@ -90,7 +92,6 @@ type Edge = {
 
 
 function Tree({
-  reactFlowComponents,
   openFileExplorer,
   projectName,
 }): JSX.Element {
@@ -101,20 +102,14 @@ function Tree({
   const [treeContainerClick, setTreeContainerClick] = useState(true);
   const [active, setActive] = useState(null);
   const [showFileModal, setShowFileModal] = useState(false);
-  const [componentPath, setComponentPath] = useState('');
-  const [serverPath, setServerPath] = useState('');
   
+  const dispatch = useDispatch();
+
   const handleModal = () => {
       setShowFileModal(prev => prev ? false : true)
     }
   
-  const handleComponentPath = (path) => {
-    setComponentPath(path);
-  }
-
-   const handleServerPath = (path) => {
-    setComponentPath(path);
-  }
+  const reactFlowComponents = useSelector(state => state.reactFlow.components)
 
   //components that are re-used are given unique id's by adding a number to the end of the AFP. this function converts that id back to the AFP (i.e. as it appears in reactFlowComponents), then return the object associated with this AFP key in reactFlowComponents.
   const getComponentFromNodeId = (id: string): Component => {
@@ -246,8 +241,8 @@ function Tree({
   const onNodeClick = (_, element) => {
     const component = getComponentFromNodeId(element.id);
     const compName = getComponentName(element.id);
-    setComponentName(compName);
-    setNodeInfo(reactFlowComponents[component.id].ajaxRequests);
+    dispatch(setComponentName(compName));
+    dispatch(setNodeInfo(reactFlowComponents[component.id].ajaxRequests));
     const updatedNodes = nodes.map((node) => {
       return node.id === element.id
         ? { ...node, data: { ...node.data, active: true } }
@@ -276,7 +271,7 @@ function Tree({
   return (
     <div className="flex flex-col h-screen w-full">
       <Header openFileExplorer={openFileExplorer} projectName={projectName} handleModal={handleModal}/>
-      <ProjectPathModal showFileModal={showFileModal} setShowFileModal={handleModal} setComponentPath={setComponentPath} setServerPath={setServerPath}/>
+      <ProjectPathModal showFileModal={showFileModal} setShowFileModal={handleModal} />
       <ReactFlow
         id='tree'
         nodes={nodes}
