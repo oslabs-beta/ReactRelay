@@ -5,40 +5,27 @@ import ReactFlow, {
   Panel,
   useNodesState,
   useEdgesState,
-  // this is where you import the Controls and MiniMap components from ReactFlow
   Controls,
   MiniMap,
 } from 'reactflow';
+
 import dagre from 'dagre';
 import horizontal from '../assets/images/flowchart-horizontal.png';
 import vertical from '../assets/images/flowchart-vertical.png';
-
-// importing the custom node
 import CustomNode from './custom-nodes/custom-node';
-// importing the custom node
 import CustomNode2 from './custom-nodes/custom-node2';
+import '../assets/index.css'
+import 'reactflow/dist/style.css';
+import Details from './Details';// import { get } from 'mongoose';
+import Header from './Header'
+import ProjectPathModal from './ProjectPathModal';
+
 
 const nodeTypes = {
   CustomNode,
   CustomNode2,
 };
-
-import '../assets/index.css'
-
-// importing the default ReactFlow styles
-import 'reactflow/dist/style.css';
-// importing the Details component
-import Details from './Details';
-// import { get } from 'mongoose';
-
-import Header from './Header'
-
-// const position = { x: 0, y: 0 };
 const edgeType = 'smoothstep';
-
-// const initialNodes = [];
-// const initialEdges = [];
-
 const dagreGraph = new dagre.graphlib.Graph();
 dagreGraph.setDefaultEdgeLabel(() => ({}));
 
@@ -101,11 +88,17 @@ type Edge = {
   className: string;
 };
 
+
 function Tree({ reactFlowComponents, openFileExplorer, projectName }): JSX.Element {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [nodeInfo, setNodeInfo] = useState([]);
   const [componentName, setComponentName] = useState('');
+  const [showFileModal, setShowFileModal] = useState(false)
+  
+  const handleModal = () => {
+      setShowFileModal(prev => prev ? false : true)
+    }
 
   //components that are re-used are given unique id's by adding a number to the end of the AFP. this function converts that id back to the AFP (i.e. as it appears in reactFlowComponents), then return the object associated with this AFP key in reactFlowComponents.
   const getComponentFromNodeId = (id: string): Component => {
@@ -248,7 +241,8 @@ function Tree({ reactFlowComponents, openFileExplorer, projectName }): JSX.Eleme
   //TODO: add fragment so that you can return without a div
   return (
     <div className="flex flex-col h-screen w-full">
-      <Header openFileExplorer={openFileExplorer} projectName={projectName}/>
+      <Header openFileExplorer={openFileExplorer} projectName={projectName} handleModal={handleModal}/>
+      <ProjectPathModal showFileModal={showFileModal} setShowFileModal={handleModal}/>
       <ReactFlow
         id='tree'
         nodes={nodes}
