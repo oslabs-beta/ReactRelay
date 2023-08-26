@@ -30,10 +30,10 @@ const dagreGraph = new dagre.graphlib.Graph();
 dagreGraph.setDefaultEdgeLabel(() => ({}));
 
 // controls spacing between nodes
-const nodeWidth = 100;
-const nodeHeight = 34;
+const nodeWidth = 250;
+const nodeHeight = 50;
 
-const getLayoutedElements = (nodes, edges, direction = 'TB') => {
+const getLayoutedElements = (nodes, edges, direction = 'LR') => {
   const isHorizontal = direction === 'LR';
   dagreGraph.setGraph({ rankdir: direction });
 
@@ -88,12 +88,17 @@ type Edge = {
 };
 
 
-function Tree({ reactFlowComponents, openFileExplorer, projectName }): JSX.Element {
+
+function Tree({
+  reactFlowComponents,
+  openFileExplorer,
+  projectName,
+}): JSX.Element {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [nodeInfo, setNodeInfo] = useState([]);
   const [componentName, setComponentName] = useState('');
-  const [treeContainerClick, setTreeContainerClick] = useState(true)
+  const [treeContainerClick, setTreeContainerClick] = useState(true);
   const [active, setActive] = useState(null);
   const [showFileModal, setShowFileModal] = useState(false);
   const [componentPath, setComponentPath] = useState('');
@@ -120,9 +125,9 @@ function Tree({ reactFlowComponents, openFileExplorer, projectName }): JSX.Eleme
 
   const handleTreeContainerClick = (e) => {
     if (!e.target.closest('.react-flow__node')) {
-      setTreeContainerClick((prev) => !prev)
+      setTreeContainerClick((prev) => !prev);
     }
-  }
+  };
 
   useEffect(() => {
     if (!reactFlowComponents) return;
@@ -174,13 +179,13 @@ function Tree({ reactFlowComponents, openFileExplorer, projectName }): JSX.Eleme
         // obj.ajaxRequests --> check if this is empty or has values
         // to change the node's styling using custom nodes
         let i = childCount[obj.id] || 1;
-        // adds the number of components which are present, as there could be multiple copies 
+        // adds the number of components which are present, as there could be multiple copies
         //TODO: determine whether or not we need multiple copies.
         // takes care of a component that is used in more than just 1 component
         while (i >= 1) {
           newNodes.push({
             id: obj.id + i,
-            data: {...obj.data, active: false },
+            data: { ...obj.data, active: false },
             position: { x: 0, y: 0 },
             type: obj.ajaxRequests.length ? 'CustomNode' : 'CustomNode2',
           });
@@ -200,7 +205,7 @@ function Tree({ reactFlowComponents, openFileExplorer, projectName }): JSX.Eleme
           target: childId + child,
           type: edgeType,
           animated: true,
-          className: 'edgeClass'
+          className: 'edgeClass',
         });
         childCount[childId]--;
       });
@@ -216,17 +221,21 @@ function Tree({ reactFlowComponents, openFileExplorer, projectName }): JSX.Eleme
 
   const onConnect = useCallback(
     (params) =>
-      setEdges((eds) => //eds is previous value of the edge's variable
-        addEdge(
-          { ...params, type: ConnectionLineType.SmoothStep, animated: true },
-          eds
-        )
+      setEdges(
+        (
+          eds //eds is previous value of the edge's variable
+        ) =>
+          addEdge(
+            { ...params, type: ConnectionLineType.SmoothStep, animated: true },
+            eds
+          )
       ),
     []
   );
   const onLayout = useCallback(
     (direction) => {
-      const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(nodes, edges, direction);
+      const { nodes: layoutedNodes, edges: layoutedEdges } =
+        getLayoutedElements(nodes, edges, direction);
       setNodes([...layoutedNodes]);
       setEdges([...layoutedEdges]);
     },
@@ -239,9 +248,13 @@ function Tree({ reactFlowComponents, openFileExplorer, projectName }): JSX.Eleme
     const compName = getComponentName(element.id);
     setComponentName(compName);
     setNodeInfo(reactFlowComponents[component.id].ajaxRequests);
-    const updatedNodes = nodes.map(node => {
-      return node.id === element.id ? { ...node, data: { ...node.data, active: true } } : node.id === active ? { ...node, data: { ...node.data, active: false } } : node;
-    })
+    const updatedNodes = nodes.map((node) => {
+      return node.id === element.id
+        ? { ...node, data: { ...node.data, active: true } }
+        : node.id === active
+        ? { ...node, data: { ...node.data, active: false } }
+        : node;
+    });
     setActive(element.id);
     setNodes(updatedNodes);
   };
@@ -251,7 +264,7 @@ function Tree({ reactFlowComponents, openFileExplorer, projectName }): JSX.Eleme
     const splitString = string.split('/'); // splitting the file path by / characters
     const componentExtension = splitString[splitString.length - 1]; // getting the final file of the directory
     const splitFileType = componentExtension.split('.'); // splitting the file path from its file extension
-    splitFileType[splitFileType.length - 1] = splitFileType[ 
+    splitFileType[splitFileType.length - 1] = splitFileType[
       // selecting whatever comes as the final extension
       // replace any numbers in the file extension with an empty string
       splitFileType.length - 1
@@ -274,13 +287,14 @@ function Tree({ reactFlowComponents, openFileExplorer, projectName }): JSX.Eleme
         connectionLineType={ConnectionLineType.SmoothStep}
         nodesDraggable={false}
         fitView={true}
-        minZoom ={0.1}
+        fitViewOptions={{ padding: 1 }}
+        minZoom={0.1}
         onNodeClick={onNodeClick}
         nodeTypes={nodeTypes}
         onClick={(e) => handleTreeContainerClick(e)}
       >
         <Panel position='bottom-left'>
-          <div id='button-section' className='flex ml-9'>
+          <div id='button-section' className='flex'>
             <button className='btn m-1 bg-white' onClick={() => onLayout('TB')}>
               <img
                 className='h-8 '
@@ -297,11 +311,16 @@ function Tree({ reactFlowComponents, openFileExplorer, projectName }): JSX.Eleme
             </button>
           </div>
         </Panel>
-        <Controls loc />
+        <Controls position='top-right' />
         <MiniMap pannable='true' zoomable='true' className='mini-map max' />
       </ReactFlow>
-      {componentName !== '' && 
-      <Details componentName={componentName} nodeInfo={nodeInfo} treeContainerClick={treeContainerClick} />}
+      {componentName !== '' && (
+        <Details
+          componentName={componentName}
+          nodeInfo={nodeInfo}
+          treeContainerClick={treeContainerClick}
+        />
+      )}
     </div>
   );
 }
