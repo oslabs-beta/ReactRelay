@@ -9,7 +9,8 @@ import {
   TEModalFooter,
 } from "tw-elements-react";
 
-function ProjectPathModal({showFileModal, setShowFileModal}) {
+function ProjectPathModal({showFileModal, setShowFileModal, setComponentPath, setServerPath}) {
+
 const dialogConfig = {
       title: 'Select a project',
       buttonLabel: 'Select',
@@ -17,11 +18,30 @@ const dialogConfig = {
     }
     // window.api.openDialog returns the filepath when the filepath is chosen from the dialog
     // should i add a case where user doesn't actually select a filepath
-    const openFileExplorer = async (): any => { //FIXME: add to type
+    const openFileExplorer = async (pathType): any => { //FIXME: add to type
       const {filePaths} = await window.api.openDialog('showOpenDialog', dialogConfig) //TODO: add to type
       // if user chooses cancel then don't do anything
       if (filePaths[0] === '' || !filePaths[0]) return null;
-      console.log(filePaths[0])
+      if (pathType === 'component') setComponentPath(filePaths[0])
+      else setServerPath(filePaths[0])
+  }
+
+
+  const fetchComponents = async (): any => {
+    if (filePath === '' || !filePath) return null;
+    const response = await fetch('http://localhost:3000/components', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'Application/JSON'
+      },
+      body: JSON.stringify({ filePath })  // sends to the componentController the filepath
+    })
+    if (response.ok) {
+      const res = await response.json()
+      setReactFlowComponents(res)
+      // console.log('reactFlowComponents response is ok', reactFlowComponents)
+    }
+    // TODO: add error catching !!!!!!!!!!!!!
   }
 
 

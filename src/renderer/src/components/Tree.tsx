@@ -94,11 +94,21 @@ function Tree({ reactFlowComponents, openFileExplorer, projectName }): JSX.Eleme
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [nodeInfo, setNodeInfo] = useState([]);
   const [componentName, setComponentName] = useState('');
-  const [showFileModal, setShowFileModal] = useState(false)
+  const [showFileModal, setShowFileModal] = useState(false);
+  const [componentPath, setComponentPath] = useState('');
+  const [serverPath, setServerPath] = useState('');
   
   const handleModal = () => {
       setShowFileModal(prev => prev ? false : true)
     }
+  
+  const handleComponentPath = (path) => {
+    setComponentPath(path);
+  }
+
+   const handleServerPath = (path) => {
+    setComponentPath(path);
+  }
 
   //components that are re-used are given unique id's by adding a number to the end of the AFP. this function converts that id back to the AFP (i.e. as it appears in reactFlowComponents), then return the object associated with this AFP key in reactFlowComponents.
   const getComponentFromNodeId = (id: string): Component => {
@@ -242,7 +252,7 @@ function Tree({ reactFlowComponents, openFileExplorer, projectName }): JSX.Eleme
   return (
     <div className="flex flex-col h-screen w-full">
       <Header openFileExplorer={openFileExplorer} projectName={projectName} handleModal={handleModal}/>
-      <ProjectPathModal showFileModal={showFileModal} setShowFileModal={handleModal}/>
+      <ProjectPathModal showFileModal={showFileModal} setShowFileModal={handleModal} setComponentPath={setComponentPath} setServerPath={setServerPath}/>
       <ReactFlow
         id='tree'
         nodes={nodes}
