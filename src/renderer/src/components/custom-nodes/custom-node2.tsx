@@ -11,7 +11,7 @@ const CustomNode2 = ({ data, sourcePosition, targetPosition }) => {
   return (
     <div
       className={`custom-node flex flex-column items-center font-semibold ${
-        data.active ? 'bg-green-500 text-xl' : 'bg-slate-100 text-xs'
+        data.active ? 'bg-secondary text-xl' : 'bg-slate-100 text-xs'
       } cursor-pointer min-h-4 max-h-8 p-1 shadow-md bg-blend-normal rounded-lg border-2 border-slate-500 bg`}
       onClick={() => console.log('clicked', data)}
     >
