@@ -47,33 +47,33 @@ const dialogConfig = {
 
 
   return (
-     <TEModal show={showFileModal} setShow={setShowFileModal}>
-       <TEModalDialog className='w-3/5'>
-         <TEModalContent>
-           <TEModalHeader>
-             <h2 className="text-md font-medium leading-normal text-neutral-800 dark:text-neutral-200">Select component src path and server path</h2>
-             <button onClick={()=>setShowFileModal(false)}>X</button>
-           </TEModalHeader>
-           <TEModalBody className='flex flex-col gap-3'>
-             <div className=''>
-               <label>Components: </label> 
-               <input type='text' placeholder='Components file path'></input>
-               <button id='component-folder'className='text-sm bg-slate-300 rounded-md p-1' onClick={openFileExplorer}>Choose folder</button>
-             </div>
-             <div>
-               <label>Server: </label> 
-               <input type='text' placeholder='Server file path'></input>
-               <button id='server-folder'className='text-sm bg-slate-300 rounded-md p-1' onClick={openFileExplorer}>Choose folder</button>
-             </div>
-           </TEModalBody>  
-           <TEModalFooter>
-            <button className='rounded-md bg-slate-200 p-1'>Cancel</button>
-            <button className='rounded-md bg-primary py-1 px-3'>OK</button>
-           </TEModalFooter>     
-         </TEModalContent>
-       </TEModalDialog>
-     </TEModal>    
-    
+      <TEModal show={showFileModal} setShow={setShowFileModal}>
+        <TEModalDialog className='w-3/5'>
+          <TEModalContent>
+            <TEModalHeader>
+              <h2 className="text-md font-medium leading-normal text-neutral-800 dark:text-neutral-200">Select component src path and server path</h2>
+              <button onClick={()=>setShowFileModal(false)}>X</button>
+            </TEModalHeader>
+            <TEModalBody className='flex flex-col gap-3'>
+              <div className=''>
+                <label>Components: </label>
+                <input type='text' placeholder='Components file path'></input>
+                <button id='component-folder'className='text-sm bg-slate-300 rounded-md p-1' onClick={openFileExplorer}>Choose folder</button>
+              </div>
+              <div>
+                <label>Server: </label>
+                <input type='text' placeholder='Server file path'></input>
+                <button id='server-folder'className='text-sm bg-slate-300 rounded-md p-1' onClick={openFileExplorer}>Choose folder</button>
+              </div>
+            </TEModalBody>
+            <TEModalFooter>
+              <button className='rounded-md bg-slate-200 p-1'>Cancel</button>
+              <button className='rounded-md bg-primary py-1 px-3'>OK</button>
+            </TEModalFooter>
+          </TEModalContent>
+        </TEModalDialog>
+      </TEModal>
+
 
   )
 }
