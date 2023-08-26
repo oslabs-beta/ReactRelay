@@ -76,7 +76,6 @@ type Node = {
   data: any;
   position: { x: number; y: number };
   type: string;
-  ajaxRequests: string[];
 };
 
 type Edge = {
@@ -94,6 +93,8 @@ function Tree({ reactFlowComponents, openFileExplorer, projectName }): JSX.Eleme
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [nodeInfo, setNodeInfo] = useState([]);
   const [componentName, setComponentName] = useState('');
+  const [treeContainerClick, setTreeContainerClick] = useState(true)
+  const [active, setActive] = useState(null);
   const [showFileModal, setShowFileModal] = useState(false);
   const [componentPath, setComponentPath] = useState('');
   const [serverPath, setServerPath] = useState('');
@@ -116,6 +117,12 @@ function Tree({ reactFlowComponents, openFileExplorer, projectName }): JSX.Eleme
     while (/[0-9]/.test(id[i]) && i > 10) i--;
     return reactFlowComponents[id.slice(0, i + 1)];
   };
+
+  const handleTreeContainerClick = (e) => {
+    if (!e.target.closest('.react-flow__node')) {
+      setTreeContainerClick((prev) => !prev)
+    }
+  }
 
   useEffect(() => {
     if (!reactFlowComponents) return;
@@ -173,10 +180,9 @@ function Tree({ reactFlowComponents, openFileExplorer, projectName }): JSX.Eleme
         while (i >= 1) {
           newNodes.push({
             id: obj.id + i,
-            data: obj.data,
+            data: {...obj.data, active: false },
             position: { x: 0, y: 0 },
             type: obj.ajaxRequests.length ? 'CustomNode' : 'CustomNode2',
-            ajaxRequests: obj.ajaxRequests,
           });
           i--;
         }
@@ -233,6 +239,11 @@ function Tree({ reactFlowComponents, openFileExplorer, projectName }): JSX.Eleme
     const compName = getComponentName(element.id);
     setComponentName(compName);
     setNodeInfo(reactFlowComponents[component.id].ajaxRequests);
+    const updatedNodes = nodes.map(node => {
+      return node.id === element.id ? { ...node, data: { ...node.data, active: true } } : node.id === active ? { ...node, data: { ...node.data, active: false } } : node;
+    })
+    setActive(element.id);
+    setNodes(updatedNodes);
   };
 
   // TODO: REFACTOR THIS
@@ -261,10 +272,12 @@ function Tree({ reactFlowComponents, openFileExplorer, projectName }): JSX.Eleme
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
         connectionLineType={ConnectionLineType.SmoothStep}
+        nodesDraggable={false}
         fitView={true}
         minZoom ={0.1}
         onNodeClick={onNodeClick}
         nodeTypes={nodeTypes}
+        onClick={(e) => handleTreeContainerClick(e)}
       >
         <Panel position='bottom-left'>
           <div id='button-section' className='flex ml-9'>
@@ -284,11 +297,11 @@ function Tree({ reactFlowComponents, openFileExplorer, projectName }): JSX.Eleme
             </button>
           </div>
         </Panel>
-        <Controls />
+        <Controls loc />
         <MiniMap pannable='true' zoomable='true' className='mini-map max' />
       </ReactFlow>
       {componentName !== '' && 
-      <Details componentName={componentName} nodeInfo={nodeInfo} />}
+      <Details componentName={componentName} nodeInfo={nodeInfo} treeContainerClick={treeContainerClick} />}
     </div>
   );
 }
