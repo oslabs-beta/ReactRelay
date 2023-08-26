@@ -89,7 +89,6 @@ type Node = {
   data: any;
   position: { x: number; y: number };
   type: string;
-  ajaxRequests: string[];
 };
 
 type Edge = {
@@ -110,12 +109,20 @@ function Tree({
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [nodeInfo, setNodeInfo] = useState([]);
   const [componentName, setComponentName] = useState('');
+  const [treeContainerClick, setTreeContainerClick] = useState(true);
+  const [active, setActive] = useState(null);
 
   //components that are re-used are given unique id's by adding a number to the end of the AFP. this function converts that id back to the AFP (i.e. as it appears in reactFlowComponents), then return the object associated with this AFP key in reactFlowComponents.
   const getComponentFromNodeId = (id: string): Component => {
     let i = id.length - 1;
     while (/[0-9]/.test(id[i]) && i > 10) i--;
     return reactFlowComponents[id.slice(0, i + 1)];
+  };
+
+  const handleTreeContainerClick = (e) => {
+    if (!e.target.closest('.react-flow__node')) {
+      setTreeContainerClick((prev) => !prev);
+    }
   };
 
   useEffect(() => {
@@ -174,10 +181,9 @@ function Tree({
         while (i >= 1) {
           newNodes.push({
             id: obj.id + i,
-            data: obj.data,
+            data: { ...obj.data, active: false },
             position: { x: 0, y: 0 },
             type: obj.ajaxRequests.length ? 'CustomNode' : 'CustomNode2',
-            ajaxRequests: obj.ajaxRequests,
           });
           i--;
         }
@@ -238,6 +244,15 @@ function Tree({
     const compName = getComponentName(element.id);
     setComponentName(compName);
     setNodeInfo(reactFlowComponents[component.id].ajaxRequests);
+    const updatedNodes = nodes.map((node) => {
+      return node.id === element.id
+        ? { ...node, data: { ...node.data, active: true } }
+        : node.id === active
+        ? { ...node, data: { ...node.data, active: false } }
+        : node;
+    });
+    setActive(element.id);
+    setNodes(updatedNodes);
   };
 
   // TODO: REFACTOR THIS
@@ -265,11 +280,13 @@ function Tree({
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
         connectionLineType={ConnectionLineType.SmoothStep}
+        nodesDraggable={false}
         fitView={true}
         fitViewOptions={{ padding: 1 }}
         minZoom={0.1}
         onNodeClick={onNodeClick}
         nodeTypes={nodeTypes}
+        onClick={(e) => handleTreeContainerClick(e)}
       >
         <Panel position='bottom-left'>
           <div id='button-section' className='flex'>
@@ -293,7 +310,11 @@ function Tree({
         <MiniMap pannable='true' zoomable='true' className='mini-map max' />
       </ReactFlow>
       {componentName !== '' && (
-        <Details componentName={componentName} nodeInfo={nodeInfo} />
+        <Details
+          componentName={componentName}
+          nodeInfo={nodeInfo}
+          treeContainerClick={treeContainerClick}
+        />
       )}
     </div>
   );
