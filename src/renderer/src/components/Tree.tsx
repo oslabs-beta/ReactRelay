@@ -43,7 +43,7 @@ const dagreGraph = new dagre.graphlib.Graph();
 dagreGraph.setDefaultEdgeLabel(() => ({}));
 
 // controls spacing between nodes
-const nodeWidth = 250;
+const nodeWidth = 300;
 const nodeHeight = 50;
 
 const getLayoutedElements = (nodes, edges, direction = 'LR') => {
