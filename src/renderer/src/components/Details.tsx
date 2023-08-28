@@ -60,12 +60,17 @@ function Details({ componentName, nodeInfo, treeContainerClick, activeComponentC
         <div id="drag-bar" onMouseDown = {handler} className="pointer-events-auto self-center top-1/2 right-0 -mt-7 p-2 hidden md:block cursor-ns-resize z-3"  draggable="false">
           <div className="w-10 h-2 bg-slate-500/60 rounded-full"></div>
         </div>
-        <h1 className='inline rounded-t-xl text-2xl bg-primary font-bold mt-[-48px] ml-[40px] px-8 pt-4 pb-1 w-fit'>
-          {componentName}
-          <button className={`btn inline rounded-xl text-xl bg-secondary px-8 py-2 m-2 w-fit pl-3 pr-3` } onClick={() => location.pathname === '/' ? navigate('/code') : navigate('/')}>
-            {location.pathname === '/' ? 'CODE' : 'ROUTES'}
-          </button>
-        </h1>
+
+        <div className=' w-fit'>
+          <h1 className=' rounded-t-xl text-2xl bg-primary font-bold mt-[-48px] ml-[40px] px-8'>
+            <div id="label" className="flex w-full items-baseline justify-between	">
+              {componentName}
+              <button className={`btn rounded-2xl bg-secondary m-2 w-fit px-3 ` } onClick={() => location.pathname === '/' ? navigate('/code') : navigate('/')}>
+                {location.pathname === '/' ? 'CODE' : 'ROUTES'}
+              </button>
+            </div>
+          </h1>
+        </div>
 
 
 
