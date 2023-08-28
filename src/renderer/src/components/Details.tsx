@@ -62,13 +62,15 @@ function Details({ componentName, nodeInfo, treeContainerClick, activeComponentC
         </div>
 
         <div className='w-fit'>
-          <p className='relative rounded-t-xl text-2xl bg-primary font-bold mt-[-55px] ml-[40px] pl-5 pr-2 '>
+          <p className='relative rounded-t-xl text-2xl bg-primary font-bold mt-[-45px] ml-[40px] pl-5 pr-2 p-2 '>
             <div id="label" className="flex w-full items-center	">
               {componentName}
-              <p className={`btn text-xs rounded-full bg-secondary m-2 ml-10 w-fit px-2` } onClick={() => location.pathname === '/' ? navigate('/code') : navigate('/')}>
+              <div className="tooltip tooltip-secondary tooltip-right" data-tip="toggle component details">
+                <p className={`badge cursor-pointer	 text-m rounded-full bg-secondary m-2 ml-10 w-fit px-2` } onClick={() => location.pathname === '/' ? navigate('/code') : navigate('/')}>
+                  {location.pathname === '/' ? 'CODE' : 'ROUTES'}
+                </p>
 
-                {location.pathname === '/' ? 'CODE' : 'ROUTES'}
-              </p>
+              </div>
             </div>
           </p>
         </div>
