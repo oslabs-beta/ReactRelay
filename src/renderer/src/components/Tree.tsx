@@ -14,26 +14,44 @@ import horizontal from '../assets/images/flowchart-horizontal.png';
 import vertical from '../assets/images/flowchart-vertical.png';
 import CustomNode from './custom-nodes/custom-node';
 import CustomNode2 from './custom-nodes/custom-node2';
-import '../assets/index.css'
+import '../assets/index.css';
 import 'reactflow/dist/style.css';
-import { useSelector, useDispatch } from 'react-redux'
-import { setNodeInfo, setComponentName } from '../features/projectInfo/reactFlowSlice'
-import { setTreeContainerClick, setActive, setActiveComponentCode } from '../features/projectInfo/detailSlice'
-
-
+import { useSelector, useDispatch } from 'react-redux';
+import {
+  setNodeInfo,
+  setComponentName,
+} from '../features/projectInfo/reactFlowSlice';
+import {
+  setTreeContainerClick,
+  setActive,
+  setActiveComponentCode,
+} from '../features/projectInfo/detailSlice';
 
 const nodeTypes = {
   CustomNode,
   CustomNode2,
 };
 const edgeType = 'smoothstep';
+// declaring both edge styles which we will be using
+// these use svg styling in case one wants to update them.
+// you can look up options here: https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute
+const edgeStyle = {
+  stroke: 'black',
+  'stroke-width': 4,
+};
+const edgeStyle2 = {
+  stroke: 'red',
+  'stroke-width': 8,
+};
+
 const dagreGraph = new dagre.graphlib.Graph();
 dagreGraph.setDefaultEdgeLabel(() => ({}));
 
 // controls spacing between nodes
-const nodeWidth = 350;
+const nodeWidth = 300;
 const nodeHeight = 50;
 
+// All you have to do to change the default layout is change 'LR' to 'TB' or 'RL'
 const getLayoutedElements = (nodes, edges, direction = 'LR') => {
   const isHorizontal = direction === 'LR';
   dagreGraph.setGraph({ rankdir: direction });
@@ -44,6 +62,7 @@ const getLayoutedElements = (nodes, edges, direction = 'LR') => {
 
   edges.forEach((edge) => {
     dagreGraph.setEdge(edge.source, edge.target);
+    edge.animated = true;
   });
 
   dagre.layout(dagreGraph);
@@ -62,8 +81,6 @@ const getLayoutedElements = (nodes, edges, direction = 'LR') => {
   });
   return { nodes, edges };
 };
-
-
 
 // setting the types for different components
 
@@ -88,16 +105,16 @@ type Edge = {
   type: string;
   animated: boolean;
   className: string;
+  style: object;
 };
 
-
-
-function Tree({
-}): JSX.Element {
+function Tree({}): JSX.Element {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
-  const reactFlowComponents = useSelector(state => state.reactFlow.components)
-  const active = useSelector(state => state.detail.active);
+  const reactFlowComponents = useSelector(
+    (state) => state.reactFlow.components
+  );
+  const active = useSelector((state) => state.detail.active);
   const dispatch = useDispatch();
   //components that are re-used are given unique id's by adding a number to the end of the AFP. this function converts that id back to the AFP (i.e. as it appears in reactFlowComponents), then return the object associated with this AFP key in reactFlowComponents.
   const getComponentFromNodeId = (id: string): Component => {
@@ -120,7 +137,7 @@ function Tree({
     const listOfChildIds = new Set();
 
     //create a Set containing all components that are children of other components (used to isolate 'roots' array below)
-    
+
     (Object.values(reactFlowComponents) as Component[]).forEach(
       (obj: Component) => {
         obj.children.forEach((childId) => listOfChildIds.add(childId));
@@ -190,6 +207,9 @@ function Tree({
           type: edgeType,
           animated: true,
           className: 'edgeClass',
+          // setting the default edge style to be the modified one to make
+          // the edges more visible when zoomed out.
+          style: edgeStyle,
         });
         childCount[childId]--;
       });
@@ -228,29 +248,40 @@ function Tree({
 
   // on nodeClick we will want to set the state of the node info
   const onNodeClick = async (_, element) => {
-
     const component = getComponentFromNodeId(element.id);
     const compName = getComponentName(element.id);
     dispatch(setComponentName(compName));
     dispatch(setNodeInfo(reactFlowComponents[component.id].ajaxRequests));
     const updatedNodes = nodes.map((node) => {
-      console.log(active)
+      // console.log(active);
       return node.id === element.id
-      ? { ...node, data: { ...node.data, active: true } }
-      : node.id === active
-      ? { ...node, data: { ...node.data, active: false } }
-      : node;
+        ? { ...node, data: { ...node.data, active: true } }
+        : node.id === active
+        ? { ...node, data: { ...node.data, active: false } }
+        : node;
     });
-    
     dispatch(setActive(element.id));
-    setNodes(updatedNodes);
-    const encodedId = encodeURIComponent(component.id)
-    const componentCode = await fetch(`http://localhost:3000/code?id=${encodedId}`);
-    // console.log(componentCode, 'componentCode')
+    const encodedId = encodeURIComponent(component.id);
+    const componentCode = await fetch(
+      `http://localhost:3000/code?id=${encodedId}`
+    );
+    console.log(componentCode, 'componentCode');
     const data = await componentCode.json();
     // console.log('data', data)
     dispatch(setActiveComponentCode(data));
-
+    // when clicked, the active node's edges will be highlighted in red,
+    // otherwise they will go back to the default black color.
+    // the edge.source and edge.target are both selected here to highlight
+    // the connection line on both ends of the node.
+    const updatedEdges = edges.map((edge) => {
+      return edge.source === element.id || edge.target === element.id
+        ? { ...edge, style: edgeStyle2 }
+        : edge.source === active || edge.target === active
+        ? { ...edge, style: edgeStyle }
+        : edge;
+    });
+    setNodes(updatedNodes);
+    setEdges(updatedEdges);
   };
 
   // TODO: REFACTOR THIS
@@ -268,43 +299,45 @@ function Tree({
 
   //TODO: add fragment so that you can return without a div
   return (
-      <ReactFlow
-        id='tree'
-        nodes={nodes}
-        edges={edges}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        onConnect={onConnect}
-        connectionLineType={ConnectionLineType.SmoothStep}
-        nodesDraggable={false}
-        fitView={true}
-        fitViewOptions={{ padding: 1 }}
-        minZoom={0.1}
-        onNodeClick={onNodeClick}
-        nodeTypes={nodeTypes}
-        onClick={(e) => handleTreeContainerClick(e)}
-      >
-        <Panel position='top-left'>
-          <div id='button-section' className='flex'>
-            <button className='btn bg-white rounded-full' onClick={() => onLayout('TB')}>
-              <img
-                className='h-6 '
-                src={vertical}
-                alt='vertical layout button'
-              />
-            </button>
-            <button className='btn ml-1 bg-white rounded-full' onClick={() => onLayout('LR')}>
-              <img
-                className='h-6'
-                src={horizontal}
-                alt='horizontal layout button'
-              />
-            </button>
-          </div>
-        </Panel>
-        <Controls position='top-right' />
-        <MiniMap pannable='true' zoomable='true' className='mini-map max' />
-      </ReactFlow>
+    <ReactFlow
+      id='tree'
+      nodes={nodes}
+      edges={edges}
+      onNodesChange={onNodesChange}
+      onEdgesChange={onEdgesChange}
+      onConnect={onConnect}
+      connectionLineType={ConnectionLineType.SmoothStep}
+      nodesDraggable={true}
+      fitView={true}
+      fitViewOptions={{ padding: 1 }}
+      minZoom={0.1}
+      onNodeClick={onNodeClick}
+      nodeTypes={nodeTypes}
+      onClick={(e) => handleTreeContainerClick(e)}
+    >
+      <Panel position='top-left'>
+        <div id='button-section' className='flex'>
+          <button
+            className='btn bg-white rounded-full'
+            onClick={() => onLayout('TB')}
+          >
+            <img className='h-6 ' src={vertical} alt='vertical layout button' />
+          </button>
+          <button
+            className='btn ml-1 bg-white rounded-full'
+            onClick={() => onLayout('LR')}
+          >
+            <img
+              className='h-6'
+              src={horizontal}
+              alt='horizontal layout button'
+            />
+          </button>
+        </div>
+      </Panel>
+      <Controls position='top-right' />
+      <MiniMap pannable={true} zoomable={true} className='mini-map max' />
+    </ReactFlow>
   );
 }
 
