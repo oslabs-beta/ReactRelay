@@ -80,7 +80,7 @@ function Details(): JSX.Element {
               </>
             }/>
             <Route path="/code" element={<ComponentCode/>} />
-          </Routes> 
+          </Routes>
         </div>
       </div>
     </>

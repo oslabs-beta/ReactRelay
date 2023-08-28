@@ -13,14 +13,14 @@ const ComponentCode = () => {
 
 
   return (
-    <div className='col-span-12 h-min ml-5'>
-      <h3>Component Code</h3>
+    <div className='col-span-12 h-min bg-neutral p-4 rounded-xl'>
+      <h3 className="font-bold">Component Code</h3>
       <pre className='bg-base-100 p-2 rounded-md z-2'>
         <code className='language-js break-words'>
         {activeComponentCode}
         </code>
       </pre>
-    </div> 
+    </div>
   )
 }
 
