@@ -272,7 +272,6 @@ function Tree({}): JSX.Element {
         ? { ...edge, style: edgeStyle }
         : edge;
     });
-    setActive(element.id);
     setNodes(updatedNodes);
     setEdges(updatedEdges);
     const encodedId = encodeURIComponent(component.id);
