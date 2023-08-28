@@ -1,24 +1,21 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import ModelPreview from './ModelPreview';
 import MethodButtonContainer from '@renderer/containers/MethodButtonContainer';
 import ComponentCode from './ComponentCode'
+import { useSelector } from 'react-redux'
 
-function Details({ componentName, nodeInfo, treeContainerClick, activeComponentCode }): JSX.Element {
+function Details(): JSX.Element {
   const [height, setHeight] = useState<string | number>(0);
   const navigate = useNavigate();
   const location = useLocation();
+  const nodeInfo = useSelector(state => state.reactFlow.nodeInfo);
+  const componentName = useSelector(state => state.reactFlow.componentName)
+  const treeContainerClick = useSelector(state => state.detail.treeContainerClick)
+  const activeComponentCode = useSelector(state => state.detail.activeComponentCode)
 
   useEffect(() => {
-    console.log('changeeeeeee', nodeInfo)
-    // if (nodeInfo.length) {
-      console.log('hey')
       window.innerHeight > 800 ? setHeight('40vh') : setHeight('30vh');
-    // } else {
-    //   console.log('hooo')
-    //   setHeight(0);
-    // }
-    console.log(height)
   },[nodeInfo])
 
   useEffect(() => {
@@ -30,8 +27,6 @@ function Details({ componentName, nodeInfo, treeContainerClick, activeComponentC
   const handler = (mouseDownEvent) => {
     // const startHeight = height;
     // const startPosition = mouseDownEvent.pageY;
-    console.log(mouseDownEvent.pageY, 'mdepy')
-
     function onMouseMove(mouseMoveEvent) {
       console.log('mme', mouseMoveEvent.pageY)
       const newHeight = window.innerHeight - mouseMoveEvent.pageY;  //startHeight = height of div // startPosition = where the mouse is positioned // mouseMoveEvenet.pageY = detects where mouse is on the screen //pageY is property of mouse event (on y axis unit is in pixels)
@@ -50,7 +45,6 @@ function Details({ componentName, nodeInfo, treeContainerClick, activeComponentC
     window.document.body.addEventListener("mousemove", onMouseMove);
     window.document.body.addEventListener("mouseup", onMouseUp);
   }
-  // is this where we are gonna wanna start using redux, to keep track of file path state?
 
 
 
@@ -85,7 +79,7 @@ function Details({ componentName, nodeInfo, treeContainerClick, activeComponentC
                 <ModelPreview />
               </>
             }/>
-            <Route path="/code" element={<ComponentCode activeComponentCode={activeComponentCode} />} />
+            <Route path="/code" element={<ComponentCode/>} />
           </Routes>
         </div>
       </div>

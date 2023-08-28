@@ -1,9 +1,11 @@
 import {useEffect} from 'react';
 import Prism from 'prismjs';
 import '../assets/prism.css';
+import { useSelector } from 'react-redux'
 
 
-const ComponentCode = ({ activeComponentCode }) => {
+const ComponentCode = () => {
+  const activeComponentCode = useSelector(state => state.detail.activeComponentCode)
   useEffect(() => {
     Prism.highlightAll();
   }, [activeComponentCode])
