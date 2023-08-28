@@ -20,14 +20,29 @@ app.post('/components', fsController.getArrayOfFilePaths, componentController.pa
   res.status(201).json(res.locals.components);
 })
 
-// app.post('/components', fsController.getArrayOfFilePaths, serverASTController.parseAll, (req, res) => {
-//   res.status(201).json({})
-// })
+app.post('/server', fsController.getArrayOfFilePaths, serverASTController.parseAll, (req, res) => {
+  res.status(201).json(res.locals.serverOutput);
+})
+// 'res.locals.serverOutput' Object shape:
+// { '/api/': {
+//     'GET': { 'Person': { 'name': 'String' } }, 
+//     'POST': { 'Species': { 'type': 'String' } }
+//   }, 
+//   { '/api/homeworld': { 
+//       'GET': { 'Person': 'String' } }
+//   }
+// }
 
+
+app.get('/code', componentController.getCode, (req, res) => {
+  console.log('res.locals', typeof res.locals.componentCode)
+  res.status(200).json(res.locals.componentCode);
+})
 
 app.get('/', (req, res) => {
   res.status(404).send('Not Found');
 });
+
 
 
 

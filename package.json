@@ -32,8 +32,8 @@
     "fs": "^0.0.1-security",
     "path": "^0.12.7",
     "prismjs": "^1.29.0",
-    "reactflow": "^11.8.2",
-    "tw-elements-react": "^1.0.0-alpha1"
+    "react-router-dom": "^6.15.0",
+    "reactflow": "^11.8.2"
   },
   "devDependencies": {
     "@electron-toolkit/tsconfig": "^1.0.1",
