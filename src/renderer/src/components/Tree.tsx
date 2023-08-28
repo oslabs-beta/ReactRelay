@@ -96,11 +96,9 @@ type Edge = {
 
 
 function Tree({
-  projectName,
 }): JSX.Element {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
-  const componentName = useSelector(state => state.reactFlow.componentName)
   const reactFlowComponents = useSelector(state => state.reactFlow.components)
   const active = useSelector(state => state.detail.active);
   const dispatch = useDispatch();
@@ -273,9 +271,6 @@ function Tree({
 
   //TODO: add fragment so that you can return without a div
   return (
-    <div className="flex flex-col h-screen w-full">
-      <Header  projectName={projectName}/>
-      <ProjectPathModal />
       <ReactFlow
         id='tree'
         nodes={nodes}
@@ -313,9 +308,6 @@ function Tree({
         <Controls position='top-right' />
         <MiniMap pannable='true' zoomable='true' className='mini-map max' />
       </ReactFlow>
-      {componentName !== '' &&
-      <Details />}
-    </div>
   );
 }
 

@@ -13,7 +13,6 @@ export const addProjectSlice = createSlice({
       const pathType = action.payload[0];
       const pathName = action.payload[1];
       state[pathType] = pathName;
-      console.log('pathType', pathType, 'pathName', pathName);
     },
   },
 });
