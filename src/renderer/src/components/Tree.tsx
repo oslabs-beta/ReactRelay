@@ -297,18 +297,18 @@ function Tree({
         nodeTypes={nodeTypes}
         onClick={(e) => handleTreeContainerClick(e)}
       >
-        <Panel position='bottom-left'>
+        <Panel position='top-left'>
           <div id='button-section' className='flex'>
-            <button className='btn m-1 bg-white' onClick={() => onLayout('TB')}>
+            <button className='btn bg-white rounded-full' onClick={() => onLayout('TB')}>
               <img
-                className='h-8 '
+                className='h-6 '
                 src={vertical}
                 alt='vertical layout button'
               />
             </button>
-            <button className='btn m-1 bg-white' onClick={() => onLayout('LR')}>
+            <button className='btn ml-1 bg-white rounded-full' onClick={() => onLayout('LR')}>
               <img
-                className='h-8'
+                className='h-6'
                 src={horizontal}
                 alt='horizontal layout button'
               />
@@ -318,7 +318,7 @@ function Tree({
         <Controls position='top-right' />
         <MiniMap pannable='true' zoomable='true' className='mini-map max' />
       </ReactFlow>
-      {componentName !== '' && 
+      {componentName !== '' &&
       <Details componentName={componentName} nodeInfo={nodeInfo} treeContainerClick={treeContainerClick} activeComponentCode={activeComponentCode} />}
     </div>
   );

@@ -56,20 +56,21 @@ function Details({ componentName, nodeInfo, treeContainerClick, activeComponentC
 
   return (
     <>
-      <div id="draggable-container" className={`w-full flex flex-col bg-primary rounded-t-lg resize-y mt-9 z-1`}  style={{height: height}} >
+      <div id="draggable-container" className={`relative w-full flex flex-col bg-primary rounded-t-lg resize-y mt-9 z-1`}  style={{height: height}} >
         <div id="drag-bar" onMouseDown = {handler} className="pointer-events-auto self-center top-1/2 right-0 -mt-7 p-2 hidden md:block cursor-ns-resize z-3"  draggable="false">
           <div className="w-10 h-2 bg-slate-500/60 rounded-full"></div>
         </div>
 
-        <div className=' w-fit'>
-          <h1 className=' rounded-t-xl text-2xl bg-primary font-bold mt-[-48px] ml-[40px] px-8'>
-            <div id="label" className="flex w-full items-baseline justify-between	">
+        <div className='w-fit'>
+          <p className='relative rounded-t-xl text-2xl bg-primary font-bold mt-[-55px] ml-[40px] pl-5 pr-2 '>
+            <div id="label" className="flex w-full items-center	">
               {componentName}
-              <button className={`btn rounded-2xl bg-secondary m-2 w-fit px-3 ` } onClick={() => location.pathname === '/' ? navigate('/code') : navigate('/')}>
+              <p className={`btn text-xs rounded-full bg-secondary m-2 ml-10 w-fit px-2` } onClick={() => location.pathname === '/' ? navigate('/code') : navigate('/')}>
+
                 {location.pathname === '/' ? 'CODE' : 'ROUTES'}
-              </button>
+              </p>
             </div>
-          </h1>
+          </p>
         </div>
 
 
