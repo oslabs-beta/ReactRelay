@@ -30,7 +30,7 @@ const dagreGraph = new dagre.graphlib.Graph();
 dagreGraph.setDefaultEdgeLabel(() => ({}));
 
 // controls spacing between nodes
-const nodeWidth = 250;
+const nodeWidth = 350;
 const nodeHeight = 50;
 
 const getLayoutedElements = (nodes, edges, direction = 'LR') => {
@@ -92,21 +92,15 @@ type Edge = {
 
 
 function Tree({
-  openFileExplorer,
   projectName,
 }): JSX.Element {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [treeContainerClick, setTreeContainerClick] = useState(true);
   const [active, setActive] = useState(null);
-  const [showFileModal, setShowFileModal] = useState(false);
+  const [activeComponentCode, setActiveComponentCode] = useState('');
   const componentName = useSelector(state => state.reactFlow.componentName)
   const dispatch = useDispatch();
-
-  const handleModal = () => {
-      setShowFileModal(prev => prev ? false : true)
-    }
-  
   const reactFlowComponents = useSelector(state => state.reactFlow.components)
 
   //components that are re-used are given unique id's by adding a number to the end of the AFP. this function converts that id back to the AFP (i.e. as it appears in reactFlowComponents), then return the object associated with this AFP key in reactFlowComponents.
@@ -130,6 +124,7 @@ function Tree({
     const listOfChildIds = new Set();
 
     //create a Set containing all components that are children of other components (used to isolate 'roots' array below)
+    
     (Object.values(reactFlowComponents) as Component[]).forEach(
       (obj: Component) => {
         obj.children.forEach((childId) => listOfChildIds.add(childId));
@@ -236,7 +231,8 @@ function Tree({
   );
 
   // on nodeClick we will want to set the state of the node info
-  const onNodeClick = (_, element) => {
+  const onNodeClick = async (_, element) => {
+
     const component = getComponentFromNodeId(element.id);
     const compName = getComponentName(element.id);
     dispatch(setComponentName(compName));
@@ -250,6 +246,13 @@ function Tree({
     });
     setActive(element.id);
     setNodes(updatedNodes);
+    const encodedId = encodeURIComponent(component.id)
+    const componentCode = await fetch(`http://localhost:3000/code?id=${encodedId}`);
+    // console.log(componentCode, 'componentCode')
+    const data = await componentCode.json();
+    // console.log('data', data)
+    setActiveComponentCode(data);
+
   };
 
   // TODO: REFACTOR THIS
@@ -268,8 +271,8 @@ function Tree({
   //TODO: add fragment so that you can return without a div
   return (
     <div className="flex flex-col h-screen w-full">
-      <Header openFileExplorer={openFileExplorer} projectName={projectName} handleModal={handleModal}/>
-      <ProjectPathModal showFileModal={showFileModal} setShowFileModal={handleModal} />
+      <Header  projectName={projectName}/>
+      <ProjectPathModal />
       <ReactFlow
         id='tree'
         nodes={nodes}
@@ -307,12 +310,8 @@ function Tree({
         <Controls position='top-right' />
         <MiniMap pannable='true' zoomable='true' className='mini-map max' />
       </ReactFlow>
-      {componentName !== '' && (
-        <Details
-          componentName={componentName}
-          treeContainerClick={treeContainerClick}
-        />
-      )}
+      {componentName !== '' &&
+      <Details treeContainerClick={treeContainerClick} activeComponentCode={activeComponentCode} />}
     </div>
   );
 }

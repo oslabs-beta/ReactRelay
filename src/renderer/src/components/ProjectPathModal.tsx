@@ -1,21 +1,12 @@
-import React, { useEffect } from 'react'
-import {
-  TERipple,
-  TEModal,
-  TEModalDialog,
-  TEModalContent,
-  TEModalHeader,
-  TEModalBody,
-  TEModalFooter,
-} from "tw-elements-react";
 import { useSelector, useDispatch } from 'react-redux';
 import { addPath } from '../features/projectInfo/addProjectSlice'
 import { setComponents } from '../features/projectInfo/reactFlowSlice'
 
-function ProjectPathModal({showFileModal, setShowFileModal}) {
+function ProjectPathModal() {
 
   const dispatch = useDispatch();
   const componentPath = useSelector(state => state.addProject.componentPath)
+  const serverPath = useSelector(state => state.addProject.serverPath)
 
 const dialogConfig = {
       title: 'Select a project',
@@ -43,40 +34,52 @@ const dialogConfig = {
     })
     if (response.ok) {
       const res = await response.json()
+      console.log('this is the response!', res)
       dispatch(setComponents(res))
     }
   }
 
+  //TODO: ADD FUNCTIONALITY TO BUTTONS!
 
 
   return (
-     <TEModal show={showFileModal} setShow={setShowFileModal}>
-       <TEModalDialog className='w-3/5'>
-         <TEModalContent>
-           <TEModalHeader>
-             <h2 className="text-md font-medium leading-normal text-neutral-800 dark:text-neutral-200">Select component src path and server path</h2>
-             <button onClick={()=>setShowFileModal(false)}>X</button>
-           </TEModalHeader>
-           <TEModalBody className='flex flex-col gap-3'>
-             <div className=''>
-               <label>Components: </label> 
-               <input type='text' placeholder='Components file path' value={componentPath}></input>
-               <button id='component-folder'className='text-sm bg-slate-300 rounded-md p-1' onClick={()=>openFileExplorer('componentPath')}>Choose folder</button>
-             </div>
-             <div>
-               <label>Server: </label> 
-               <input type='text' placeholder='Server file path'></input>
-               <button id='server-folder'className='text-sm bg-slate-300 rounded-md p-1' onClick={()=>openFileExplorer('serverPath')}>Choose folder</button>
-             </div>
-           </TEModalBody>  
-           <TEModalFooter>
-            <button className='rounded-md bg-slate-200 p-1'>Cancel</button>
-            <button onClick={fetchComponents} className='rounded-md bg-primary py-1 px-3'>OK</button>
-           </TEModalFooter>     
-         </TEModalContent>
-       </TEModalDialog>
-     </TEModal>    
-    
+  <dialog id="openExplorerModal" className="modal">
+    <form method="dialog" className="modal-box">
+      <h3 className="font-bold text-lg">Open Project</h3>
+      <div id='file-input-container' className='w-full'>
+        <div className="form-control w-full max-w-xs">
+          <label className="label">
+            <span className="label-text">Component Folder</span>
+          </label>
+            <div className='flex flex-row'>
+              <button className='bg-primary p-3 rounded-l-md text-sm font-semibold' onClick={()=>openFileExplorer('componentPath')}> CHOOSE PATH</button>
+              <div className='border border-primary rounded-r-md text-sm'>{componentPath !== '' ? componentPath : 'No folder chosen'}</div>
+            </div>
+        </div>
+        <div>
+          <div className="form-control w-full max-w-xs">
+            <label className="label">
+              <span className="label-text">Server Folder</span>
+            </label>
+            <div className='flex flex-row'>
+              <button className='bg-primary p-3 rounded-l-md text-sm font-semibold' onClick={()=>openFileExplorer('serverPath')}> CHOOSE PATH</button>
+              <div className='border border-primary rounded-r-md text-sm'>{serverPath !== '' ? serverPath : 'No folder chosen'}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className='flex justify-between items-end'>
+        <div className="modal-action">
+          {/* if there is a button in form, it will close the modal */}
+          <button className="btn bg-error" >Cancel</button>
+        </div>
+        <div>
+          <button onClick={()=>fetchComponents()}className='btn bg-primary'>Continue</button>
+        </div>
+      </div>
+
+    </form>
+  </dialog>
 
   )
 }

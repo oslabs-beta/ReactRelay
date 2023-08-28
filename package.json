@@ -35,7 +35,7 @@
     "prismjs": "^1.29.0",
     "react-redux": "^8.1.2",
     "reactflow": "^11.8.2",
-    "tw-elements-react": "^1.0.0-alpha1"
+    "react-router-dom": "^6.15.0"
   },
   "devDependencies": {
     "@electron-toolkit/tsconfig": "^1.0.1",

@@ -2,7 +2,7 @@ import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
   nodeInfo: [],
-  components: [],
+  components: {},
   componentName: '',
 };
 
@@ -18,7 +18,7 @@ export const reactFlowSlice = createSlice({
       state.nodeInfo = action.payload;
     },
     setComponentName: (state, action) => {
-      state.components = action.payload;
+      state.componentName = action.payload;
     },
   },
 });
