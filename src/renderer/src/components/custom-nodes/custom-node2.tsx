@@ -16,7 +16,7 @@ const CustomNode2 = ({ data, sourcePosition, targetPosition }) => {
       onClick={() => console.log('clicked', data)}
     >
       <Handle type='target' position={targetPosition} />
-      <strong className='label flex-wrap min text-3xl'>{label}</strong>
+      <p className='label flex-wrap min text-3xl'>{label}</p>
       <Handle
         type='source'
         position={sourcePosition}

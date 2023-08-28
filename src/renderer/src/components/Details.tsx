@@ -35,7 +35,7 @@ function Details({ componentName, nodeInfo, treeContainerClick, activeComponentC
     function onMouseMove(mouseMoveEvent) {
       console.log('mme', mouseMoveEvent.pageY)
       const newHeight = window.innerHeight - mouseMoveEvent.pageY;  //startHeight = height of div // startPosition = where the mouse is positioned // mouseMoveEvenet.pageY = detects where mouse is on the screen //pageY is property of mouse event (on y axis unit is in pixels)
-      // console.log('start:', startHeight, ' position:', startPosition, 'mouse: ', mouseMoveEvent.pageY)    
+      // console.log('start:', startHeight, ' position:', startPosition, 'mouse: ', mouseMoveEvent.pageY)
       setHeight(newHeight)
       console.log(height, newHeight);
     }
@@ -56,13 +56,28 @@ function Details({ componentName, nodeInfo, treeContainerClick, activeComponentC
 
   return (
     <>
-      <div id="draggable-container" className={`w-full flex flex-col bg-primary rounded-t-lg resize-y mt-9 z-1`}  style={{height: height}} >
+      <div id="draggable-container" className={`relative w-full flex flex-col bg-primary pt-10 pb-3 rounded-t-lg resize-y mt-2 z-1`}  style={{height: height}} >
         <div id="drag-bar" onMouseDown = {handler} className="pointer-events-auto self-center top-1/2 right-0 -mt-7 p-2 hidden md:block cursor-ns-resize z-3"  draggable="false">
-          <div className="w-10 h-2 bg-slate-500/60 rounded-full"></div>
+          <div className="w-9 h-2 bg-base-100 rounded-full"></div>
         </div>
-        <h1 id="component-tab-label" className='inline rounded-t-xl text-2xl bg-primary font-bold mt-[-48px] ml-[40px] px-8 pt-4 pb-1 w-fit'>{componentName}</h1>
-        <button className={`inline rounded-xl text-2xl bg-secondary font-bold px-8 py-2 mt-2 w-fit`} onClick={() => location.pathname === '/' ? navigate('/code') : navigate('/')}>{location.pathname === '/' ? 'VIEW CODE' : 'VIEW ROUTES'}</button>
-        <div id='detail-container' className='grid grid-cols-12 overflow-auto h-min mt-10 px-2 gap-[1rem]'>
+
+        <div className='w-fit'>
+          <p className='relative rounded-t-xl text-2xl bg-primary font-bold mt-[-85px] ml-[40px] pl-5 pr-2 p-2 '>
+            <div id="label" className="flex w-full items-center	">
+              {componentName}
+              <div className="tooltip tooltip-secondary tooltip-right" data-tip="toggle component details">
+                <p className={`badge cursor-pointer	 text-m rounded-full bg-secondary m-2 ml-10 w-fit px-2` } onClick={() => location.pathname === '/' ? navigate('/code') : navigate('/')}>
+                  {location.pathname === '/' ? 'ROUTES' : 'CODE'}
+                </p>
+
+              </div>
+            </div>
+          </p>
+        </div>
+
+
+
+        <div id='detail-container' className='grid grid-cols-12 overflow-auto h-min m-3 mt-4 px-2 gap-[1rem]'>
           <Routes>
             <Route path="/" element={
               <>
