@@ -1,44 +1,32 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect } from 'react';
 import ReactFlow, {
   addEdge,
   ConnectionLineType,
   Panel,
   useNodesState,
   useEdgesState,
-  // this is where you import the Controls and MiniMap components from ReactFlow
   Controls,
   MiniMap,
 } from 'reactflow';
+
 import dagre from 'dagre';
 import horizontal from '../assets/images/flowchart-horizontal.png';
 import vertical from '../assets/images/flowchart-vertical.png';
-
-// importing the custom node
 import CustomNode from './custom-nodes/custom-node';
-// importing the custom node
 import CustomNode2 from './custom-nodes/custom-node2';
+import '../assets/index.css'
+import 'reactflow/dist/style.css';
+import { useSelector, useDispatch } from 'react-redux'
+import { setNodeInfo, setComponentName } from '../features/projectInfo/reactFlowSlice'
+import { setTreeContainerClick, setActive, setActiveComponentCode } from '../features/projectInfo/detailSlice'
+
+
 
 const nodeTypes = {
   CustomNode,
   CustomNode2,
 };
-
-import '../assets/index.css';
-
-// importing the default ReactFlow styles
-import 'reactflow/dist/style.css';
-// importing the Details component
-import Details from './Details';
-// import { get } from 'mongoose';
-
-import Header from './Header';
-
-// const position = { x: 0, y: 0 };
 const edgeType = 'smoothstep';
-
-// const initialNodes = [];
-// const initialEdges = [];
-
 const dagreGraph = new dagre.graphlib.Graph();
 dagreGraph.setDefaultEdgeLabel(() => ({}));
 
@@ -75,6 +63,8 @@ const getLayoutedElements = (nodes, edges, direction = 'LR') => {
   return { nodes, edges };
 };
 
+
+
 // setting the types for different components
 
 type Component = {
@@ -100,19 +90,15 @@ type Edge = {
   className: string;
 };
 
+
+
 function Tree({
-  reactFlowComponents,
-  openFileExplorer,
-  projectName,
 }): JSX.Element {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
-  const [nodeInfo, setNodeInfo] = useState([]);
-  const [componentName, setComponentName] = useState('');
-  const [treeContainerClick, setTreeContainerClick] = useState(true);
-  const [active, setActive] = useState(null);
-  const [activeComponentCode, setActiveComponentCode] = useState('');
-
+  const reactFlowComponents = useSelector(state => state.reactFlow.components)
+  const active = useSelector(state => state.detail.active);
+  const dispatch = useDispatch();
   //components that are re-used are given unique id's by adding a number to the end of the AFP. this function converts that id back to the AFP (i.e. as it appears in reactFlowComponents), then return the object associated with this AFP key in reactFlowComponents.
   const getComponentFromNodeId = (id: string): Component => {
     let i = id.length - 1;
@@ -122,7 +108,7 @@ function Tree({
 
   const handleTreeContainerClick = (e) => {
     if (!e.target.closest('.react-flow__node')) {
-      setTreeContainerClick((prev) => !prev);
+      dispatch(setTreeContainerClick());
     }
   };
 
@@ -134,6 +120,7 @@ function Tree({
     const listOfChildIds = new Set();
 
     //create a Set containing all components that are children of other components (used to isolate 'roots' array below)
+    
     (Object.values(reactFlowComponents) as Component[]).forEach(
       (obj: Component) => {
         obj.children.forEach((childId) => listOfChildIds.add(childId));
@@ -244,23 +231,25 @@ function Tree({
 
     const component = getComponentFromNodeId(element.id);
     const compName = getComponentName(element.id);
-    setComponentName(compName);
-    setNodeInfo(reactFlowComponents[component.id].ajaxRequests);
+    dispatch(setComponentName(compName));
+    dispatch(setNodeInfo(reactFlowComponents[component.id].ajaxRequests));
     const updatedNodes = nodes.map((node) => {
+      console.log(active)
       return node.id === element.id
-        ? { ...node, data: { ...node.data, active: true } }
-        : node.id === active
-        ? { ...node, data: { ...node.data, active: false } }
-        : node;
+      ? { ...node, data: { ...node.data, active: true } }
+      : node.id === active
+      ? { ...node, data: { ...node.data, active: false } }
+      : node;
     });
-    setActive(element.id);
+    
+    dispatch(setActive(element.id));
     setNodes(updatedNodes);
     const encodedId = encodeURIComponent(component.id)
     const componentCode = await fetch(`http://localhost:3000/code?id=${encodedId}`);
-    console.log(componentCode, 'componentCode')
+    // console.log(componentCode, 'componentCode')
     const data = await componentCode.json();
-    console.log('data', data)
-    setActiveComponentCode(data);
+    // console.log('data', data)
+    dispatch(setActiveComponentCode(data));
 
   };
 
@@ -279,8 +268,6 @@ function Tree({
 
   //TODO: add fragment so that you can return without a div
   return (
-    <div className='flex flex-col h-screen w-full'>
-      <Header openFileExplorer={openFileExplorer} projectName={projectName} />
       <ReactFlow
         id='tree'
         nodes={nodes}
@@ -318,9 +305,6 @@ function Tree({
         <Controls position='top-right' />
         <MiniMap pannable='true' zoomable='true' className='mini-map max' />
       </ReactFlow>
-      {componentName !== '' &&
-      <Details componentName={componentName} nodeInfo={nodeInfo} treeContainerClick={treeContainerClick} activeComponentCode={activeComponentCode} />}
-    </div>
   );
 }
 
