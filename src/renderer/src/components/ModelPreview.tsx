@@ -8,7 +8,7 @@ function ModelPreview() {
   }, [])
 
   return (
-    <div className='col-span-7 overflow-auto h-min ml-5'>
+    <div className='col-span-7 overflow-auto h-min '>
       <h3>Expected Data Structure</h3>
       <pre className='bg-base-100 rounded-md z-2'>
         <code className='language-js'>
@@ -31,7 +31,7 @@ function ModelPreview() {
         `}
         </code>
       </pre>
-    </div> 
+    </div>
   )
 }
 

@@ -13,15 +13,15 @@ function MethodButtonContainer({nodeInfo}) {
       />
     ));
     setMethodButtons(buttons);
-  }, [nodeInfo]); 
+  }, [nodeInfo]);
 
   return (
-    <div className='col-span-5 flex flex-col gap-[1rem] h-min mr-5'>
+    <div className='col-span-5 flex flex-col gap-[1rem] h-min mr-1'>
       {nodeInfo.length !== 0 && methodButtons}
-    </div> 
+    </div>
   )
   }
-  
+
   export default MethodButtonContainer
   //  <table className='h-fit border-separate border-spacing-y-5 w-7/12'>
   //     <thead>
