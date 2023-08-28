@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect } from 'react';
 import ReactFlow, {
   addEdge,
   ConnectionLineType,
@@ -16,9 +16,6 @@ import CustomNode from './custom-nodes/custom-node';
 import CustomNode2 from './custom-nodes/custom-node2';
 import '../assets/index.css'
 import 'reactflow/dist/style.css';
-import Details from './Details';// import { get } from 'mongoose';
-import Header from './Header'
-import ProjectPathModal from './ProjectPathModal';
 import { useSelector, useDispatch } from 'react-redux'
 import { setNodeInfo, setComponentName } from '../features/projectInfo/reactFlowSlice'
 import { setTreeContainerClick, setActive, setActiveComponentCode } from '../features/projectInfo/detailSlice'
@@ -287,18 +284,18 @@ function Tree({
         nodeTypes={nodeTypes}
         onClick={(e) => handleTreeContainerClick(e)}
       >
-        <Panel position='bottom-left'>
+        <Panel position='top-left'>
           <div id='button-section' className='flex'>
-            <button className='btn m-1 bg-white' onClick={() => onLayout('TB')}>
+            <button className='btn bg-white rounded-full' onClick={() => onLayout('TB')}>
               <img
-                className='h-8 '
+                className='h-6 '
                 src={vertical}
                 alt='vertical layout button'
               />
             </button>
-            <button className='btn m-1 bg-white' onClick={() => onLayout('LR')}>
+            <button className='btn ml-1 bg-white rounded-full' onClick={() => onLayout('LR')}>
               <img
-                className='h-8'
+                className='h-6'
                 src={horizontal}
                 alt='horizontal layout button'
               />
