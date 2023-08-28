@@ -29,18 +29,22 @@ import '../assets/index.css';
 import 'reactflow/dist/style.css';
 // importing the Details component
 import Details from './Details';
-// import { get } from 'mongoose';
 
 import Header from './Header';
 
 // const position = { x: 0, y: 0 };
 const edgeType = 'smoothstep';
+// declaring both edge styles which we will be using
+// these use svg styling in case one wants to update them.
+// you can look up options here: https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute
 const edgeStyle = {
   stroke: 'black',
-  'stroke-width': 2,
+  'stroke-width': 4,
 };
-// const initialNodes = [];
-// const initialEdges = [];
+const edgeStyle2 = {
+  stroke: 'red',
+  'stroke-width': 8,
+};
 
 const dagreGraph = new dagre.graphlib.Graph();
 dagreGraph.setDefaultEdgeLabel(() => ({}));
@@ -49,6 +53,7 @@ dagreGraph.setDefaultEdgeLabel(() => ({}));
 const nodeWidth = 350;
 const nodeHeight = 50;
 
+// All you have to do to change the default layout is change 'LR' to 'TB' or 'RL'
 const getLayoutedElements = (nodes, edges, direction = 'LR') => {
   const isHorizontal = direction === 'LR';
   dagreGraph.setGraph({ rankdir: direction });
@@ -59,6 +64,7 @@ const getLayoutedElements = (nodes, edges, direction = 'LR') => {
 
   edges.forEach((edge) => {
     dagreGraph.setEdge(edge.source, edge.target);
+    edge.animated = true;
   });
 
   dagre.layout(dagreGraph);
@@ -207,6 +213,8 @@ function Tree({
           type: edgeType,
           animated: true,
           className: 'edgeClass',
+          // setting the default edge style to be the modified one to make
+          // the edges more visible when zoomed out.
           style: edgeStyle,
         });
         childCount[childId]--;
@@ -246,7 +254,6 @@ function Tree({
 
   // on nodeClick we will want to set the state of the node info
   const onNodeClick = async (_, element) => {
-
     const component = getComponentFromNodeId(element.id);
     const compName = getComponentName(element.id);
     setComponentName(compName);
@@ -258,15 +265,28 @@ function Tree({
         ? { ...node, data: { ...node.data, active: false } }
         : node;
     });
+    // when clicked, the active node's edges will be highlighted in red,
+    // otherwise they will go back to the default black color.
+    // the edge.source and edge.target are both selected here to highlight
+    // the connection line on both ends of the node.
+    const updatedEdges = edges.map((edge) => {
+      return edge.source === element.id || edge.target === element.id
+        ? { ...edge, style: edgeStyle2 }
+        : edge.source === active || edge.target === active
+        ? { ...edge, style: edgeStyle }
+        : edge;
+    });
     setActive(element.id);
     setNodes(updatedNodes);
-    const encodedId = encodeURIComponent(component.id)
-    const componentCode = await fetch(`http://localhost:3000/code?id=${encodedId}`);
-    console.log(componentCode, 'componentCode')
+    setEdges(updatedEdges);
+    const encodedId = encodeURIComponent(component.id);
+    const componentCode = await fetch(
+      `http://localhost:3000/code?id=${encodedId}`
+    );
+    console.log(componentCode, 'componentCode');
     const data = await componentCode.json();
-    console.log('data', data)
+    console.log('data', data);
     setActiveComponentCode(data);
-
   };
 
   // TODO: REFACTOR THIS
@@ -323,8 +343,14 @@ function Tree({
         <Controls position='top-right' />
         <MiniMap pannable='true' zoomable='true' className='mini-map max' />
       </ReactFlow>
-      {componentName !== '' && 
-      <Details componentName={componentName} nodeInfo={nodeInfo} treeContainerClick={treeContainerClick} activeComponentCode={activeComponentCode} />}
+      {componentName !== '' && (
+        <Details
+          componentName={componentName}
+          nodeInfo={nodeInfo}
+          treeContainerClick={treeContainerClick}
+          activeComponentCode={activeComponentCode}
+        />
+      )}
     </div>
   );
 }
