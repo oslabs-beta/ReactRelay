@@ -253,7 +253,7 @@ function Tree({}): JSX.Element {
     dispatch(setComponentName(compName));
     dispatch(setNodeInfo(reactFlowComponents[component.id].ajaxRequests));
     const updatedNodes = nodes.map((node) => {
-      console.log(active);
+      // console.log(active);
       return node.id === element.id
         ? { ...node, data: { ...node.data, active: true } }
         : node.id === active
@@ -261,6 +261,14 @@ function Tree({}): JSX.Element {
         : node;
     });
     dispatch(setActive(element.id));
+    const encodedId = encodeURIComponent(component.id);
+    const componentCode = await fetch(
+      `http://localhost:3000/code?id=${encodedId}`
+    );
+    console.log(componentCode, 'componentCode');
+    const data = await componentCode.json();
+    // console.log('data', data)
+    dispatch(setActiveComponentCode(data));
     // when clicked, the active node's edges will be highlighted in red,
     // otherwise they will go back to the default black color.
     // the edge.source and edge.target are both selected here to highlight
@@ -274,14 +282,6 @@ function Tree({}): JSX.Element {
     });
     setNodes(updatedNodes);
     setEdges(updatedEdges);
-    const encodedId = encodeURIComponent(component.id);
-    const componentCode = await fetch(
-      `http://localhost:3000/code?id=${encodedId}`
-    );
-    console.log(componentCode, 'componentCode');
-    const data = await componentCode.json();
-    // console.log('data', data)
-    dispatch(setActiveComponentCode(data));
   };
 
   // TODO: REFACTOR THIS
