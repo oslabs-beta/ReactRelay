@@ -1,9 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
 import ModelPreview from './ModelPreview';
 import MethodButtonContainer from '@renderer/containers/MethodButtonContainer';
+import { useSelector } from 'react-redux'
 
-function Details({ componentName, nodeInfo, treeContainerClick }): JSX.Element {
+function Details({ componentName, treeContainerClick }): JSX.Element {
   const [height, setHeight] = useState<string | number>(0);
+  const nodeInfo = useSelector(state => state.reactFlow.nodeInfo);
 
   useEffect(() => {
     console.log('changeeeeeee', nodeInfo)
@@ -46,7 +48,6 @@ function Details({ componentName, nodeInfo, treeContainerClick }): JSX.Element {
     window.document.body.addEventListener("mousemove", onMouseMove);
     window.document.body.addEventListener("mouseup", onMouseUp);
   }
-  // is this where we are gonna wanna start using redux, to keep track of file path state?
 
 
 

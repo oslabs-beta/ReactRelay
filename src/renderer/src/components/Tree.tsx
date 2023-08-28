@@ -97,12 +97,10 @@ function Tree({
 }): JSX.Element {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
-  const [nodeInfo, setNodeInfo] = useState([]);
-  const [componentName, setComponentName] = useState('');
   const [treeContainerClick, setTreeContainerClick] = useState(true);
   const [active, setActive] = useState(null);
   const [showFileModal, setShowFileModal] = useState(false);
-  
+  const componentName = useSelector(state => state.reactFlow.componentName)
   const dispatch = useDispatch();
 
   const handleModal = () => {
@@ -312,7 +310,6 @@ function Tree({
       {componentName !== '' && (
         <Details
           componentName={componentName}
-          nodeInfo={nodeInfo}
           treeContainerClick={treeContainerClick}
         />
       )}
