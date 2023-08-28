@@ -35,7 +35,10 @@ import Header from './Header';
 
 // const position = { x: 0, y: 0 };
 const edgeType = 'smoothstep';
-
+const edgeStyle = {
+  stroke: 'black',
+  'stroke-width': 2,
+};
 // const initialNodes = [];
 // const initialEdges = [];
 
@@ -43,7 +46,7 @@ const dagreGraph = new dagre.graphlib.Graph();
 dagreGraph.setDefaultEdgeLabel(() => ({}));
 
 // controls spacing between nodes
-const nodeWidth = 300;
+const nodeWidth = 350;
 const nodeHeight = 50;
 
 const getLayoutedElements = (nodes, edges, direction = 'LR') => {
@@ -98,6 +101,7 @@ type Edge = {
   type: string;
   animated: boolean;
   className: string;
+  style: object;
 };
 
 function Tree({
@@ -202,6 +206,7 @@ function Tree({
           type: edgeType,
           animated: true,
           className: 'edgeClass',
+          style: edgeStyle,
         });
         childCount[childId]--;
       });
@@ -280,7 +285,7 @@ function Tree({
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
         connectionLineType={ConnectionLineType.SmoothStep}
-        nodesDraggable={false}
+        nodesDraggable={true}
         fitView={true}
         fitViewOptions={{ padding: 1 }}
         minZoom={0.1}
