@@ -50,7 +50,7 @@ const dagreGraph = new dagre.graphlib.Graph();
 dagreGraph.setDefaultEdgeLabel(() => ({}));
 
 // controls spacing between nodes
-const nodeWidth = 350;
+const nodeWidth = 300;
 const nodeHeight = 50;
 
 // All you have to do to change the default layout is change 'LR' to 'TB' or 'RL'
@@ -341,7 +341,7 @@ function Tree({
           </div>
         </Panel>
         <Controls position='top-right' />
-        <MiniMap pannable='true' zoomable='true' className='mini-map max' />
+        <MiniMap pannable={true} zoomable={true} className='mini-map max' />
       </ReactFlow>
       {componentName !== '' && (
         <Details
