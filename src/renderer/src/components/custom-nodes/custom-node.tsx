@@ -12,12 +12,6 @@ const CustomNode = ({ data, sourcePosition, targetPosition }) => {
   const { label } = data;
   console.log('activeid', data.nodeInfo);
 
-  // const handleClick = () => {
-  //   setActive(true);
-  // }
-
-  // useEffect(() => setActive(false),[data.nodeInfo])
-
   return (
     <div
       className={`custom-node flex flex-column items-center font-semibold ${
@@ -26,7 +20,7 @@ const CustomNode = ({ data, sourcePosition, targetPosition }) => {
     >
       {/* Handle are the dotes on the edge of the node where the lines connect */}
       <Handle type='target' position={targetPosition} />
-      <strong className='label flex-wrap min text-3xl'>{label}</strong>
+        <p className={`custom-node flex flex-column items-center ${ data.active ? 'label flex-wrap min text-3xl font-extrabold' : 'label flex-wrap min text-3xl font-normal' } cursor-pointer`}>{label}</p>
       <Handle
         type='source'
         position={sourcePosition}
