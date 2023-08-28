@@ -71,7 +71,7 @@ function Details(): JSX.Element {
 
 
 
-        <div id='detail-container' className='grid grid-cols-12 overflow-auto h-min m-3 mt-4 px-2 gap-[1rem]'>
+        <div id='detail-container' className='grid grid-cols-12 overflow-auto h-min m-3 mt-4 px-2 gap-[1rem] '>
           <Routes>
             <Route path="/" element={
               <>
