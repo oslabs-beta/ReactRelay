@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 
 function MethodButtonContainer({nodeInfo}) {
   const [methodButtons, setMethodButtons] = useState([]);
+  console.log('nodeinfo', nodeInfo)
 
   useEffect(() => {
     const buttons = nodeInfo.map((nodeObj) => (

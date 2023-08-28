@@ -24,10 +24,15 @@ app.post('/components', fsController.getArrayOfFilePaths, componentController.pa
 //   res.status(201).json({})
 // })
 
+app.get('/code', componentController.getCode, (req, res) => {
+  console.log('res.locals', typeof res.locals.componentCode)
+  res.status(200).json(res.locals.componentCode);
+})
 
 app.get('/', (req, res) => {
   res.status(404).send('Not Found');
 });
+
 
 
 
