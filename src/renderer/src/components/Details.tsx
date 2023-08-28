@@ -5,12 +5,14 @@ import MethodButtonContainer from '@renderer/containers/MethodButtonContainer';
 import ComponentCode from './ComponentCode'
 import { useSelector } from 'react-redux'
 
-function Details({ treeContainerClick, activeComponentCode }): JSX.Element {
+function Details(): JSX.Element {
   const [height, setHeight] = useState<string | number>(0);
   const navigate = useNavigate();
   const location = useLocation();
   const nodeInfo = useSelector(state => state.reactFlow.nodeInfo);
   const componentName = useSelector(state => state.reactFlow.componentName)
+  const treeContainerClick = useSelector(state => state.detail.treeContainerClick)
+  const activeComponentCode = useSelector(state => state.detail.activeComponentCode)
 
   useEffect(() => {
       window.innerHeight > 800 ? setHeight('40vh') : setHeight('30vh');

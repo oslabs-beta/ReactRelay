@@ -21,6 +21,10 @@ import Header from './Header'
 import ProjectPathModal from './ProjectPathModal';
 import { useSelector, useDispatch } from 'react-redux'
 import { setNodeInfo, setComponentName } from '../features/projectInfo/reactFlowSlice'
+import { setTreeContainerClick, setActive, setActiveComponentCode } from '../features/projectInfo/detailSlice'
+
+
+
 const nodeTypes = {
   CustomNode,
   CustomNode2,
@@ -96,13 +100,10 @@ function Tree({
 }): JSX.Element {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
-  const [treeContainerClick, setTreeContainerClick] = useState(true);
-  const [active, setActive] = useState(null);
-  const [activeComponentCode, setActiveComponentCode] = useState('');
   const componentName = useSelector(state => state.reactFlow.componentName)
-  const dispatch = useDispatch();
   const reactFlowComponents = useSelector(state => state.reactFlow.components)
-
+  const active = useSelector(state => state.detail.active);
+  const dispatch = useDispatch();
   //components that are re-used are given unique id's by adding a number to the end of the AFP. this function converts that id back to the AFP (i.e. as it appears in reactFlowComponents), then return the object associated with this AFP key in reactFlowComponents.
   const getComponentFromNodeId = (id: string): Component => {
     let i = id.length - 1;
@@ -112,7 +113,7 @@ function Tree({
 
   const handleTreeContainerClick = (e) => {
     if (!e.target.closest('.react-flow__node')) {
-      setTreeContainerClick((prev) => !prev);
+      dispatch(setTreeContainerClick());
     }
   };
 
@@ -238,20 +239,22 @@ function Tree({
     dispatch(setComponentName(compName));
     dispatch(setNodeInfo(reactFlowComponents[component.id].ajaxRequests));
     const updatedNodes = nodes.map((node) => {
+      console.log(active)
       return node.id === element.id
-        ? { ...node, data: { ...node.data, active: true } }
-        : node.id === active
-        ? { ...node, data: { ...node.data, active: false } }
-        : node;
+      ? { ...node, data: { ...node.data, active: true } }
+      : node.id === active
+      ? { ...node, data: { ...node.data, active: false } }
+      : node;
     });
-    setActive(element.id);
+    
+    dispatch(setActive(element.id));
     setNodes(updatedNodes);
     const encodedId = encodeURIComponent(component.id)
     const componentCode = await fetch(`http://localhost:3000/code?id=${encodedId}`);
     // console.log(componentCode, 'componentCode')
     const data = await componentCode.json();
     // console.log('data', data)
-    setActiveComponentCode(data);
+    dispatch(setActiveComponentCode(data));
 
   };
 
@@ -311,7 +314,7 @@ function Tree({
         <MiniMap pannable='true' zoomable='true' className='mini-map max' />
       </ReactFlow>
       {componentName !== '' &&
-      <Details treeContainerClick={treeContainerClick} activeComponentCode={activeComponentCode} />}
+      <Details />}
     </div>
   );
 }
