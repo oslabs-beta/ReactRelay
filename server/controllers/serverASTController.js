@@ -506,6 +506,7 @@ serverASTController.parseAll = (req, res, next) => {
   })
 
   console.log('plz work...', output)
+  res.locals.serverRoutes = output;
 
   next();
 }
