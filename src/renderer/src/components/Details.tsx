@@ -9,17 +9,15 @@ function Details(): JSX.Element {
   const [height, setHeight] = useState<string | number>(0);
   const navigate = useNavigate();
   const location = useLocation();
-  const nodeInfo = useSelector(state => state.reactFlow.nodeInfo);
-  const componentName = useSelector(state => state.reactFlow.componentName)
+  const nodeInfo = useSelector(state => state.project.nodeInfo);
+  const componentName = useSelector(state => state.project.componentName)
   const treeContainerClick = useSelector(state => state.detail.treeContainerClick)
-  const activeComponentCode = useSelector(state => state.detail.activeComponentCode)
 
   useEffect(() => {
       window.innerHeight > 800 ? setHeight('40vh') : setHeight('30vh');
   },[nodeInfo])
 
   useEffect(() => {
-    console.log('height', height)
       const newHeight = height > '30vh' ? '20vh' : 0;
       setHeight(newHeight)
   }, [treeContainerClick])
@@ -28,18 +26,14 @@ function Details(): JSX.Element {
     // const startHeight = height;
     // const startPosition = mouseDownEvent.pageY;
     function onMouseMove(mouseMoveEvent) {
-      console.log('mme', mouseMoveEvent.pageY)
       const newHeight = window.innerHeight - mouseMoveEvent.pageY;  //startHeight = height of div // startPosition = where the mouse is positioned // mouseMoveEvenet.pageY = detects where mouse is on the screen //pageY is property of mouse event (on y axis unit is in pixels)
       // console.log('start:', startHeight, ' position:', startPosition, 'mouse: ', mouseMoveEvent.pageY)
       setHeight(newHeight)
-      console.log(height, newHeight);
     }
 
     function onMouseUp() {
-      console.log('mouse up')
       window.document.body.removeEventListener('mousemove', onMouseMove)
       window.document.body.removeEventListener('mouseup', onMouseUp)
-      console.log('removed')
     }
 
     window.document.body.addEventListener("mousemove", onMouseMove);

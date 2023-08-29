@@ -20,13 +20,10 @@ import { useSelector, useDispatch } from 'react-redux';
 import {
   setNodeInfo,
   setComponentName,
-} from '../features/projectInfo/reactFlowSlice';
-import {
-  setTreeContainerClick,
+} from '../features/projectSlice';
+import { setTreeContainerClick,
   setActive,
-  setActiveComponentCode,
-} from '../features/projectInfo/detailSlice';
-
+  setActiveComponentCode } from '../features/detailSlice'
 const nodeTypes = {
   CustomNode,
   CustomNode2,
@@ -37,11 +34,11 @@ const edgeType = 'smoothstep';
 // you can look up options here: https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute
 const edgeStyle = {
   stroke: 'black',
-  'stroke-width': 4,
+  'strokeWidth': 4,
 };
 const edgeStyle2 = {
   stroke: 'red',
-  'stroke-width': 8,
+  'strokeWidth': 8,
 };
 
 const dagreGraph = new dagre.graphlib.Graph();
@@ -111,9 +108,7 @@ type Edge = {
 function Tree({}): JSX.Element {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
-  const reactFlowComponents = useSelector(
-    (state) => state.reactFlow.components
-  );
+  const reactFlowComponents = useSelector(state => state.project.components);
   const active = useSelector((state) => state.detail.active);
   const dispatch = useDispatch();
   //components that are re-used are given unique id's by adding a number to the end of the AFP. this function converts that id back to the AFP (i.e. as it appears in reactFlowComponents), then return the object associated with this AFP key in reactFlowComponents.
@@ -265,7 +260,7 @@ function Tree({}): JSX.Element {
     const componentCode = await fetch(
       `http://localhost:3000/code?id=${encodedId}`
     );
-    console.log(componentCode, 'componentCode');
+    // console.log(componentCode, 'componentCode');
     const data = await componentCode.json();
     // console.log('data', data)
     dispatch(setActiveComponentCode(data));

@@ -10,7 +10,6 @@ const handleStyle = {
 
 const CustomNode = ({ data, sourcePosition, targetPosition }) => {
   const { label } = data;
-  console.log('activeid', data.nodeInfo);
 
   return (
     <div

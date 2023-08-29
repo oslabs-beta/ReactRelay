@@ -1,12 +1,12 @@
 import { useSelector, useDispatch } from 'react-redux';
-import { addPath } from '../features/projectInfo/addProjectSlice'
-import { setComponents } from '../features/projectInfo/reactFlowSlice'
+import { addPath, setComponents, setServer } from '../features/projectSlice'
 
 function ProjectPathModal() {
 
   const dispatch = useDispatch();
-  const componentPath = useSelector(state => state.addProject.componentPath)
-  const serverPath = useSelector(state => state.addProject.serverPath)
+  const componentPath = useSelector(state => state.project.componentPath)
+  const serverPath = useSelector(state => state.project.serverPath)
+  const server = useSelector(state => state.project.server)
 
 const dialogConfig = {
       title: 'Select a project',
@@ -22,21 +22,32 @@ const dialogConfig = {
       dispatch(addPath([pathType, filePaths[0]]));
   }
 
-  const fetchComponents = async (): any => {
-    console.log('this is the path', componentPath)
-    if (componentPath === '' || !componentPath) return null;
-    const response = await fetch('http://localhost:3000/components', {
+  const postPath = async (pathType, path): any => {
+    if (path === '' || !path) return null;
+    console.log('serverPath', serverPath)
+    const endpoint = {
+      component: 'http://localhost:3000/components',
+      server: 'http://localhost:3000/server'
+    }
+    const response = await fetch(endpoint[pathType], {
       method: 'POST',
       headers: {
         'Content-Type': 'Application/JSON'
       },
-      body: JSON.stringify({ filePath: componentPath })  // sends to the componentController the filepath
+      body: JSON.stringify({ filePath: path })  // sends to the componentController the filepath
     })
     if (response.ok) {
       const res = await response.json()
-      console.log('this is the response!', res)
-      dispatch(setComponents(res))
+      console.log('pathtype:', pathType, 'path:', path, 'res:', res)
+      if (pathType === 'component') dispatch(setComponents(res));
+      else if (pathType === 'server') dispatch(setServer(res));
     }
+  }
+
+  const onContinue = () => {
+    postPath('component', componentPath);
+    postPath('server', serverPath);
+    window.openExplorerModal.close();
   }
 
   //TODO: ADD FUNCTIONALITY TO BUTTONS!
@@ -44,7 +55,7 @@ const dialogConfig = {
 
   return (
   <dialog id="openExplorerModal" className="modal">
-    <form method="dialog" className="modal-box">
+    <div  className="modal-box">
       <h3 className="font-bold text-lg">Open Project</h3>
       <div id='file-input-container' className='w-full'>
         <div className="form-control w-full max-w-xs">
@@ -71,14 +82,14 @@ const dialogConfig = {
       <div className='flex justify-between items-end'>
         <div className="modal-action">
           {/* if there is a button in form, it will close the modal */}
-          <button className="btn bg-error" >Cancel</button>
+          <button className="btn bg-error" onClick={()=>window.openExplorerModal.close()}>Cancel</button>
         </div>
         <div>
-          <button onClick={()=>fetchComponents()}className='btn bg-primary'>Continue</button>
+          <button onClick={()=>onContinue()} className='btn bg-primary'>Continue</button>
         </div>
       </div>
 
-    </form>
+    </div>
   </dialog>
 
   )
