@@ -1,12 +1,10 @@
 import { configureStore } from '@reduxjs/toolkit';
-import addProjectReducer from '../features/projectInfo/addProjectSlice';
-import reactFlowReducer from '../features/projectInfo/reactFlowSlice';
-import detailReducer from '../features/projectInfo/detailSlice';
+import projectReducer from '../features/projectSlice';
+import detailReducer from '../features/detailSlice';
 
 export const store = configureStore({
   reducer: {
-    addProject: addProjectReducer,
-    reactFlow: reactFlowReducer,
+    project: projectReducer,
     detail: detailReducer,
   },
 });

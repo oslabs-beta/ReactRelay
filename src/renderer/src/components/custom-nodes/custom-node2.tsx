@@ -13,7 +13,6 @@ const CustomNode2 = ({ data, sourcePosition, targetPosition }) => {
       className={`custom-node flex flex-column items-center  ${
         data.active ? 'bg-secondary text-xl' : 'bg-slate-100 text-xl'
       } cursor-pointer min-h-4 max-h-16 p-1 shadow-md bg-blend-normal rounded-lg border-2 border-slate-500 bg`}
-      onClick={() => console.log('clicked', data)}
     >
       <Handle type='target' position={targetPosition} />
       <p className='label flex-wrap min text-3xl'>{label}</p>
