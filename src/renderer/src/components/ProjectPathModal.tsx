@@ -64,7 +64,11 @@ const dialogConfig = {
           </label>
             <div className='flex flex-row'>
               <button className='bg-primary p-3 rounded-l-md text-sm font-semibold' onClick={()=>openFileExplorer('componentPath')}> CHOOSE PATH</button>
-              <div className='border border-primary rounded-r-md text-sm'>{componentPath !== '' ? componentPath : 'No folder chosen'}</div>
+              <div className='flex border border-primary rounded-r-md text-sm '>
+                <p className='p-3'>
+                {componentPath !== '' ? componentPath : 'No folder chosen'}
+                </p>
+              </div>
             </div>
         </div>
         <div>
@@ -74,7 +78,9 @@ const dialogConfig = {
             </label>
             <div className='flex flex-row'>
               <button className='bg-primary p-3 rounded-l-md text-sm font-semibold' onClick={()=>openFileExplorer('serverPath')}> CHOOSE PATH</button>
-              <div className='border border-primary rounded-r-md text-sm'>{serverPath !== '' ? serverPath : 'No folder chosen'}</div>
+              <div className='border border-primary rounded-r-md text-sm'>  <p className='p-3'>
+                {componentPath !== '' ? componentPath : 'No folder chosen'}
+                </p></div>
             </div>
           </div>
         </div>
