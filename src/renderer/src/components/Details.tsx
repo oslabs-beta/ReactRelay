@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
+import { BrowserRouter as Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import ModelPreview from './ModelPreview';
 import MethodButtonContainer from '@renderer/containers/MethodButtonContainer';
 import ComponentCode from './ComponentCode'
@@ -9,9 +9,9 @@ function Details(): JSX.Element {
   const [height, setHeight] = useState<string | number>(0);
   const navigate = useNavigate();
   const location = useLocation();
-  const nodeInfo = useSelector(state => state.project.nodeInfo);
-  const componentName = useSelector(state => state.project.componentName)
-  const treeContainerClick = useSelector(state => state.detail.treeContainerClick)
+  const nodeInfo = useSelector((state: any)  => state.project.nodeInfo);
+  const componentName = useSelector((state: any)  => state.project.componentName)
+  const treeContainerClick = useSelector((state: any)  => state.detail.treeContainerClick)
 
   useEffect(() => {
       window.innerHeight > 800 ? setHeight('40vh') : setHeight('30vh');
@@ -22,7 +22,7 @@ function Details(): JSX.Element {
       setHeight(newHeight)
   }, [treeContainerClick])
 
-  const handler = (mouseDownEvent) => {
+  const handler = (_mouseDownEvent) => {
     // const startHeight = height;
     // const startPosition = mouseDownEvent.pageY;
     function onMouseMove(mouseMoveEvent) {

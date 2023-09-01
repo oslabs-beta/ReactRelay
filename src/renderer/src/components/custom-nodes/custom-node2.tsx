@@ -1,8 +1,6 @@
-import React, { memo } from 'react';
-import { Handle, Position } from 'reactflow';
-const handleStyle = {
-  left: 10,
-};
+import { memo } from 'react';
+import { Handle } from 'reactflow';
+
 import 'tailwindcss/tailwind.css';
 
 const CustomNode2 = ({ data, sourcePosition, targetPosition }) => {

@@ -1,12 +1,7 @@
 // Path: src/renderer/src/components/CustomNodes.jsx
-import React, { memo, useEffect, useState } from 'react';
-import { Handle, Position } from 'reactflow';
+import  { memo } from 'react';
+import { Handle} from 'reactflow';
 import 'tailwindcss/tailwind.css';
-const handleStyle = {
-  //why is this decalred but never read
-  left: 10,
-  style: 'bg-primary',
-};
 
 const CustomNode = ({ data, sourcePosition, targetPosition }) => {
   const { label } = data;

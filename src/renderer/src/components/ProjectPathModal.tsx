@@ -2,11 +2,11 @@ import { useSelector, useDispatch } from 'react-redux';
 import { addPath, setComponents, setServer } from '../features/projectSlice'
 
 function ProjectPathModal() {
-
+  const win: any = window;
   const dispatch = useDispatch();
-  const componentPath = useSelector(state => state.project.componentPath)
-  const serverPath = useSelector(state => state.project.serverPath)
-  const server = useSelector(state => state.project.server)
+  const componentPath = useSelector((state: any)  => state.project.componentPath)
+  const serverPath = useSelector((state: any)  => state.project.serverPath)
+  // const server = useSelector((state: any)  => state.project.server)
 
 const dialogConfig = {
       title: 'Select a project',
@@ -15,16 +15,17 @@ const dialogConfig = {
     }
     // window.api.openDialog returns the filepath when the filepath is chosen from the dialog
     // should i add a case where user doesn't actually select a filepath
-    const openFileExplorer = async (pathType): any => { //FIXME: add to type
-      const {filePaths} = await window.api.openDialog('showOpenDialog', dialogConfig) //TODO: add to type
+    const openFileExplorer = async (pathType): Promise<any> => { //FIXME: add to type
+      const {filePaths} = await win.api.openDialog('showOpenDialog', dialogConfig) //TODO: add to type
       // if user chooses cancel then don't do anything
       if (filePaths[0] === '' || !filePaths[0]) return null;
       dispatch(addPath([pathType, filePaths[0]]));
   }
 
-  const postPath = async (pathType, path): any => {
+  const postPath = async (pathType, path): Promise<any> => {
+    console.log('this is the path', path)
     if (path === '' || !path) return null;
-    console.log('serverPath', serverPath)
+    console.log('pathType', pathType)
     const endpoint = {
       component: 'http://localhost:3000/components',
       server: 'http://localhost:3000/server'
@@ -45,9 +46,10 @@ const dialogConfig = {
   }
 
   const onContinue = () => {
+    console.log('this is the componentPath', componentPath)
     postPath('component', componentPath);
-    postPath('server', serverPath);
-    window.openExplorerModal.close();
+    // postPath('server', serverPath);
+    win.openExplorerModal.close();
   }
 
   //TODO: ADD FUNCTIONALITY TO BUTTONS!
@@ -82,7 +84,7 @@ const dialogConfig = {
       <div className='flex justify-between items-end'>
         <div className="modal-action">
           {/* if there is a button in form, it will close the modal */}
-          <button className="btn bg-error" onClick={()=>window.openExplorerModal.close()}>Cancel</button>
+          <button className="btn bg-error" onClick={()=>win.openExplorerModal.close()}>Cancel</button>
         </div>
         <div>
           <button onClick={()=>onContinue()} className='btn bg-primary'>Continue</button>

@@ -5,7 +5,7 @@ import { useSelector } from 'react-redux'
 
 
 const ComponentCode = () => {
-  const activeComponentCode = useSelector(state => state.detail.activeComponentCode)
+  const activeComponentCode = useSelector((state: any)  => state.detail.activeComponentCode)
   useEffect(() => {
     Prism.highlightAll();
   }, [activeComponentCode])

@@ -1,10 +1,8 @@
-
-
 const MethodButton = ({methodName, endPointName}) => {
-  const infoObj = {
-    methodName,
-    endPointName
-  }
+  // const infoObj = {
+  //   methodName,
+  //   endPointName
+  // }
 
   //FIXME: colors are a bit hard to read
   const colorCode = {
@@ -15,19 +13,19 @@ const MethodButton = ({methodName, endPointName}) => {
     'DELETE': 'bg-[#f79a8d]'
   }
 
-  const fetchReq = () => {
-  fetch('http://localhost:3000/backendAST', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'Application/JSON'
-      },
-      body: JSON.stringify(infoObj)  // sends to the componentController the filepath
-    })
-    .then(resp => {
-    console.log(resp.json());
-    })
-    .catch(error => console.log(`Error: ${error}`))
-  }
+  // const fetchReq = () => {
+  // fetch('http://localhost:3000/backendAST', {
+  //     method: 'POST',
+  //     headers: {
+  //       'Content-Type': 'Application/JSON'
+  //     },
+  //     body: JSON.stringify(infoObj)  // sends to the componentController the filepath
+  //   })
+  //   .then(resp => {
+  //   console.log(resp.json());
+  //   })
+  //   .catch(error => console.log(`Error: ${error}`))
+  // }
   
   const testClick = () => {
     console.log('Method: ', methodName, ' Endpoint: ', endPointName);

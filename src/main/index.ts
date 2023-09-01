@@ -64,7 +64,7 @@ app.whenReady().then(() => {
 
   // ipcMain creates a communication channel between main and renderer --> looks for events regarding dialog
   // async in order to wait for the user to select the filepath
-  ipcMain.handle('dialog', async (event, method, params) => {
+  ipcMain.handle('dialog', async (_event, method, params) => {
     const result = await dialog[method](params)
     return result;
   })
