@@ -1,4 +1,4 @@
-import MethodButton from "@renderer/components/MethodButton";
+import MethodButton from "../components/MethodButton";
 import { useState, useEffect } from "react";
 
 function MethodButtonContainer({nodeInfo}) {

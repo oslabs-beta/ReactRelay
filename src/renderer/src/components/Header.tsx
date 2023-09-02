@@ -2,7 +2,7 @@ import dirUpload from '../assets/images/directory-black.svg'
 import appLogo from '../assets/images/ReactRelay-logos/ReactRelay-logos_white.png'
 
 function Header({ projectName }): JSX.Element  {
-  const win: any = win;
+  const win: any = window;
   return (
     <header className='flex justify-between p-3 bg-primary'>
       <div className="w-[300px]">

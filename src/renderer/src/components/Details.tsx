@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { BrowserRouter as Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import ModelPreview from './ModelPreview';
-import MethodButtonContainer from '@renderer/containers/MethodButtonContainer';
+import MethodButtonContainer from '../containers/MethodButtonContainer';
 import ComponentCode from './ComponentCode'
 import { useSelector } from 'react-redux'
 

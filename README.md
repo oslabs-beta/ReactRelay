@@ -1,4 +1,4 @@
-# irene-test
+# react-relay
 
 An Electron application with React and TypeScript
 
