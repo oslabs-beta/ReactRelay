@@ -3,8 +3,7 @@ const electron = require("electron");
 const path = require("path");
 const utils = require("@electron-toolkit/utils");
 const icon = path.join(__dirname, "../../resources/icon.png");
-const express = require("express");
-const expressApp = express();
+const expressApp = require("../../server/server.ts");
 let server;
 function createWindow() {
   const mainWindow = new electron.BrowserWindow({

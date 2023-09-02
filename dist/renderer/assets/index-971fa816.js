@@ -23551,8 +23551,8 @@ var dagre = {
   version
 };
 const dagre$1 = /* @__PURE__ */ getDefaultExportFromCjs(dagre);
-const horizontal = "data:image/png;base64,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";
-const vertical = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAADsQAAA7EB9YPtSQAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAQSSURBVHic7d1PaBxlHMbxb/4YtFWoCbkUas0lXmzj0UOJGugtFy+CevPSUnMsCOqtbaBII0JL9eLVgwoiHm2FWqgnRcVD29AWE4sSchCNCU2y62ESKZtZd3b3N/Nm8zwfmMsk876/N/Ns3ml55w2YmZmZmZmZmZmZ2R7Xl7qADrwAvAQ8mrqQBmvAVeBa6kL2shmgvsuPN0sbvbFI+hvc6lgobfQl6LUpYBPoT11EC3V2f43/6ZlCrRyDqQsI8AnwV6K+nwBeTdS3pE12zrljCet5OqeeWsJ62uYpQJwDIM4BEOcAiHMAxDkA4hwAcQ6AOAdAnAMgzgEQ5wCIcwDEOQDiHABxDoA4B0CcAyDOARDnAIhzAMQ5AOIcAHEOgDgHQJwDIM4BEOcAiHMAxDkA4vbC/gAXgZVEfe9P1G8YbxETz1vEWO/otQDcS11AAXdTF7CXvQ5skH4ruGbHOvBaaaMvQa89AwA8C7xIdw9g08CxhnPXga+6aHMF+Ab4pYs2rCJz7Pz0ziWtKJFeewawYA6AOAdAnAMgzgEQ5wCIcwDEOQDiHABxDoA4B0CcAyDOARDnAIjrdD3Ay8AZ4GBgLVV6jJ1/eXQNWE1QS4T7wLvAF+1e2EkAxoGfgaEOrrXyPCBbLHO7nYs6mQIm8c3fjYbIVkq1pZMA7OvgGqtG2/fGD4Hiot4M+ho4EdRWFd4B3mg49zFwLkEtnfoQON5tI1EBWAHuBLVVhT+bnOulMYS8DucpQJwDIM4BEOcAiHMAxDkA4hwAcQ6AOAdAnAMgro/sv4NngCmyhRKtHAKeaTi3BPxY4NpN4CfgPLBcvMyW9gGngeeBRwp8/zjwVMO5X4FbBa5dB24AF4B/2qixlRHgLeAoMFDg+yeA0YZzN4GFAteuAleASwAfUP1WKt8XHGRRXyYYQ9urb/7HIPBDgjG8D9knMcV+OhMRPzngAFBLUH9tq+8IzyWovw4s9wPDQYNo10hQO0+SZq+jvq2+I6S6B8N+CBTXbD3A28Q+pJ1l5wNLmerAyeA2L1Ptv5qWyFb6RhkBZvO+kDc3HA7sGGA+p4+poLbHctreDGr7YXn7E44FtT2V0/Z8UNvbDuf0UfcUIM4BEOcAiHMAxDkA4hwAcQ6AOAdAnAMgzgEQ5wCIcwDEOQDiHABxDoA4B0CcAyDOARDXbE3gLPB3YD9VrgeEbMXuR8FtVv1hGSV2DI83+0KK9ehlrwms6ihzTWAlh6cAcf3Ab4n6Xgxq5w+yFbtV2wB+D2or6T2YofpfPZ8FD+RCgjG8FzyGzyuuvwac2n6lapJsHmrcQj1ajezt4E+JX7s/TfZ2cNTml81sAN/R3Z+azzMAvAIcofwHzjWyt4O/LbkfMzMzMzMzMzMzM0vvX31WW/fubK+jAAAAAElFTkSuQmCC";
+const horizontal = "" + new URL("left-right-solid-93bdf7f9.svg", import.meta.url).href;
+const vertical = "" + new URL("up-down-solid-5be0137d.svg", import.meta.url).href;
 const CustomNode = ({ data, sourcePosition, targetPosition }) => {
   const { label } = data;
   console.log("activeid", data);
@@ -25378,7 +25378,7 @@ function Tree({}) {
             {
               className: "btn bg-white rounded-full",
               onClick: () => onLayout("TB"),
-              children: /* @__PURE__ */ jsxRuntimeExports.jsx("img", { className: "h-6 ", src: vertical, alt: "vertical layout button" })
+              children: /* @__PURE__ */ jsxRuntimeExports.jsx("img", { className: "h-4 m-1", src: vertical, alt: "vertical layout button" })
             }
           ),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -25389,7 +25389,7 @@ function Tree({}) {
               children: /* @__PURE__ */ jsxRuntimeExports.jsx(
                 "img",
                 {
-                  className: "h-6",
+                  className: "h-4",
                   src: horizontal,
                   alt: "horizontal layout button"
                 }
@@ -25455,14 +25455,14 @@ function ProjectPathModal() {
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "form-control w-full max-w-xs", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "label", children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "label-text", children: "Component Folder" }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-row", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "bg-primary p-3 rounded-l-md text-sm font-semibold", onClick: () => openFileExplorer("componentPath"), children: " CHOOSE PATH" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "btn bg-primary p-3 rounded-l-md rounded-r-none text-sm font-semibold", onClick: () => openFileExplorer("componentPath"), children: " CHOOSE PATH" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex border border-primary rounded-r-md text-sm ", children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "p-3", children: componentPath !== "" ? componentPath : "No folder chosen" }) })
         ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "form-control w-full max-w-xs", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "label", children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "label-text", children: "Server Folder" }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-row", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "bg-primary p-3 rounded-l-md text-sm font-semibold", onClick: () => openFileExplorer("serverPath"), children: " CHOOSE PATH" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "btn bg-primary p-3 rounded-l-md rounded-r-none text-sm font-semibold", onClick: () => openFileExplorer("serverPath"), children: " CHOOSE PATH" }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "border border-primary rounded-r-md text-sm", children: [
             "  ",
             /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "p-3", children: serverPath !== "" ? serverPath : "No folder chosen" })
