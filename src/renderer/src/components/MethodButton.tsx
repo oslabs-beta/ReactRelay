@@ -28,7 +28,7 @@ const MethodButton = ({methodName, endPointName}) => {
     })
     .catch(error => console.log(`Error: ${error}`))
   }
-  
+
   const testClick = () => {
     console.log('Method: ', methodName, ' Endpoint: ', endPointName);
   }
@@ -43,20 +43,15 @@ const MethodButton = ({methodName, endPointName}) => {
 
 
   return (
-    
-    // <button className='btn py-5 px-5' onClick={() => testClick()}>
-    <button className='btn h-20' onClick={() => testClick()}>
-      <div className='grid grid-cols-10 w-full '>
-        <div className={`col-span-3 font-extrabold text-lg rounded-md w-min px-2 text-slate-100 ${colorCode[methodName]}`}>{methodName}</div>
-        <div className='justify-self-start col-span-7 self-center text-sm'>{endPointName}</div>
-      </div>
-      {/* <div className='grid grid-cols-4'>
-        <div className={`justify-self-start col-span-1 font-extrabold text-lg rounded-md w-min px-2 ${colorCode[methodName]}`}>{methodName}</div>
-        <div className='justify-self-start col-span-3'>{endPointName}</div>
-      </div> */}
-    </button>
-//TODO: one day, on click of the method or endpoint, it should sort it :)
-
+    <div>
+          <div className="flex w-full lg:flex-row card bg-neutral p-2 min-w-min	" onClick={() => testClick()}>
+            <div className={`flex badge place-items-center font-extrabold w-fit  ${colorCode[methodName]} p-4 ml-3 mt-2`}>
+              {methodName}
+            </div>
+            <div className="divider divider-horizontal p-0"></div>
+            <div className="grid flex-grow h-fit card rounded-box place-items-center break-all p-4">{endPointName}</div>
+          </div>
+    </div>
   )
 }
 
