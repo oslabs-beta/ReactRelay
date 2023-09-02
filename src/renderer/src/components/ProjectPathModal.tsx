@@ -79,7 +79,7 @@ const dialogConfig = {
             <div className='flex flex-row'>
               <button className='bg-primary p-3 rounded-l-md text-sm font-semibold' onClick={()=>openFileExplorer('serverPath')}> CHOOSE PATH</button>
               <div className='border border-primary rounded-r-md text-sm'>  <p className='p-3'>
-                {componentPath !== '' ? componentPath : 'No folder chosen'}
+                {serverPath !== '' ? serverPath : 'No folder chosen'}
                 </p></div>
             </div>
           </div>
