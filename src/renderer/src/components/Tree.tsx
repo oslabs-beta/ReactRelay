@@ -10,8 +10,8 @@ import ReactFlow, {
 } from 'reactflow';
 
 import dagre from 'dagre';
-import horizontal from '../assets/images/flowchart-horizontal.png';
-import vertical from '../assets/images/flowchart-vertical.png';
+import horizontal from '../assets/images/left-right-solid.svg';
+import vertical from '../assets/images/up-down-solid.svg';
 import CustomNode from './custom-nodes/custom-node';
 import CustomNode2 from './custom-nodes/custom-node2';
 import '../assets/index.css';
@@ -316,14 +316,14 @@ function Tree({}): JSX.Element {
             className='btn bg-white rounded-full'
             onClick={() => onLayout('TB')}
           >
-            <img className='h-6 ' src={vertical} alt='vertical layout button' />
+            <img className='h-4 m-1' src={vertical} alt='vertical layout button' />
           </button>
           <button
             className='btn ml-1 bg-white rounded-full'
             onClick={() => onLayout('LR')}
           >
             <img
-              className='h-6'
+              className='h-4'
               src={horizontal}
               alt='horizontal layout button'
             />
