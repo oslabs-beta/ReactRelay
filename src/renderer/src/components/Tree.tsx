@@ -28,6 +28,11 @@ const nodeTypes = {
   CustomNode,
   CustomNode2,
 };
+
+const { ipcRenderer } = window.require('electron');
+const port = ipcRenderer.sendSync('get-port');
+
+
 const edgeType = 'smoothstep';
 // declaring both edge styles which we will be using
 // these use svg styling in case one wants to update them.
@@ -258,7 +263,7 @@ function Tree({}): JSX.Element {
     dispatch(setActive(element.id));
     const encodedId = encodeURIComponent(component.id);
     const componentCode = await fetch(
-      `http://localhost:3000/code?id=${encodedId}`
+      `http://localhost:${port}/code?id=${encodedId}`
     );
     // console.log(componentCode, 'componentCode');
     const data = await componentCode.json();

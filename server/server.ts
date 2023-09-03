@@ -2,7 +2,7 @@
 const express = require('express');
 const app = express();
 // port will be listening on 3000
-const port = 3000;
+// const port = 3000;
 const cors = require('cors');
 
 app.use(cors({
