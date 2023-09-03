@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path2 = require('path');
 const parser = require('@babel/parser');
-const { isIdentifier, isStringLiteral } = require('typescript');
+// const { isIdentifier, isStringLiteral } = require('typescript');
 const traverse = require('@babel/traverse').default;
 
 const componentController = {}

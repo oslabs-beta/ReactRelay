@@ -1,9 +1,10 @@
 "use strict";
 const electron = require("electron");
-const path = require("path");
+const path$1 = require("path");
 const utils = require("@electron-toolkit/utils");
-const icon = path.join(__dirname, "../../resources/icon.png");
-const expressApp = require("../../server/server.ts");
+const icon = path$1.join(__dirname, "../../resources/icon.png");
+const path = require("path");
+const expressApp = require(path.join(electron.app.getAppPath(), "server", "server.ts"));
 let server;
 function createWindow() {
   const mainWindow = new electron.BrowserWindow({
@@ -13,7 +14,7 @@ function createWindow() {
     autoHideMenuBar: true,
     ...process.platform === "linux" ? { icon } : {},
     webPreferences: {
-      preload: path.join(__dirname, "../preload/index.js"),
+      preload: path$1.join(__dirname, "../preload/index.js"),
       sandbox: false
     }
   });
@@ -27,7 +28,7 @@ function createWindow() {
   if (utils.is.dev && process.env["ELECTRON_RENDERER_URL"]) {
     mainWindow.loadURL(process.env["ELECTRON_RENDERER_URL"]);
   } else {
-    mainWindow.loadFile(path.join(__dirname, "../renderer/index.html"));
+    mainWindow.loadFile(path$1.join(__dirname, "../renderer/index.html"));
   }
 }
 electron.app.whenReady().then(() => {

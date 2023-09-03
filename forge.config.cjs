@@ -1,9 +1,11 @@
 module.exports = {
   packagerConfig: {
+    files: [
+      "src/**/*",
+      "server/**/*"
+    ],
     ignore: [
-        /^\/src/,
         /(.eslintrc.json)|(.gitignore)|(electron.vite.config.ts)|(forge.config.cjs)|(tsconfig.*)/,
-        /^\/server/
       ],
   },
   rebuildConfig: {},
