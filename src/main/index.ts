@@ -49,11 +49,13 @@ function createWindow(): void {
 app.whenReady().then(() => {
   // Set app user model id for windows
   electronApp.setAppUserModelId('com.electron')
-  server = (expressApp as any).listen(0, () => {
-    const port = server.address().port;
+  if (process.env.NODE_ENV === "production") {
+    server = (expressApp as any).listen(0, () => {
+      const port = server.address().port;
 
-    console.log(`server running on port ${port}`);
-  })
+      console.log(`server running on port ${port}`);
+    })
+  }
   // Default open or close DevTools by F12 in development
   // and ignore CommandOrControl + R in production.
   // see https://github.com/alex8088/electron-toolkit/tree/master/packages/utils
@@ -72,7 +74,7 @@ app.whenReady().then(() => {
   })
 
   ipcMain.on('get-port', (e) => {
-    e.returnValue = server.address().port;
+    e.returnValue = server ? server.address().port : 3000;
   })
 })
 
