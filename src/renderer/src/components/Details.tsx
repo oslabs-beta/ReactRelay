@@ -69,7 +69,7 @@ function Details(): JSX.Element {
           <Routes>
             <Route path="/" element={
               <>
-                <MethodButtonContainer nodeInfo={nodeInfo}/>
+                <MethodButtonContainer />
                 <ModelPreview />
               </>
             }/>

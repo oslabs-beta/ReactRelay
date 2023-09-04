@@ -1,8 +1,11 @@
 import MethodButton from "@renderer/components/MethodButton";
 import { useState, useEffect } from "react";
+import { useSelector } from "react-redux";
 
-function MethodButtonContainer({nodeInfo}) {
+function MethodButtonContainer() {
   const [methodButtons, setMethodButtons] = useState([]);
+  const nodeInfo = useSelector(state => state.project.nodeInfo);
+
   console.log('nodeinfo', nodeInfo)
 
   useEffect(() => {

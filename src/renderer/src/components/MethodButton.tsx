@@ -1,7 +1,11 @@
 const { ipcRenderer } = window.require('electron');
 const port = ipcRenderer.sendSync('get-port');
+import { useDispatch } from "react-redux";
+import { setActiveRoute } from '../features/detailSlice';
 
 const MethodButton = ({methodName, endPointName}) => {
+  const dispatch = useDispatch();
+
   const infoObj = {
     methodName,
     endPointName
@@ -31,6 +35,7 @@ const MethodButton = ({methodName, endPointName}) => {
   }
 
   const testClick = () => {
+    dispatch(setActiveRoute(infoObj));
     console.log('Method: ', methodName, ' Endpoint: ', endPointName);
   }
   // <tr className="bg-base-100 rounded-md">

@@ -7,9 +7,9 @@ const port = ipcRenderer.sendSync('get-port');
 function ProjectPathModal() {
 
   const dispatch = useDispatch();
-  const componentPath = useSelector(state => state.project.componentPath)
-  const serverPath = useSelector(state => state.project.serverPath)
-  const server = useSelector(state => state.project.server)
+  const componentPath = useSelector((state: any) => state.project.componentPath)
+  const serverPath = useSelector((state: any) => state.project.serverPath)
+  const server = useSelector((state: any) => state.project.server)
 
 const dialogConfig = {
       title: 'Select a project',

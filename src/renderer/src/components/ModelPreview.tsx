@@ -4,8 +4,9 @@ import { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 
 function ModelPreview() {
-  const nodeInfo = useSelector(state => state.project.nodeInfo);
-  const serverSchemas = useSelector(state => state.project.server);
+  const nodeInfo = useSelector((state: any) => state.project.nodeInfo);
+  const serverSchemas = useSelector((state: any) => state.project.server);
+  const activeRoute = useSelector((state: any) => state.details.activeRoute);
 
   useEffect(() => {
   Prism.highlightAll();
@@ -76,7 +77,9 @@ function ModelPreview() {
   });
         `} */}
         {
-        
+        nodeInfo.map(obj => {
+
+        })
         }
         </code>
       </pre>
