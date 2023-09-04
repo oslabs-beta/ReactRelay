@@ -1,4 +1,5 @@
-
+const { ipcRenderer } = window.require('electron');
+const port = ipcRenderer.sendSync('get-port');
 
 const MethodButton = ({methodName, endPointName}) => {
   const infoObj = {
@@ -16,7 +17,7 @@ const MethodButton = ({methodName, endPointName}) => {
   }
 
   const fetchReq = () => {
-  fetch('http://localhost:3000/backendAST', {
+  fetch(`http://localhost:${port}/backendAST`, {
       method: 'POST',
       headers: {
         'Content-Type': 'Application/JSON'
@@ -44,7 +45,7 @@ const MethodButton = ({methodName, endPointName}) => {
 
   return (
     <div>
-          <div className="flex w-full lg:flex-row card bg-neutral p-2 min-w-min	" onClick={() => testClick()}>
+          <div className="flex w-full lg:flex-row card bg-neutral p-2 min-w-min	hover:cursor-pointer" onClick={() => testClick()}>
             <div className={`flex badge place-items-center font-extrabold w-fit  ${colorCode[methodName]} p-4 ml-3 mt-2`}>
               {methodName}
             </div>

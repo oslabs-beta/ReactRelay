@@ -21,7 +21,7 @@ app.post('/components', fsController.getArrayOfFilePaths, componentController.pa
 })
 
 app.post('/server', fsController.getArrayOfFilePaths, serverASTController.parseAll, (req, res) => {
-  res.status(201).json(res.locals.serverOutput);
+  res.status(201).json(res.locals.serverRoutes);
 })
 // 'res.locals.serverOutput' Object shape:
 // { '/api/': {
