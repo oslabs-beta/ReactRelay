@@ -4,6 +4,7 @@ const initialState = {
   active: null,
   activeComponentCode: '',
   treeContainerClick: true,
+  activeRoute: {endPointName: '', methodName: ''}
 };
 
 export const detailSlice = createSlice({
@@ -19,9 +20,12 @@ export const detailSlice = createSlice({
     setActiveComponentCode: (state, action) => {
       state.activeComponentCode = action.payload;
     },
+    setActiveRoute: (state, action) => {
+      state.activeRoute = action.payload;
+    }
   },
 });
 
-export const { setTreeContainerClick, setActive, setActiveComponentCode } =
+export const { setTreeContainerClick, setActive, setActiveComponentCode, setActiveRoute } =
   detailSlice.actions;
 export default detailSlice.reducer;

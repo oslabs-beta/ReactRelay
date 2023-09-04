@@ -6,54 +6,28 @@ import { useSelector } from 'react-redux';
 function ModelPreview() {
   const nodeInfo = useSelector((state: any) => state.project.nodeInfo);
   const serverSchemas = useSelector((state: any) => state.project.server);
-  const activeRoute = useSelector((state: any) => state.details.activeRoute);
+  const activeRoute = useSelector((state: any) => state.detail.activeRoute);
 
   useEffect(() => {
   Prism.highlightAll();
   }, [])
 
-  const nodeFullRoutes = nodeInfo.map(obj => obj.fullRoute);
-  const nodeRoutes = nodeInfo.map(obj => obj.fullRoute);
+  let display;
+  const activeEndpoint = activeRoute.endPointName;
+  const activeMethod = activeRoute.methodName.toLowerCase();
+  let hasVariable = /\$\{[^ ]+\}/.test(activeEndpoint);
 
   const serverRoutes = Object.keys(serverSchemas).map(route => route);
-  const links = {};
-  serverRoutes.forEach(route => {
-    if (nodeFullRoutes.includes(route)) {
-      links[route] = route;
-      return;
-    };
-    const serverRouteArr = route.split('/');
-    for (let nodeRoute of nodeFullRoutes) {
-      const nodeRouteArr = nodeRoute.split('/');
-      if (nodeRouteArr.length !== serverRouteArr.length) continue;
-      if (nodeRouteArr[1] === nodeRoute[1]) links[nodeRoute] = route;
-    }
-  })
+  if (hasVariable) {
+    display = "variable"
+  } else if (serverRoutes.includes(activeEndpoint)) {
+    display = "found";
+  }
 
-  const displays = {};
-  nodeInfo.forEach(obj => {
-    console.log('nodeInfoObj', obj)
-    if (Object.hasOwn(links, obj.fullRoute)) {
-      const method = obj.method.toLowerCase();
-      const serverRoute = links[obj.fullRoute];
-      console.log('serverRoute', serverRoute, 'serverSchemas', serverSchemas)
-      if (serverSchemas[serverRoute][method]) {
-        const schemasObj = serverSchemas[serverRoute][method];
-        Object.keys(schemasObj).forEach(schema => {
-          if (displays[obj.fullRoute]) {
-            if (displays[obj.fullRoute][method]) {
-              displays[obj.fullRoute][method][schema] = schemasObj[schema];
-            } else {
-              displays[obj.fullRoute][method] = { [schema]: schemasObj[schema] };
-            }
-          } else {
-            displays[obj.fullRoute] = { [method]: { [schema]: schemasObj[schema] } };
-          }
-        })
-      }
-    }
-  })
-  console.log('displays', displays)
+  console.log('aep', activeEndpoint, 'serverRoutes', serverRoutes, 'activeRoute', activeRoute)
+
+  
+  console.log('display', display, serverSchemas, 'SSchemas')
   return (
     <div className='col-span-7 overflow-auto h-min '>
       <h3 className="font-bold">Expected Data Structure</h3>
@@ -77,9 +51,7 @@ function ModelPreview() {
   });
         `} */}
         {
-        nodeInfo.map(obj => {
-
-        })
+          display == undefined ? "ROUTE NOT FOUND" : display === "variable" ? "ROUTE IS CONDITIONAL" : display === "found" ? Object.keys(serverSchemas[activeEndpoint][activeMethod]).map(schema => `${schema} ` + JSON.stringify(serverSchemas[activeEndpoint][activeMethod][schema])) : ''
         }
         </code>
       </pre>
