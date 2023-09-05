@@ -18,9 +18,7 @@ const parseFile = (filePath) => {
 }
 
 
-console.log('hehhyehehe')
 componentController.parseAll = (req, res, next) => {
-  console.log('hehhyehehe2')
   // const projectPath = req.body.filePath;
   // if (projectPath.length === 0) next();
   let components = {};
@@ -241,7 +239,6 @@ componentController.parseAll = (req, res, next) => {
           attributes.forEach(obj => {
             let route;
             if (obj.name.name === "href") {
-              console.log(obj, "OBJJJJJJJ")
               let route = obj.value.type === "StringLiteral" ? obj.value.value : null;
               let expression = route ? null : obj.value.expression;
               if (!route) {
@@ -314,7 +311,6 @@ componentController.getCode = (req, res, next) => {
   const decodedId = decodeURIComponent(id);
 
   const fileCode = fs.readFileSync(decodedId, 'utf-8');
-  console.log('zzzzzzzzfilecode', typeof fileCode)
   res.locals.componentCode = fileCode;
   next()
 }

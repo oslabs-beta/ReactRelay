@@ -10,24 +10,29 @@ function ModelPreview() {
 
   useEffect(() => {
   Prism.highlightAll();
-  }, [])
+  }, [activeRoute])
 
-  let display;
+  let display = '';
+  let output;
   const activeEndpoint = activeRoute.endPointName;
   const activeMethod = activeRoute.methodName.toLowerCase();
   let hasVariable = /\$\{[^ ]+\}/.test(activeEndpoint);
 
   const serverRoutes = Object.keys(serverSchemas).map(route => route);
+
   if (hasVariable) {
     display = "variable"
   } else if (serverRoutes.includes(activeEndpoint)) {
     display = "found";
   }
 
+  if (display === 'found') {
+    output = Object.keys(serverSchemas[activeEndpoint][activeMethod]).map(schema => `${schema} ` + JSON.stringify(serverSchemas[activeEndpoint][activeMethod][schema], null, 2)).join('\n');
+  }
+
   console.log('aep', activeEndpoint, 'serverRoutes', serverRoutes, 'activeRoute', activeRoute)
 
-  
-  console.log('display', display, serverSchemas, 'SSchemas')
+  console.log('display', display)
   return (
     <div className='col-span-7 overflow-auto h-min '>
       <h3 className="font-bold">Expected Data Structure</h3>
@@ -51,7 +56,10 @@ function ModelPreview() {
   });
         `} */}
         {
-          display == undefined ? "ROUTE NOT FOUND" : display === "variable" ? "ROUTE IS CONDITIONAL" : display === "found" ? Object.keys(serverSchemas[activeEndpoint][activeMethod]).map(schema => `${schema} ` + JSON.stringify(serverSchemas[activeEndpoint][activeMethod][schema])) : ''
+          display === '' ? "ROUTE NOT FOUND"
+          : display === "variable" ? "ROUTE IS CONDITIONAL"
+          : display === "found" ? output
+          : ''
         }
         </code>
       </pre>

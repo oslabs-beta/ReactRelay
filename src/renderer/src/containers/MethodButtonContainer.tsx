@@ -18,7 +18,7 @@ function MethodButtonContainer() {
       />
     ));
     setMethodButtons(buttons);
-    if (Object.keys(nodeInfo).length) dispatch(setActiveRoute({ methodName: nodeInfo[0].method, endPointName: nodeInfo[0].fullRoute }))
+    dispatch(setActiveRoute(Object.keys(nodeInfo).length ? { methodName: nodeInfo[0].method, endPointName: nodeInfo[0].fullRoute } : { methodName: '', endPointName: '' }))
   }, [nodeInfo]);
 
   return (
