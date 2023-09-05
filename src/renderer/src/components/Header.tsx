@@ -9,7 +9,7 @@ function Header({ projectName }): JSX.Element  {
         <img className='object-cover h-[50px] ml-[-35px] w-full' src={appLogo}/>
       </div>
       <div className='flex items-center'>
-        <p className='text-lg mx-2'>{projectName}</p>
+        {/* <p className='text-lg mx-2'>{projectName}</p> */}
         <div className="tooltip tooltip-left" data-tip="Open a new project">
           <button className="btn" onClick={() => window.openExplorerModal.showModal()}><img className='h-7' src={dirUpload} alt='open folder button'/></button>
         </div>
