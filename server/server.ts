@@ -45,10 +45,10 @@ app.get('/', (req, res) => {
 
 
 
-if (process.env.NODE_ENV === "development") {
-  app.listen(port, () => {
-    console.log(`Server listening on port ${port}`);
-  });
-}
+// if (process.env.NODE_ENV === "development") {
+//   app.listen(port, () => {
+//     console.log(`Server listening on port ${port}`);
+//   });
+// }
 
 module.exports = app;
