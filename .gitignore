@@ -1,4 +1,5 @@
 node_modules
 package-lock.json
 out
-.DS_Store
+.DS_Storedist/
+dist

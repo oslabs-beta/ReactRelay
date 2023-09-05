@@ -32,7 +32,7 @@
 const fs = require('fs');
 const path = require('path');
 const parser = require('@babel/parser');
-const { isIdentifier, isStringLiteral } = require('typescript');
+// const { isIdentifier, isStringLiteral } = require('typescript');
 const traverse = require('@babel/traverse').default;
 
 const CRUDMETHODS = ['get', 'post', 'patch', 'put', 'delete'];

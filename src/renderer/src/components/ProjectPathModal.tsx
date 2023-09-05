@@ -1,6 +1,9 @@
 import { useSelector, useDispatch } from 'react-redux';
 import { addPath, setComponents, setServer } from '../features/projectSlice'
 
+const { ipcRenderer } = window.require('electron');
+const port = ipcRenderer.sendSync('get-port');
+
 function ProjectPathModal() {
 
   const dispatch = useDispatch();
@@ -26,8 +29,8 @@ const dialogConfig = {
     if (path === '' || !path) return null;
     console.log('serverPath', serverPath)
     const endpoint = {
-      component: 'http://localhost:3000/components',
-      server: 'http://localhost:3000/server'
+      component: `http://localhost:${port}/components`,
+      server: `http://localhost:${port}/server`
     }
     const response = await fetch(endpoint[pathType], {
       method: 'POST',
