@@ -7,9 +7,9 @@ const port = ipcRenderer.sendSync('get-port');
 function ProjectPathModal() {
 
   const dispatch = useDispatch();
-  const componentPath = useSelector(state => state.project.componentPath)
-  const serverPath = useSelector(state => state.project.serverPath)
-  const server = useSelector(state => state.project.server)
+  const componentPath = useSelector((state: any) => state.project.componentPath)
+  const serverPath = useSelector((state: any) => state.project.serverPath)
+  const server = useSelector((state: any) => state.project.server)
 
 const dialogConfig = {
       title: 'Select a project',
@@ -18,14 +18,14 @@ const dialogConfig = {
     }
     // window.api.openDialog returns the filepath when the filepath is chosen from the dialog
     // should i add a case where user doesn't actually select a filepath
-    const openFileExplorer = async (pathType): any => { //FIXME: add to type
+    const openFileExplorer = async (pathType): Promise<any> => { //FIXME: add to type
       const {filePaths} = await window.api.openDialog('showOpenDialog', dialogConfig) //TODO: add to type
       // if user chooses cancel then don't do anything
       if (filePaths[0] === '' || !filePaths[0]) return null;
       dispatch(addPath([pathType, filePaths[0]]));
   }
 
-  const postPath = async (pathType, path): any => {
+  const postPath = async (pathType, path): Promise<any> => {
     if (path === '' || !path) return null;
     console.log('serverPath', serverPath)
     const endpoint = {

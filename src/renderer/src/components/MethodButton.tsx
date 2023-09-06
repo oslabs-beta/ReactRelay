@@ -1,6 +1,11 @@
-
+const { ipcRenderer } = window.require('electron');
+const port = ipcRenderer.sendSync('get-port');
+import { useDispatch } from "react-redux";
+import { setActiveRoute } from '../features/detailSlice';
 
 const MethodButton = ({methodName, endPointName}) => {
+  const dispatch = useDispatch();
+
   const infoObj = {
     methodName,
     endPointName
@@ -16,7 +21,7 @@ const MethodButton = ({methodName, endPointName}) => {
   }
 
   const fetchReq = () => {
-  fetch('http://localhost:3000/backendAST', {
+  fetch(`http://localhost:${port}/backendAST`, {
       method: 'POST',
       headers: {
         'Content-Type': 'Application/JSON'
@@ -30,6 +35,7 @@ const MethodButton = ({methodName, endPointName}) => {
   }
 
   const testClick = () => {
+    dispatch(setActiveRoute(infoObj));
     console.log('Method: ', methodName, ' Endpoint: ', endPointName);
   }
   // <tr className="bg-base-100 rounded-md">
@@ -44,7 +50,7 @@ const MethodButton = ({methodName, endPointName}) => {
 
   return (
     <div>
-          <div className="flex w-full lg:flex-row card bg-neutral p-2 min-w-min	" onClick={() => testClick()}>
+          <div className="flex w-full lg:flex-row card bg-neutral p-2 min-w-min	hover:cursor-pointer" onClick={() => testClick()}>
             <div className={`flex badge place-items-center font-extrabold w-fit  ${colorCode[methodName]} p-4 ml-3 mt-2`}>
               {methodName}
             </div>

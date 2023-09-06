@@ -1,8 +1,13 @@
 import MethodButton from "@renderer/components/MethodButton";
 import { useState, useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { setActiveRoute } from '../features/detailSlice';
 
-function MethodButtonContainer({nodeInfo}) {
+function MethodButtonContainer() {
   const [methodButtons, setMethodButtons] = useState([]);
+  const nodeInfo = useSelector((state: any) => state.project.nodeInfo);
+  const dispatch = useDispatch();
+
   console.log('nodeinfo', nodeInfo)
 
   useEffect(() => {
@@ -13,6 +18,7 @@ function MethodButtonContainer({nodeInfo}) {
       />
     ));
     setMethodButtons(buttons);
+    dispatch(setActiveRoute(Object.keys(nodeInfo).length ? { methodName: nodeInfo[0].method, endPointName: nodeInfo[0].fullRoute } : { methodName: '', endPointName: '' }))
   }, [nodeInfo]);
 
   return (

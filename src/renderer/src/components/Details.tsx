@@ -9,9 +9,9 @@ function Details(): JSX.Element {
   const [height, setHeight] = useState<string | number>(0);
   const navigate = useNavigate();
   const location = useLocation();
-  const nodeInfo = useSelector(state => state.project.nodeInfo);
-  const componentName = useSelector(state => state.project.componentName)
-  const treeContainerClick = useSelector(state => state.detail.treeContainerClick)
+  const nodeInfo = useSelector((state: any) => state.project.nodeInfo);
+  const componentName = useSelector((state: any) => state.project.componentName)
+  const treeContainerClick = useSelector((state: any) => state.detail.treeContainerClick)
 
   useEffect(() => {
       window.innerHeight > 800 ? setHeight('40vh') : setHeight('30vh');
@@ -69,7 +69,7 @@ function Details(): JSX.Element {
           <Routes>
             <Route path="/" element={
               <>
-                <MethodButtonContainer nodeInfo={nodeInfo}/>
+                <MethodButtonContainer />
                 <ModelPreview />
               </>
             }/>
