@@ -13,16 +13,29 @@ function ModelPreview() {
 
   let display = '';
   let output;
-  const activeEndpoint = activeRoute.endPointName;
-  const activeMethod = activeRoute.methodName.toLowerCase();
+  let activeEndpoint = activeRoute.endPointName;
+  if (/^http:\/\/localhost:\d+\//.test(activeEndpoint)) {
+    activeEndpoint = "/" + activeEndpoint.split(/^http:\/\/localhost:\d+\//)[1];
+  }
+  console.log('activeRoute', activeRoute)
+  const activeMethod = activeRoute.methodName ? activeRoute.methodName.toLowerCase() : '';
   let hasVariable = /\$\{[^ ]+\}/.test(activeEndpoint);
 
   const serverRoutes = Object.keys(serverSchemas).map(route => route);
 
+  console.log(serverRoutes, 'serverRoutes11111', serverSchemas)
   if (hasVariable) {
     display = "variable"
-  } else if (serverRoutes.includes(activeEndpoint)) {
+  } else if (activeEndpoint) {
+    if (serverRoutes.includes(activeEndpoint)) {
     display = "found";
+    } else if (serverRoutes.includes(activeEndpoint + "/")) {
+      display = "found";
+      activeEndpoint += "/";
+      } else if (activeEndpoint[activeEndpoint.length-1] === "/" && serverRoutes.includes(activeEndpoint.slice(0,-1))) {
+      display = "found";
+      activeEndpoint = activeEndpoint.slice(0,-1);
+    }
   }
 
   if (display === 'found') {
@@ -38,7 +51,7 @@ function ModelPreview() {
       <pre className='bg-base-100 rounded-md z-2'>
         <code className='language-js'>
         {
-          display === '' ? "ROUTE NOT FOUND"
+          display === '' ? "SCHEMA NOT FOUND"
           : display === "variable" ? "ROUTE IS CONDITIONAL"
           : display === "found" ? output
           : ''

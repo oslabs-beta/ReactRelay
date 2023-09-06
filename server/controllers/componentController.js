@@ -135,14 +135,15 @@ componentController.parseAll = (req, res, next) => {
           let objExpIdx = -1;
 
           //ObjectExpression node will exist in arguments array if fetch contains body as 2nd arg. if none is found, fetch method must be GET
-          argArrr.forEach((sibling, i) => sibling.type === "ObjectExpression" ? objExpIdx = i : null);
+          if (argArrr) {
+            argArrr.forEach((sibling, i) => sibling.type === "ObjectExpression" ? objExpIdx = i : null);
 
-          if (objExpIdx > -1) {
-            const objProps = argArrr[objExpIdx].properties;
-            objProps.forEach(prop => {
-              if (prop.key.name === 'method') method = prop.value.value;
-            })
-
+            if (objExpIdx > -1) {
+              const objProps = argArrr[objExpIdx].properties;
+              objProps.forEach(prop => {
+                if (prop.key.name === 'method') method = prop.value.value;
+              })
+            }
           }
 
           //push route and method data into ajaxRequests array, which will be added to component object
