@@ -18,8 +18,9 @@ function Header({ projectName }): JSX.Element  {
       <div className="w-[300px]">
         <img className='object-cover h-[50px] ml-[-35px] w-full' src={appLogo}/>
       </div>
-      <div className='flex items-center'>
-        <input id='componentSearch' onChange={(e) => dispatch(setSearchValue(e.target.value))} value={searchBar} type="text" />
+      <div className='flex items-center ml-[-70px]'>
+        <h2>Component Search: </h2>
+        <input className='p-1' id='componentSearch' onChange={(e) => dispatch(setSearchValue(e.target.value))} value={searchBar} type="text" />
         {/* <button onClick={handleSearch}>Search</button> */}
       </div>
       <div className='flex items-center'>
