@@ -28,6 +28,11 @@ const nodeTypes = {
   CustomNode,
   CustomNode2,
 };
+
+const { ipcRenderer } = window.require('electron');
+const port = ipcRenderer.sendSync('get-port');
+
+
 const edgeType = 'smoothstep';
 // declaring both edge styles which we will be using
 // these use svg styling in case one wants to update them.
@@ -108,8 +113,8 @@ type Edge = {
 function Tree({}): JSX.Element {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
-  const reactFlowComponents = useSelector(state => state.project.components);
-  const active = useSelector((state) => state.detail.active);
+  const reactFlowComponents = useSelector((state: any) => state.project.components);
+  const active = useSelector((state: any) => state.detail.active);
   const dispatch = useDispatch();
   //components that are re-used are given unique id's by adding a number to the end of the AFP. this function converts that id back to the AFP (i.e. as it appears in reactFlowComponents), then return the object associated with this AFP key in reactFlowComponents.
   const getComponentFromNodeId = (id: string): Component => {
@@ -258,7 +263,7 @@ function Tree({}): JSX.Element {
     dispatch(setActive(element.id));
     const encodedId = encodeURIComponent(component.id);
     const componentCode = await fetch(
-      `http://localhost:3000/code?id=${encodedId}`
+      `http://localhost:${port}/code?id=${encodedId}`
     );
     // console.log(componentCode, 'componentCode');
     const data = await componentCode.json();

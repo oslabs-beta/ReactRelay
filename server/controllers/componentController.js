@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path2 = require('path');
 const parser = require('@babel/parser');
-const { isIdentifier, isStringLiteral } = require('typescript');
+// const { isIdentifier, isStringLiteral } = require('typescript');
 const traverse = require('@babel/traverse').default;
 
 const componentController = {}
@@ -18,9 +18,7 @@ const parseFile = (filePath) => {
 }
 
 
-console.log('hehhyehehe')
 componentController.parseAll = (req, res, next) => {
-  console.log('hehhyehehe2')
   // const projectPath = req.body.filePath;
   // if (projectPath.length === 0) next();
   let components = {};
@@ -137,14 +135,15 @@ componentController.parseAll = (req, res, next) => {
           let objExpIdx = -1;
 
           //ObjectExpression node will exist in arguments array if fetch contains body as 2nd arg. if none is found, fetch method must be GET
-          argArrr.forEach((sibling, i) => sibling.type === "ObjectExpression" ? objExpIdx = i : null);
+          if (argArrr) {
+            argArrr.forEach((sibling, i) => sibling.type === "ObjectExpression" ? objExpIdx = i : null);
 
-          if (objExpIdx > -1) {
-            const objProps = argArrr[objExpIdx].properties;
-            objProps.forEach(prop => {
-              if (prop.key.name === 'method') method = prop.value.value;
-            })
-
+            if (objExpIdx > -1) {
+              const objProps = argArrr[objExpIdx].properties;
+              objProps.forEach(prop => {
+                if (prop.key.name === 'method') method = prop.value.value;
+              })
+            }
           }
 
           //push route and method data into ajaxRequests array, which will be added to component object
@@ -241,7 +240,6 @@ componentController.parseAll = (req, res, next) => {
           attributes.forEach(obj => {
             let route;
             if (obj.name.name === "href") {
-              console.log(obj, "OBJJJJJJJ")
               let route = obj.value.type === "StringLiteral" ? obj.value.value : null;
               let expression = route ? null : obj.value.expression;
               if (!route) {
@@ -314,7 +312,6 @@ componentController.getCode = (req, res, next) => {
   const decodedId = decodeURIComponent(id);
 
   const fileCode = fs.readFileSync(decodedId, 'utf-8');
-  console.log('zzzzzzzzfilecode', typeof fileCode)
   res.locals.componentCode = fileCode;
   next()
 }

@@ -2,7 +2,8 @@ import { app, shell, BrowserWindow, ipcMain, dialog } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
-const expressApp = require('../../server/server.ts');
+const path = require('path');
+const expressApp = require(path.join(app.getAppPath(), 'server', 'server.ts')); //require('../../server/server.js');
 
 let server;
 
@@ -16,7 +17,9 @@ function createWindow(): void {
     ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
-      sandbox: false
+      sandbox: false,
+      nodeIntegration: true,
+      contextIsolation: false
     }
   })
 
@@ -46,8 +49,10 @@ function createWindow(): void {
 app.whenReady().then(() => {
   // Set app user model id for windows
   electronApp.setAppUserModelId('com.electron')
-  server = expressApp.listen(3000, () => {
-    console.log('server running on port 3000');
+  server = (expressApp as any).listen(0, () => {
+    const port = server.address().port;
+
+    console.log(`server running on port ${port}`);
   })
   // Default open or close DevTools by F12 in development
   // and ignore CommandOrControl + R in production.
@@ -65,14 +70,19 @@ app.whenReady().then(() => {
     // dock icon is clicked and there are no other windows open.
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
   })
+
+  ipcMain.on('get-port', (e) => {
+    e.returnValue = server ? server.address().port : 3000;
+  })
 })
 
-  // ipcMain creates a communication channel between main and renderer --> looks for events regarding dialog
-  // async in order to wait for the user to select the filepath
-  ipcMain.handle('dialog', async (event, method, params) => {
-    const result = await dialog[method](params)
-    return result;
-  })
+// ipcMain creates a communication channel between main and renderer --> looks for events regarding dialog
+// async in order to wait for the user to select the filepath
+ipcMain.handle('dialog', async (_, method, params) => {
+  const result = await dialog[method](params)
+  return result;
+})
+
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
 // explicitly with Cmd + Q.

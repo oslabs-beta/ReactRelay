@@ -32,7 +32,7 @@
 const fs = require('fs');
 const path = require('path');
 const parser = require('@babel/parser');
-const { isIdentifier, isStringLiteral } = require('typescript');
+// const { isIdentifier, isStringLiteral } = require('typescript');
 const traverse = require('@babel/traverse').default;
 
 const CRUDMETHODS = ['get', 'post', 'patch', 'put', 'delete'];
@@ -56,6 +56,7 @@ serverASTController.parseAll = (req, res, next) => {
   //helper functions
   const findVariableName = (curr) => {
     const varDecPath = curr.findParent((curr) => curr.isVariableDeclarator());
+    if (!varDecPath) return;
     if (varDecPath.node.id.name) return varDecPath.node.id.name;
     if (varDecPath.node.id.properties)
       return varDecPath.node.id.properties.map((prop) => prop.value.name);
@@ -97,6 +98,7 @@ serverASTController.parseAll = (req, res, next) => {
     let expressInstance;
     let routerInstance;
     let schemaInstance;
+    let explicitRouter = false;
 
     traverse(ast, {
       enter(curr) {
@@ -139,6 +141,16 @@ serverASTController.parseAll = (req, res, next) => {
             mongooseLabel = curr.parent.specifiers[0].local.name;
           }
           if (curr.node.value === 'express') {
+            if (curr.parent.specifiers.length >= 1) {
+              for (let specifier of curr.parent.specifiers) {
+                if (specifier.local.name === 'Router') {
+                  explicitRouter = true;
+                  importExpress = true;
+                  expressLabel = "express";
+                  return;
+                }
+              }
+            }
             importExpress = true;
             expressLabel = curr.parent.specifiers[0].local.name;
           }
@@ -166,6 +178,20 @@ serverASTController.parseAll = (req, res, next) => {
           // console.log('routerInstance', routerInstance);
           traverseRouterFile(ast, filePath, expressLabel, routerInstance);
         }
+        if (
+          curr.isIdentifier() &&
+          explicitRouter &&
+          curr.node.name === 'Router' &&
+          curr.parent.type === 'CallExpression'
+        ) {
+          const varDecPath = curr.findParent(curr => curr.isVariableDeclarator());
+          if (varDecPath) {
+            if (varDecPath.node.id) {
+              routerInstance = varDecPath.node.id.name;
+              traverseRouterFile(ast, filePath, expressLabel, routerInstance);
+            }
+          }
+        }
 
         if (
           curr.isIdentifier() &&
@@ -174,7 +200,6 @@ serverASTController.parseAll = (req, res, next) => {
         ) {
           if (curr.parent.property.name === 'Schema') {
             schemaInstance = findVariableName(curr);
-            console.log('whyyyyyyyy');
             traverseMongooseFile(ast, filePath, mongooseLabel, schemaInstance);
           }
         }
@@ -256,6 +281,7 @@ serverASTController.parseAll = (req, res, next) => {
           const arguments = callExpPath.node.arguments;
           const endpoint = arguments[0].value;
           arguments.slice(1, -1).forEach((arg) => {
+            if (!arg.object) return;
             if (Object.hasOwn(importLabels, arg.object.name)) {
               //check if import label exists (we found import label arg.object.name inside the imports at top of page)
               const middlewareMethod = {
@@ -301,7 +327,6 @@ serverASTController.parseAll = (req, res, next) => {
     );
   };
 
-  const routerPathExtensions = {};
   const allRouterRoutesLeadingToController = {}; //all routes in router that lead to controller
 
   const traverseRouterFile = (ast, filePath, expressLabel, routerInstance) => {
@@ -343,6 +368,7 @@ serverASTController.parseAll = (req, res, next) => {
           const arguments = callExpPath.node.arguments; //IRENE: trying to find the arguments of router.METHOD()
           const endpoint = arguments[0].value; //IRENE: we know first arg will always be the endpoint
           arguments.slice(1, -1).forEach((arg) => {
+            if (!arg.object) return;
             //IRENE: we know last arg will be the middleware that handles sending the response back to client. we now need to just look at the arguments between the first and last so we can identify the controller/middleware
             if (Object.hasOwn(importLabels, arg.object.name)) {
               //IRENE: check if name of the argument in the argument object matches the label in importLabels object
@@ -400,30 +426,9 @@ serverASTController.parseAll = (req, res, next) => {
         }
       },
     });
-    console.log('allRouterRoutes....', allRouterRoutesLeadingToController);
+    console.log('allRouterRoutes....', allRouterRoutesLeadingToController, 'importLabelsssszzz', importLabels);
   };
 
-  // const addES6Import = (curr, filePath, importLabels) => {
-  //   const importLabel = findImportLabel(curr);//grab the directory of this file
-  //   const currDirectory = path.dirname(filePath)//grab the absolute filepath of the imported file //IRENE: using directory name of current filepath
-  //   const afp = path.resolve(currDirectory, curr.node.value);
-  //   console.log('afp', afp)
-  //   const afpArray = allFiles.filter(file => file.includes(afp)); //if imported file exists in server directory, add its label name as a key in importLabels obj w value being its afp
-  //   if (afpArray.length) importLabels[importLabel] = afpArray[0];
-  //   // console.log(importLabels, 'importLabels');  // importLabels = {starWarsController: /Users/Codesmith/App/Controllers/starWarsControllers.js} this is temporary
-  //   return importLabels;
-  // }
-
-  // addES5Import = (curr, filePath, importLabels) => {
-  //   const importLabel = findVariableName(curr);
-  //   const currDirectory = path.dirname(filePath);
-  //   const afp = path.resolve(currDirectory, curr.node.value);
-
-  //   const afpArray = allFiles.filter(file => file.includes(afp));
-  //   if (afpArray.length) importLabels[importLabel] = afpArray[0];
-  //   // console.log(importLabels, 'importLabels')
-  //   return importLabels;
-  // }
 
   controllerSchemas = {};
 
@@ -441,13 +446,26 @@ serverASTController.parseAll = (req, res, next) => {
           variableStatementPossible &&
           currentControllerMethod &&
           curr.parent.type === 'ObjectExpression'
-        )
+        ) {
+          const callExpPath = curr.findParent(curr => curr.isCallExpression())
+          if (callExpPath) {
+            if (callExpPath.node.callee) {
+
+              if (callExpPath.node.callee.object) {
+                if (Object.keys(imports).includes(callExpPath.node.callee.object.name)) return;
+              } else if (callExpPath.node.callee.name) {
+                if (callExpPath.node.callee.name === "next") return;
+              }
+            }
+          }
           currentControllerMethod = '';
+        }
 
         if (curr.parent.type === 'Program') {
+          console.log('schemaInt', schemaInteractions)
           if (currentControllerMethod && Object.keys(schemaInteractions).length)
             controllerSchemas[filePath] = schemaInteractions;
-
+          console.log('controllerSchemas', controllerSchemas)
           currentControllerMethod = '';
           if (curr.node.type === 'ExpressionStatement')
             expressionStatementPossible = true;
@@ -490,6 +508,7 @@ serverASTController.parseAll = (req, res, next) => {
             if (afpArray.length)
               importLabel.forEach((label) => (imports[label] = afpArray[0]));
           }
+          console.log('imports', imports)
         }
 
         //filtering for IDENTIFIER:
@@ -517,6 +536,7 @@ serverASTController.parseAll = (req, res, next) => {
         ) {
           if (curr.parent.property.name === curr.node.name)
             currentControllerMethod = curr.node.name;
+          console.log('currentControllerMethod', currentControllerMethod)
         }
 
         if (
@@ -526,6 +546,7 @@ serverASTController.parseAll = (req, res, next) => {
           curr.parent.type === 'MemberExpression' &&
           curr.parent.property
         ) {
+          console.log('currentControllerMethod2', currentControllerMethod)
           schemaInteractions[currentControllerMethod]
             ? schemaInteractions[currentControllerMethod].push(curr.node.name)
             : (schemaInteractions[currentControllerMethod] = [curr.node.name]);
@@ -556,21 +577,23 @@ serverASTController.parseAll = (req, res, next) => {
           const schemaName = findVariableName(curr);
           const populateSchema = (propsArray) => {
             const output = {};
-            propsArray.forEach((prop) => {
-              const key = prop.key.name;
-              prop.value.type === 'Identifier'
-                ? (output[key] = prop.value.name)
-                : prop.value.type === 'StringLiteral' ||
-                  prop.value.type === 'BooleanLiteral'
-                ? (output[key] = prop.value.value)
-                : prop.value.type === 'ObjectExpression'
-                ? (output[key] = populateSchema(prop.value.properties))
-                : prop.value.type === 'ArrayExpression'
-                ? (output[key] = prop.value.elements.map((obj) =>
-                    populateSchema(obj.properties)
-                  ))
-                : (output[key] = 'UNKOWN VALUE');
-            });
+            if (propsArray) {
+              propsArray.forEach((prop) => {
+                const key = prop.key.name;
+                prop.value.type === 'Identifier'
+                  ? (output[key] = prop.value.name)
+                  : prop.value.type === 'StringLiteral' ||
+                    prop.value.type === 'BooleanLiteral'
+                  ? (output[key] = prop.value.value)
+                  : prop.value.type === 'ObjectExpression'
+                  ? (output[key] = populateSchema(prop.value.properties))
+                  : prop.value.type === 'ArrayExpression'
+                  ? (output[key] = prop.value.elements.map((obj) =>
+                      populateSchema(obj.properties)
+                    ))
+                  : (output[key] = 'UNKOWN VALUE');
+              });
+            }
             return output;
           };
           schemas[schemaName] = populateSchema(propsArray);
@@ -588,7 +611,8 @@ serverASTController.parseAll = (req, res, next) => {
           );
           let schemaExport;
           if (Object.hasOwn(schemas, callExpPath.node.arguments[1].name)) {
-            const schemaExport = findVariableName(curr);
+            console.log(callExpPath.node.arguments[1].name, 'zzzzz')
+            const schemaExport = findVariableName(curr) || callExpPath.node.arguments[0].value[0].toUpperCase() + callExpPath.node.arguments[0].value.slice(1);
             schemaKey[schemaExport] =
               schemas[callExpPath.node.arguments[1].name];
           }
@@ -612,18 +636,22 @@ serverASTController.parseAll = (req, res, next) => {
   const output = {};
 
   Object.keys(linksToRouter).forEach((route) => {
+    // console.log('linksToRouter', linksToRouter, 'aRRLTC', allRouterRoutesLeadingToController)
     if (
       Object.hasOwn(allRouterRoutesLeadingToController, linksToRouter[route])
     ) {
       Object.keys(
         allRouterRoutesLeadingToController[linksToRouter[route]]
       ).forEach((key) => {
+        // console.log('route', route, 'key', key)
         Object.keys(
           allRouterRoutesLeadingToController[linksToRouter[route]][key]
         ).forEach((method) => {
+          // console.log('method', method, route, key)
           allRouterRoutesLeadingToController[linksToRouter[route]][key][
             method
           ].forEach((controllerMethod) => {
+            // console.log('controllerMethod', controllerMethod, route, key, 'controllerSchemas', controllerSchemas)
             if (Object.hasOwn(controllerSchemas, controllerMethod.path)) {
               if (
                 Object.hasOwn(

@@ -21,7 +21,7 @@ app.post('/components', fsController.getArrayOfFilePaths, componentController.pa
 })
 
 app.post('/server', fsController.getArrayOfFilePaths, serverASTController.parseAll, (req, res) => {
-  res.status(201).json(res.locals.serverOutput);
+  res.status(201).json(res.locals.serverRoutes);
 })
 // 'res.locals.serverOutput' Object shape:
 // { '/api/': {
@@ -45,9 +45,10 @@ app.get('/', (req, res) => {
 
 
 
-
-// app.listen(port, () => {
-//   console.log(`Server listening on port ${port}`);
-// });
+// if (process.env.NODE_ENV === "development") {
+//   app.listen(port, () => {
+//     console.log(`Server listening on port ${port}`);
+//   });
+// }
 
 module.exports = app;
