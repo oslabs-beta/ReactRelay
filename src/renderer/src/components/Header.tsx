@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { setSearchValue, setShowSearch } from '../features/searchSlice';
 
 
-function Header({ projectName }): JSX.Element {
+function Header({}): JSX.Element {
   const dispatch = useDispatch();
   const searchBar = useSelector((state: any) => state.search.searchValue);
   const showSearch = useSelector((state: any) => state.search.showSearch);

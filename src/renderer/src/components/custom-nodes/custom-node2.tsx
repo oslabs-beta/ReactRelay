@@ -8,8 +8,8 @@ import { useSelector } from 'react-redux';
 
 const checkForSearchMatch = (label: string) => {
   return useSelector((state: any) => {
-    const searchValue = state.search.searchValue;
-    return label.includes(searchValue) ? searchValue : null;
+    const searchValue = state.search.searchValue.toLowerCase();
+    return label.toLowerCase().includes(searchValue) ? searchValue : null;
   }, (a,b) => a === b)
 }
 
