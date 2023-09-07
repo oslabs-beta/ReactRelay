@@ -1,12 +1,27 @@
-import dirUpload from '../assets/images/directory-black.svg'
+import dirUpload from '../assets/images/directory-black.svg';
 // import appLogo from '../assets/images/ReactRelay.svg'
-import appLogo from '../assets/images/ReactRelay-logos/ReactRelay-logos_white.png'
+import appLogo from '../assets/images/ReactRelay-logos/ReactRelay-logos_white.png';
+import { useDispatch, useSelector } from 'react-redux';
+import { setSearchValue } from '../features/searchSlice';
+
 
 function Header({ projectName }): JSX.Element  {
+  const dispatch = useDispatch();
+  const searchBar = useSelector((state: any) => state.search.searchValue);
+
+  // const handleSearch = () => {
+
+  // }
+
   return (
     <header className='flex justify-between p-3 bg-primary'>
       <div className="w-[300px]">
         <img className='object-cover h-[50px] ml-[-35px] w-full' src={appLogo}/>
+      </div>
+      <div className='flex items-center ml-[-70px]'>
+        <h2>Component Search: </h2>
+        <input className='p-1' id='componentSearch' onChange={(e) => dispatch(setSearchValue(e.target.value))} value={searchBar} type="text" />
+        {/* <button onClick={handleSearch}>Search</button> */}
       </div>
       <div className='flex items-center'>
         <p className='text-lg mx-2'>{projectName}</p>
