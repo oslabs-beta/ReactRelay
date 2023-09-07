@@ -288,16 +288,11 @@ componentController.parseAll = (req, res, next) => {
   })
 
   //convert values of children properties to array of Objects, rather than object of filePath keys where the value is the object
-
   Object.values(components).forEach(component => {
-    // const arrayOfChildObjects = Object.values(component.children);
     const arrayOfChildFilePaths = Object.keys(component.children);
 
     component.children = arrayOfChildFilePaths;
   })
-
-  //set root node to be the "root"
-  // const componentTree = components[path2.join(projectPath, 'index.js')]; //Object.keys(components).filter(component => !listOfChildren.has(component)) //&& Object.keys(components[component].children).length > 0) //components[Object.keys(components).filter(component => !listOfChildren.has(component) && Object.keys(components[component].children).length > 0)];
 
   // console.log(components)
   res.locals.components = components
@@ -307,6 +302,7 @@ componentController.parseAll = (req, res, next) => {
 
 }
 
+//used to grab code from the file associated with a component, to be displayed in details section on front end
 componentController.getCode = (req, res, next) => {
   const { id } = req.query;
   const decodedId = decodeURIComponent(id);
