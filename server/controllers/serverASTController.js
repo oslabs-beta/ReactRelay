@@ -40,8 +40,7 @@ const CRUDMETHODS = ['get', 'post', 'patch', 'put', 'delete'];
 const serverASTController = {};
 
 serverASTController.parseAll = (req, res, next) => {
-  const routesObj = {};
-  const routesArray = [];
+
   //readFileSync method of the fs module is used to grab all the code from 'filePath',
   //then the parse method in babel parser is used to create and return an AST version of
   //this file. plugins necessary to work with JSX and typescript.
@@ -89,7 +88,7 @@ serverASTController.parseAll = (req, res, next) => {
     return importLabels;
   };
 
-  //traversal
+  //traverse all server files and categorize them as either DB model files, controller files, router files, or the root server file
   const traverseServerAST = (ast, filePath) => {
     let importExpress = false;
     let importMongoose = false;
@@ -102,8 +101,8 @@ serverASTController.parseAll = (req, res, next) => {
 
     traverse(ast, {
       enter(curr) {
-        if (expressInstance || routerInstance || schemaInstance) return;
 
+        //check for specific ES5 syntax imports so we can identify 1) that express, mongoose, and/or express Router is being imported, and 2) what the import is labeled
         if (
           curr.isIdentifier() &&
           curr.node.name === 'require' &&
@@ -131,6 +130,7 @@ serverASTController.parseAll = (req, res, next) => {
           }
         }
 
+        //Same logic as above, but for ES6 syntax. TODO: account for possiblity of an import being imported "as" something. i.e.: import { Router as Routeriffic } from 'express'
         if (
           curr.isStringLiteral() &&
           (curr.node.value === 'mongoose' || curr.node.value === 'express') &&
@@ -157,6 +157,7 @@ serverASTController.parseAll = (req, res, next) => {
           importExpress = importMongoose = false;
         }
 
+        //if it is found that an instance of express has been created, it is assumed this must be the root server file, and so the function for traversing root server files is invoked, and the current traversal is stopped.
         if (
           curr.isIdentifier() &&
           curr.node.name === expressLabel &&
@@ -166,8 +167,10 @@ serverASTController.parseAll = (req, res, next) => {
           expressInstance = findVariableName(curr);
           // console.log('expinst', expressInstance)
           traverseServerFile(ast, filePath, expressLabel, expressInstance);
+          curr.stop();
         }
 
+        //if it is found that a Router instance has been created, it is assumed this must be a router file, and so the func for traversing router files is invoked
         if (
           curr.isIdentifier() &&
           curr.node.name === expressLabel &&
@@ -177,7 +180,10 @@ serverASTController.parseAll = (req, res, next) => {
           routerInstance = findVariableName(curr);
           // console.log('routerInstance', routerInstance);
           traverseRouterFile(ast, filePath, expressLabel, routerInstance);
+          curr.stop();
         }
+
+        //extension of above to cover possibility of Router being explicitly imported as itself (ES6)
         if (
           curr.isIdentifier() &&
           explicitRouter &&
@@ -189,10 +195,12 @@ serverASTController.parseAll = (req, res, next) => {
             if (varDecPath.node.id) {
               routerInstance = varDecPath.node.id.name;
               traverseRouterFile(ast, filePath, expressLabel, routerInstance);
+              curr.stop();
             }
           }
         }
 
+        //
         if (
           curr.isIdentifier() &&
           curr.node.name === mongooseLabel &&
@@ -201,6 +209,7 @@ serverASTController.parseAll = (req, res, next) => {
           if (curr.parent.property.name === 'Schema') {
             schemaInstance = findVariableName(curr);
             traverseMongooseFile(ast, filePath, mongooseLabel, schemaInstance);
+            curr.stop();
           }
         }
 
