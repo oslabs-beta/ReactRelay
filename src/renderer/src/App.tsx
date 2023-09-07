@@ -11,7 +11,7 @@ function App(): JSX.Element {
 
   return (
     <div className="flex flex-col h-screen w-full">
-      <Header  projectName={'projectName'}/>
+      <Header />
       <ProjectPathModal />
       <Tree />
       {componentName !== '' &&
