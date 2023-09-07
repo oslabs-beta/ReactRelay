@@ -200,7 +200,7 @@ serverASTController.parseAll = (req, res, next) => {
           }
         }
 
-        //
+        //if a mongoose Schema instance is found, assume this file is a models file
         if (
           curr.isIdentifier() &&
           curr.node.name === mongooseLabel &&
@@ -213,19 +213,20 @@ serverASTController.parseAll = (req, res, next) => {
           }
         }
 
-        //if found instance of (req, res, next) set var "hasReqResNext" to true;
-        // if ()
       },
     });
+    //if file was not identified as root, router, or model file, assume it is either a controller file, or negligible
     if (!expressInstance && !routerInstance && !schemaInstance)
       traverseControllerFile(ast, filePath);
   };
 
   const linksToRouter = {};
   const allServerRoutesLeadingToController = {}; //obj to hold all server routes that lead to a controller
-  //TODO: STILL NEED TO ACCOUNT FOR MIDDLEWARE FUNCTIONALITY EXPLICITLY FOUND IN THE SERVER.JS FILE
+  //TODO: STILL NEED TO ACCOUNT FOR MIDDLEWARE FUNCTIONALITY EXPLICITLY FOUND IN THE ROOT SERVER FILE (DB INTERACTIONS THAT OCCUR IN ROOT SERVER FILE)
 
+  //function for traversing the root server file, checking for links to router and controller files
   const traverseServerFile = (ast, filePath, expressLabel, expressInstance) => {
+    //used to store identified imports and their corresponding AFP
     let importLabels = {};
 
     traverse(ast, {
@@ -250,7 +251,7 @@ serverASTController.parseAll = (req, res, next) => {
           }
         }
 
-        //filter for invocations of the use method on the express instance (app.use(...))
+        //filter for invocations of the use method on the express instance (app.use(...)), and identify links to router files using this
         if (
           curr.isIdentifier() &&
           curr.node.name === expressInstance &&
@@ -268,7 +269,6 @@ serverASTController.parseAll = (req, res, next) => {
             arguments.length > 1 &&
             Object.hasOwn(importLabels, arguments[1].name)
           ) {
-            console.log('importLabels', importLabels);
             // linksToRouter[importLabels[arguments[1].name]] = arguments[0].value;
             linksToRouter[arguments[0].value] = importLabels[arguments[1].name];
             //    '/auth': '/Users/cush572/Codesmith/TEST/ReacType/server/routers/auth.ts',
@@ -276,7 +276,9 @@ serverASTController.parseAll = (req, res, next) => {
           }
         }
 
-        //TODO: refactor and turn into helper function since this is similar to the condition inside traverseRouterFile function
+        //TODO: refactor below and turn into helper function since this is similar to the condition inside traverseRouterFile function 
+
+        //check for server endpoints that bypass router files and link directly to middleware functions in controller files. Populate allServerRoutesLeadingToController obj accordingly.
         if (
           curr.isIdentifier() &&
           curr.node.name === expressInstance &&
@@ -338,7 +340,10 @@ serverASTController.parseAll = (req, res, next) => {
 
   const allRouterRoutesLeadingToController = {}; //all routes in router that lead to controller
 
+
+  //function for traversing router files, checking for links controller files and populating these links in the above object
   const traverseRouterFile = (ast, filePath, expressLabel, routerInstance) => {
+    //
     let importLabels = {};
     traverse(ast, {
       enter(curr) {
@@ -351,6 +356,7 @@ serverASTController.parseAll = (req, res, next) => {
           //IRENE: provides access to all the imports at the top of the file
           importLabels = addES6Import(curr, filePath, importLabels);
         }
+
 
         if (
           curr.isStringLiteral() &&
@@ -421,7 +427,7 @@ serverASTController.parseAll = (req, res, next) => {
               //   }
               // }
 
-              //END RESULT: allRouterRoutesLeadingToController{
+              //EXAMPLE END RESULT: allRouterRoutesLeadingToController{
               //   '/Users/cush572/Codesmith/Week4/unit-10-databases/server/routes/api.js': {
               //     '/': { get: Array },
               //     '/species': { get: Array },
@@ -441,6 +447,7 @@ serverASTController.parseAll = (req, res, next) => {
 
   controllerSchemas = {};
 
+  //function to traverse controller files, identifying middleware methods and their corresponding interactions with database schemas, and populating this information in the above controllerSchemas object
   const traverseControllerFile = (ast, filePath, label, instance) => {
     const imports = {};
     const schemaInteractions = {};
@@ -451,6 +458,8 @@ serverASTController.parseAll = (req, res, next) => {
     console.log('CONTROLLER FILE PATH', filePath);
     traverse(ast, {
       enter(curr) {
+
+        //account for cases where controller methods are explicitly defined within a controller object
         if (
           variableStatementPossible &&
           currentControllerMethod &&
@@ -470,6 +479,7 @@ serverASTController.parseAll = (req, res, next) => {
           currentControllerMethod = '';
         }
 
+        //if back in the global context of the file (un-nested), and the previous branch was determined to be a controller method, and DB schema interactions were found in this method, populate the controllerSchemas object with relevant info (found in schemaInteractions object)
         if (curr.parent.type === 'Program') {
           console.log('schemaInt', schemaInteractions)
           if (currentControllerMethod && Object.keys(schemaInteractions).length)
@@ -568,6 +578,7 @@ serverASTController.parseAll = (req, res, next) => {
   const schemas = {};
   const schemaKey = {};
 
+  //function for traversing mongoose model files and populating the above schemaKey object with each schema name and its associated schema structure
   const traverseMongooseFile = (
     ast,
     filePath,
@@ -576,14 +587,16 @@ serverASTController.parseAll = (req, res, next) => {
   ) => {
     traverse(ast, {
       enter(curr) {
+        //check for new schema instances
         if (
           curr.isIdentifier() &&
           curr.node.name === schemaInstance &&
           curr.parent.type === 'NewExpression'
         ) {
-          //check for new schema instances
           const propsArray = curr.parent.arguments[0].properties;
           const schemaName = findVariableName(curr);
+          
+          //helper func used to create a clone of the schema as found in the file
           const populateSchema = (propsArray) => {
             const output = {};
             if (propsArray) {
@@ -605,10 +618,13 @@ serverASTController.parseAll = (req, res, next) => {
             }
             return output;
           };
+
+          //set the schema variable name to the schema
           schemas[schemaName] = populateSchema(propsArray);
           console.log('schemas', schemas);
         }
 
+        //populate schemaKey object with the label each schema is being exported as set to the schema itself
         if (
           curr.isIdentifier() &&
           curr.node.name === mongooseLabel &&
@@ -634,7 +650,7 @@ serverASTController.parseAll = (req, res, next) => {
 
   const allFiles = res.locals.allFiles;
 
-  //iterate through array of files, convert each to AST, and invoke above function to traverse the AST
+  //iterate through array of files, convert each to AST, and invoke function to traverse the AST
   allFiles.forEach((filePath) => {
     const ast = parseFile(filePath);
     // console.log('ast');
@@ -644,6 +660,7 @@ serverASTController.parseAll = (req, res, next) => {
   console.log('here');
   const output = {};
 
+  //populate the above output object with endpoints distributed from the root server file to router files, and their associated methods, schema labels, and schemas
   Object.keys(linksToRouter).forEach((route) => {
     // console.log('linksToRouter', linksToRouter, 'aRRLTC', allRouterRoutesLeadingToController)
     if (
@@ -707,6 +724,7 @@ serverASTController.parseAll = (req, res, next) => {
   //   }
   // }
 
+  //populate the output object with endpoints distributed from the root server file directly to controller files, and their associated methods, schema labels, and schemas
   Object.keys(allServerRoutesLeadingToController).forEach((file) => {
     Object.keys(allServerRoutesLeadingToController[file]).forEach((route) => {
       Object.keys(allServerRoutesLeadingToController[file][route]).forEach(
