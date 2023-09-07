@@ -24,20 +24,15 @@ const handleStyle = {
 
 const checkForSearchMatch = (label: string) => {
   return useSelector((state: any) => {
-    const searchValue = state.search.searchValue;
-    return label.includes(searchValue) ? searchValue : null;
+    const searchValue = state.search.searchValue.toLowerCase();
+    return label.toLowerCase().includes(searchValue) ? searchValue : null;
   }, (a,b) => a === b)
 }
 
 const CustomNode = React.memo<NodeProps>(({ data, sourcePosition, targetPosition }) => {
   const { label } = data;
-  const searchValue = checkForSearchMatch(label);
-  // const shouldReRender = useMemo(() => {
-  //   if (searchValue) return label.includes(searchValue);
-  //   return false;
-  // }, [searchValue]);
+  const searchValue = checkForSearchMatch(label.toLowerCase());
 
-  console.log(label.includes(searchValue));
 
   return (
     <div
