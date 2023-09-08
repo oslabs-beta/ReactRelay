@@ -20,33 +20,11 @@ const MethodButton = ({methodName, endPointName}) => {
     'DELETE': 'bg-[#f79a8d]'
   }
 
-  const fetchReq = () => {
-  fetch(`http://localhost:${port}/backendAST`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'Application/JSON'
-      },
-      body: JSON.stringify(infoObj)  // sends to the componentController the filepath
-    })
-    .then(resp => {
-    console.log(resp.json());
-    })
-    .catch(error => console.log(`Error: ${error}`))
-  }
 
   const testClick = () => {
     dispatch(setActiveRoute(infoObj));
     console.log('Method: ', methodName, ' Endpoint: ', endPointName);
   }
-  // <tr className="bg-base-100 rounded-md">
-  //   <td style={{width:'5px'}}><div className={`m-1 p-1 rounded-md min-w-min text-white	text-center font-bold ${colorCode[methodName]}`}>{methodName}</div></td>
-  //   {/* <td style={{width:'5px'}} className={`p-2 rounded-md min-w-min text-white bg-[#579972]`}>DELETE</td> */}
-  //   {/* <td style={{width:'5px'}}><div className={`m-1 p-2 rounded-md min-w-min text-white	 ${colorCode[methodName]}`}>DSLKFLDSIKJFDK</div></td> */}
-  //   <td className='pl-10 w-min'>{endPointName}</td>
-  // </tr>
-
-
-
 
   return (
     <div>
