@@ -22,6 +22,7 @@ function Details(): JSX.Element {
       setHeight(newHeight)
   }, [treeContainerClick])
 
+
   const handler = (mouseDownEvent) => {
     // const startHeight = height;
     // const startPosition = mouseDownEvent.pageY;
@@ -40,6 +41,8 @@ function Details(): JSX.Element {
     window.document.body.addEventListener("mouseup", onMouseUp);
   }
 
+  console.log('location.pathname', location.pathname)
+  if (location.pathname.length > 6) navigate('/');
 
 
   return (
