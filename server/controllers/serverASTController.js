@@ -441,7 +441,7 @@ serverASTController.parseAll = (req, res, next) => {
         }
       },
     });
-    console.log('allRouterRoutes....', allRouterRoutesLeadingToController, 'importLabelsssszzz', importLabels);
+    console.log('allRouterRoutes....', allRouterRoutesLeadingToController['/Users/cush572/Codesmith/Week4/unit-10-databases/server/routes/api.js']['/character'].post, 'importLabelsssszzz', importLabels);
   };
 
 
@@ -572,7 +572,7 @@ serverASTController.parseAll = (req, res, next) => {
         }
       },
     });
-    console.log('schemaInteractions', schemaInteractions, 'imports', imports);
+    console.log('schemaInteractions', schemaInteractions, 'controllerSchemas', controllerSchemas);
   };
 
   const schemas = {};
@@ -644,7 +644,7 @@ serverASTController.parseAll = (req, res, next) => {
         }
       },
     });
-    console.log(schemaKey, 'schemaKey');
+    console.log('schemaKey', schemaKey);
     return;
   };
 
@@ -657,7 +657,6 @@ serverASTController.parseAll = (req, res, next) => {
     traverseServerAST(ast, filePath);
   });
 
-  console.log('here');
   const output = {};
 
   //populate the above output object with endpoints distributed from the root server file to router files, and their associated methods, schema labels, and schemas
@@ -742,12 +741,6 @@ serverASTController.parseAll = (req, res, next) => {
                     middlewareMethod.middlewareName
                   ].forEach((schema) => {
                     if (schemaKey[schema]) {
-                      console.log(
-                        'here!!!!11',
-                        schemaKey[schema],
-                        schema,
-                        route
-                      );
                       if (output[route]) {
                         if (
                           output[route][method] &&
@@ -774,7 +767,7 @@ serverASTController.parseAll = (req, res, next) => {
     });
   });
 
-  console.log('plz work...', output);
+  console.log('output', output);
   res.locals.serverRoutes = output;
 
   return next();

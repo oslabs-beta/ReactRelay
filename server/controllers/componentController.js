@@ -294,7 +294,7 @@ componentController.parseAll = (req, res, next) => {
     component.children = arrayOfChildFilePaths;
   })
 
-  // console.log(components)
+  console.log('components.afp', components['/Users/cush572/Codesmith/Projects/SCRATCH_PROJECT/trivia-game-night/client/App.jsx'])
   res.locals.components = components
   next();
 
