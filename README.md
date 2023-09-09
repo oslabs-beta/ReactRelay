@@ -30,16 +30,20 @@ For production, run `npm run build` in the root directory. This will build the v
 ## Usage
 
 ### Selecting Your Project
+![Project Selection](https://github.com/oslabs-beta/ReactRelay/assets/103789011/7e429c46-c6b7-4419-b74c-f6bf71375323)
 
 When opening the application, you will start by opening the file-explorer folder in the top-right corner. You will be shown an option to select two fileds; the component directory an the server directory. Clicking on the button for selecting components will open a file explorer. From there you can select either the src folder of your react project or you can select the components folder, depending on how you've structured your project. With the second button, you will open a file explorer where you can select your project's server folder. Depending on how your project is structured you can either select **only** your **src** folder and pressing continue or to select both your server and your components folder. When you continue, you will be presented with a hierarchical component tree of your project.
 
 ### Navigating the Tree
 
 From here, you will see the components of your project laid out with animated lines connecting parent and children components to one another. Components which contain AJAX requests are shown in dark blue whereas other components will be shown in white. By clicking on one of these components, the lines connecting your selected components will be shwon in red and they will allow you to more easily see the immediate relationships of the component you've chosen. From there, you will see a tab appear on the bottom which shows the AJAX routes of the component, if present, as well as a preview for the database schema it's connected, if present. Clicking on the yellow button labelled "code" in the tab will show you a code preview of the component you have selected. 
+![Tree Navigation](https://github.com/oslabs-beta/ReactRelay/assets/103789011/fe231a5d-8e2a-4d5e-9f75-9ab625146089)
 
 ### Other Controls
 
 Now that you know how to navigate the tree, there are some other components which will help you to explore the tree. The controls in the top right allow you to zoom in and out of the tree, to lock the components so you can no longer move them to avoid changing their layout by accident, as well as a button which centers your viewport on your code. In the bottom-right corner there is a minimap which shows a layout of your tree which you are able to click on to jump to a section of your tree and the ability zoom in on with the mouse wheel to control your window's zoom level while your cursor is over the minimap. In the top-left corner of your window are two  buttons which control the layout of tree, whether it is organized vertically or horizontally. In the top right, there is a magnifying glass which, when clicked, shows an input field which allows you to type in the name of a component you're looking for, which will be highlighted in red, allowing you to more quickly locate it inside of the tree.
+![Layout and Search](https://github.com/oslabs-beta/ReactRelay/assets/103789011/c2447079-169f-4afe-9dd8-cfd5c39f8723)
+![Minimap and Controls)](https://github.com/oslabs-beta/ReactRelay/assets/103789011/ce172e6b-d0d7-4e0a-87d7-58f0a499c22b)
 
 ## Distribution
 
