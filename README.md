@@ -67,3 +67,17 @@ Our application uses the Babel-Parser to expose an uploaded project folder's AST
 ## Additional Graph Components
 
 When selecting a component node from our graph, you will be shown a tab with information about the component, including the component's code, the component's AJAX calls, and the component's database schemas. The AJAX calls are displayed next to the database schema of the file, if present. When clicking the "code" tab, you are presented with a code preview of the component. You are also able to search through the graph to quickly locate components. It accmoplishes this by looking through the labels which represent component names and highlights them. Included with the React Flow library are the controls for controlling the view of the graph and navigate through it and having an interactable mini map to navigate the graph. There are also two button components inside of the graph which allow you to change the orientation of the tree.
+
+# Iteration Ideas 
+
+### JavaScript Framework Expansion
+
+The application is currently tested to work on React applications and the components which are used in those libraries. Expanding the converage to include other front-end JavaScript frameworks is an obvious next step for the project starting with Vue and the Angular Framework and possibly expanding the compatibility to include Svelte. There is also preliminary logic for handling the syntax of Next.js files, though it isn't currently far enough along to be implemented. 
+
+### Integrating Other Languages
+
+The AST is a data structure which is used by a wide variety of languages and once you understand the logic of how the AST is organized and you are able to read the information from the compiler or parser from you language which exposes the AST. Once you are able to understand the logic and structure of Abstract Syntax Trees, you should be able to add controllers to the server to account for different languages once they are identified. 
+
+### Adding a SQLite Database
+
+The ability to add a database to the project would be helpful for filtering out edge cases, persisting user data and projects, and persisting the trees which the users have created to be albe to export it or share it. 
