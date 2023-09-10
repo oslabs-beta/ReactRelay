@@ -22,8 +22,6 @@ componentController.parseAll = (req, res, next) => {
   // const projectPath = req.body.filePath;
   // if (projectPath.length === 0) next();
   let components = {};
-  const listOfChildren = new Set();
-
 
   const templateLiteralRouteParser = (node) => {
     let quasis = node.quasis;
@@ -205,13 +203,12 @@ componentController.parseAll = (req, res, next) => {
         //this is an attempt to filter out false positives from test files
         if (path.isIdentifier() && (path.node.name === "describe" || path.node.name === "xdescribe" || path.node.name === "test" || path.node.name === "xtest") && path.parent.type === "CallExpression" && path.parentPath.parent.type === "ExpressionStatement") hardNO = true;
 
-        //I'm blanking on what edge case this logic was necessary for, but it's essentially the same as the following conditional check
+        //same as below
         if (path.isIdentifier() && (path.parent.type === "JSXExpressionContainer" || path.parentPath.parent.type === "JSXExpressionContainer") && Object.keys(potentialChildren).includes(path.node.name)) {
           isComponent === true;
           const newChildPath = potentialChildren[path.node.name];
 
           if (newChildPath) children[newChildPath] = null;
-          listOfChildren.add(path.node.name);
         }
 
         //if the current node has a pattern that is consistently true for child JSX components, and it was deemed to be a potential child via navigating the import statements above, then we can add its file path to the children array for the current component
@@ -221,9 +218,6 @@ componentController.parseAll = (req, res, next) => {
             const newChildPath = potentialChildren[path.node.name];
 
             if (newChildPath) children[newChildPath] = null;
-
-            //this was just used for logging purposes and probably isn't necessary
-            listOfChildren.add(path.node.name)
           }
         }
 
@@ -294,7 +288,7 @@ componentController.parseAll = (req, res, next) => {
     component.children = arrayOfChildFilePaths;
   })
 
-  console.log('components.afp', components['/Users/cush572/Codesmith/Projects/SCRATCH_PROJECT/trivia-game-night/client/App.jsx'])
+  console.log('components', components)
   res.locals.components = components
   next();
 
