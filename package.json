@@ -18,16 +18,13 @@
     "both": "concurrently --kill-others \"npm run server\" \"npm run dev\"",
     "build": "npm run typecheck && electron-vite build --outDir=dist",
     "make": "electron-vite build --outDir=dist && electron-forge make",
-    "package": "electron-vite build --outDir=dist && electron-forge package",
-    "postinstall": "electron-builder install-app-deps",
-    "build:win": "npm run build && electron-builder --win --config",
-    "build:mac": "electron-vite build && electron-builder --mac --config",
-    "build:linux": "electron-vite build && electron-builder --linux --config"
+    "package": "electron-vite build --outDir=dist && electron-forge package"
   },
   "dependencies": {
     "@babel/parser": "^7.22.10",
     "@babel/traverse": "^7.22.10",
     "@electron-forge/maker-deb": "^6.4.1",
+    "@electron-forge/maker-dmg": "^6.4.1",
     "@electron-forge/maker-rpm": "^6.4.1",
     "@electron-toolkit/preload": "^2.0.0",
     "@electron-toolkit/utils": "^1.0.2",
