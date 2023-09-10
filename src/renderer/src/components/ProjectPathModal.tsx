@@ -9,9 +9,8 @@ function ProjectPathModal() {
   const dispatch = useDispatch();
   const componentPath = useSelector((state: any) => state.project.componentPath)
   const serverPath = useSelector((state: any) => state.project.serverPath)
-  const server = useSelector((state: any) => state.project.server)
 
-const dialogConfig = {
+  const dialogConfig = {
       title: 'Select a project',
       buttonLabel: 'Select',
       properties: ['openDirectory']
@@ -37,7 +36,7 @@ const dialogConfig = {
       headers: {
         'Content-Type': 'Application/JSON'
       },
-      body: JSON.stringify({ filePath: path })  // sends to the componentController the filepath
+      body: JSON.stringify({ filePath: path })  // sends to the componentController or serverASTController the filepath
     })
     if (response.ok) {
       const res = await response.json()
@@ -52,9 +51,6 @@ const dialogConfig = {
     postPath('server', serverPath);
     window.openExplorerModal.close();
   }
-
-  //TODO: ADD FUNCTIONALITY TO BUTTONS!
-
 
   return (
   <dialog id="openExplorerModal" className="modal">
