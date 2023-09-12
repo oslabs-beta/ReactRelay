@@ -83,33 +83,6 @@ The AST is a data structure which is used by a wide variety of languages and onc
 The ability to add a database to the project would be helpful for filtering out edge cases, persisting user data and projects, and persisting the trees which the users have created to be albe to export it or share it. 
 
 
-###################################################################################################################
-#            #######                #############        ############                  ###                      ###
-#             ######                ############          ###########                  ###                      ###
-#     ####     #####      #####################            ##########                  ###                      ###
-#     #####    #####      ####################     ###      #########       #####################        ##########
-#              #####                ########      #####      ########       #####################        ##########
-#     #      #######                #######                   #######       #####################        ##########
-#     ##      ######      ################                     ######       #####################        ##########
-#     ###      #####      ###############      ###########      #####                  ##########        ##########
-#     ####      ####                ####      #############      ####                  ##########        ##########
-#     #####      ###                ###      ###############      ###                  ##########        ##########
-###################################################################################################################
-###################################################################################################################
-#            #######                #####       ########################         ########      #########     ######
-#             ######                #####       #######################           ########      #######     #######
-#     ####     #####       ##############       ######################             #########     #####     ########
-#     #####    #####       ##############       #####################      ###      #########     ###     #########
-#              #####                #####       ####################      #####      #########           ##########
-#     #      #######                #####       ###################                   #########         ###########
-#     ##      ######       ##############       ##################                     #########       ############
-#     ###      #####       ##############       #################      ###########      ########       ############
-#     ####      ####                #####                  #####      #############      #######       ############
-#     #####      ###                #####                  ####      ###############      ######       ############
-###################################################################################################################
-
-
-#################################### ***FILE INFORMATION*** ###############################################
 
 
 ### SERVER FOLDER
@@ -124,27 +97,27 @@ Uses the fs module to analyze a directory and extract the absolute file paths of
 The ***parseFile*** method in ***componentController*** serves to analyze the frontend structure and synthesize an object containing information about all the components. A ***components*** object is sent to the frontend, and it is structured as follows:
 
   ***components***
-    ```
-      {
-        ***absolute file path***: {
-          data: { label: ***component name*** },
+
+      { 
+        absolute file path: {
+          data: { label: component name },
           children: [
-            ***absolute file path of a child component***,
-            ***absolute file path of another child component***,
+            absolute file path of a child component,
+            absolute file path of another child component,
           ],
           ajaxRequests: [
             {
-              route: ***name of endpoint not including variables***,
-              fullRoute: ***name of endpoint including variables***,
-              method: ***method type*** (GET, POST, etc)
+              route: name of endpoint not including variables,
+              fullRoute: name of endpoint including variables,
+              method: method type (GET, POST, etc)
             },
-            { ***potentially another ajax request object*** }
+            { potentially another ajax request object }
           ],
-          id: ***absolute file path***
+          id: absolute file path
         },
-        ***another AFP***: { ***another component object*** }
+        another AFP: { another component object }
       }
-    ```
+
 
 
 The ***getCode*** method in ***componentController*** takes in the absolute file path of a component as a query parameter, and uses the fs module to extract the code from this file and save it to res.locals.componentCode, to be sent back to the frontend.
@@ -159,106 +132,106 @@ The ***traverseServerAST*** function first organizes the file by file type (mong
 
 ***traverseServerFile*** analyzes the root server file for incoming endpoints, and organizes the resulting information into 2 objects:
   ***linksToRouter***
-    ```
-      {
-        ***endpoint fragment***: ***AFP of corresponding router file***,
-        ***another endpoint frag***: ***another router file AFP***
-      }
-    ```
 
-  ***allServerRoutesLeadingToController***
-    ```
       {
-        ***absolute file path of root***: {
-          ***endpoint***: {
-            ***method name***: [
+        endpoint fragment: AFP of corresponding router file,
+        another endpoint frag: another router file AFP
+      }
+
+
+  allServerRoutesLeadingToController
+
+      {
+        absolute file path of root: {
+          endpoint: {
+            method name: [
               {
-                path: ***AFP of file containing middleware method***,
-                middlewareName: ***name of middleware method***
+                path: AFP of file containing middleware method,
+                middlewareName: name of middleware method
               },
               {
-                ***potentially another middleware object***
+                potentially another middleware object
               },
             ],
-            ***another method name***: [
-              ***another array of middleware objects***
+            another method name: [
+              another array of middleware objects
             ],
           },
-          ***another endpoint***: {
-            ***another endpoint object*** 
+          another endpoint: {
+            another endpoint object 
           },
         },
       }
-    ```
+
 
 ***traverseRouterFile*** analyzes router files for ajax method invocations on an express instance, and packages the corresponding route, as well as its associated chain of middleware functions, into an object called:
 
   ***allRouterRoutesLeadingToController***
-    ```
+
       {
-        ***absolute file path of router***: {
-          ***endpoint fragment***: {
-            ***method name***: [
+        absolute file path of router: {
+          endpoint fragment: {
+            method name: [
               {
-                path: ***AFP of file containing middleware method***,
-                middlewareName: ***name of middleware method***,
+                path: AFP of file containing middleware method,
+                middlewareName: name of middleware method,
               },
-              { ***another middleware object*** }
+              { another middleware object }
             ],
-            ***another method name***: [ 
-              ***another array of middleware objects***
+            another method name: [ 
+              another array of middleware objects
             ]
           },
-          ***another endpoint fragment***: {
-            ***another endpoint object***
+          another endpoint fragment: {
+            another endpoint object
           },
         }
       }
-    ```
+
 
 
 ***traverseControllerFile*** analyzes controller files for middleware methods, and their corresponding interactions with database schemas, populating this information into the ***controllerSchemas*** object:
 
   ***controllerSchemas***
-    ```
+
       {
-        ***absolute file path of current file***:
-          ***middleware method name***: [
-            ***schema name***,
-            ***another schema name***,
+        absolute file path of current file:
+          middleware method name: [
+            schema name,
+            another schema name,
           ],
-          ***another middleware method name***: [
-            ***another array of associated schema names***
+          another middleware method name: [
+            another array of associated schema names
           ]
       }
-    ```
+
 
 ***traverseMongooseFile*** analyzes mongoose model files for new Schema instances and their corresponding labels, then uses these labels to determine the names they are exported as, and creates the ***schemaKey*** object from this information:
   ***schemaKey***
-    ```
+
       {
-        ***exported schema name***: {
-          ***schema object***
+        exported schema name: {
+          schema object
         },
-        ***another exported schema name***: { ***another schema object*** }
+        another exported schema name: { another schema object }
       }
-    ```
+
 
 After traversing all files and populating the above referenced objects, the ***allServerRoutesLeadingToController*** and ***allRouterRoutesLeadingToController*** objects are traversed independently to populate the same ***output*** object that is formatted as follows:
 
   ***output***
-    ```
+
       {
-        ***complete endpoint***: {
-          ***CRUD method name***: {
-            ***schema name***: { ***schema object*** },
-            ***another schema name***: { ***another schema object*** }
+        complete endpoint: {
+          CRUD method name: {
+            schema name: { schema object },
+            another schema name: { another schema object }
           },
-          ***another CRUD method name***: { **another object of schemas** }
+          another CRUD method name: { another object of schemas }
         },
-        ***another complete endpoint***: { ***another object of all method calls to this endpoint*** }
+        another complete endpoint: { another object of all method calls to this endpoint }
       }
-    ```
+
 
     
 --------------------------------------------------------------------------
