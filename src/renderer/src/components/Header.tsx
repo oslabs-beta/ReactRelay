@@ -28,8 +28,6 @@ function Header({}): JSX.Element {
       <div className="w-[300px]">
         <img className='object-cover h-[50px] ml-[-35px] w-full' src={appLogo} />
       </div>
-
-
       <div className='flex items-center'>
         {showSearch && (
           <input
