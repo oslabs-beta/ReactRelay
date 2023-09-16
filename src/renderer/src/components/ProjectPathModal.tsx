@@ -1,9 +1,6 @@
 import { useSelector, useDispatch } from 'react-redux';
 import { addPath, setComponents, setServer } from '../features/projectSlice'
 
-const { ipcRenderer } = window.require('electron');
-const port = ipcRenderer.sendSync('get-port');
-
 function ProjectPathModal() {
 
   const dispatch = useDispatch();
@@ -18,7 +15,7 @@ function ProjectPathModal() {
     // window.api.openDialog returns the filepath when the filepath is chosen from the dialog
     // should i add a case where user doesn't actually select a filepath
     const openFileExplorer = async (pathType): Promise<any> => { //FIXME: add to type
-      const {filePaths} = await window.api.openDialog('showOpenDialog', dialogConfig) //TODO: add to type
+      const {filePaths} = await (window as any).api.openDialog('showOpenDialog', dialogConfig) //TODO: add to type
       // if user chooses cancel then don't do anything
       if (filePaths[0] === '' || !filePaths[0]) return null;
       dispatch(addPath([pathType, filePaths[0]]));
@@ -26,30 +23,25 @@ function ProjectPathModal() {
 
   const postPath = async (pathType, path): Promise<any> => {
     if (path === '' || !path) return null;
-    console.log('serverPath', serverPath)
+    console.log('componentPath', pathType, path)
     const endpoint = {
-      component: `http://localhost:${port}/components`,
-      server: `http://localhost:${port}/server`
+      component: `components`,
+      server: `server`
     }
-    const response = await fetch(endpoint[pathType], {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'Application/JSON'
-      },
-      body: JSON.stringify({ filePath: path })  // sends to the componentController or serverASTController the filepath
-    })
-    if (response.ok) {
-      const res = await response.json()
-      console.log('pathtype:', pathType, 'path:', path, 'res:', res)
-      if (pathType === 'component') dispatch(setComponents(res));
-      else if (pathType === 'server') dispatch(setServer(res));
+    const response = await (window as any).api.send(endpoint[pathType], { filePath: path })  // sends to the componentController or serverASTController the filepath
+    console.log('response', response)
+    if (response.status >=200 && response.status < 300) {
+      console.log('pathtype:', pathType, 'path:', path, 'res:', response.data)
+      if (pathType === 'component') dispatch(setComponents(response.data));
+      else if (pathType === 'server') dispatch(setServer(response.data));
     }
   }
 
   const onContinue = () => {
+    console.log('component', componentPath)
     postPath('component', componentPath);
     postPath('server', serverPath);
-    window.openExplorerModal.close();
+    (window as any).openExplorerModal.close();
   }
 
   return (
@@ -87,7 +79,7 @@ function ProjectPathModal() {
       <div className='flex justify-between items-end'>
         <div className="modal-action">
           {/* if there is a button in form, it will close the modal */}
-          <button className="btn bg-error" onClick={()=>window.openExplorerModal.close()}>Cancel</button>
+          <button className="btn bg-error" onClick={()=>(window as any).openExplorerModal.close()}>Cancel</button>
         </div>
         <div>
           <button onClick={()=>onContinue()} className='btn bg-primary'>Continue</button>
