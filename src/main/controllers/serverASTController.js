@@ -75,7 +75,7 @@ export const parseAllServerFiles = (event, args, res) => {
     return importLabels;
   };
 
-  addES5Import = (curr, filePath, importLabels) => {
+  const addES5Import = (curr, filePath, importLabels) => {
     const importLabel = findVariableName(curr);
     const currDirectory = path.dirname(filePath);
     const afp = path.resolve(currDirectory, curr.node.value);
@@ -124,7 +124,7 @@ export const parseAllServerFiles = (event, args, res) => {
               ? (mongooseLabel = label)
               : null;
             // console.log(expressLabel, 'expressLabel');
-            importExpress = importLabel = false;
+            importExpress = false;
           }
         }
 
@@ -318,7 +318,6 @@ export const parseAllServerFiles = (event, args, res) => {
                   };
                 }
               } else {
-                // console.log('doesn’t exist');
                 allServerRoutesLeadingToController[filePath] = {
                   [endpoint]: { [method]: [middlewareMethod] },
                 };
@@ -439,11 +438,10 @@ export const parseAllServerFiles = (event, args, res) => {
         }
       },
     });
-    console.log('allRouterRoutes....', allRouterRoutesLeadingToController['/Users/cush572/Codesmith/Week4/unit-10-databases/server/routes/api.js']['/character'].post, 'importLabelsssszzz', importLabels);
   };
 
 
-  controllerSchemas = {};
+  const controllerSchemas = {};
 
   //function to traverse controller files, identifying middleware methods and their corresponding interactions with database schemas, and populating this information in the above controllerSchemas object
   const traverseControllerFile = (ast, filePath, label, instance) => {
