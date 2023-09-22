@@ -1,6 +1,6 @@
 import { useSelector, useDispatch } from 'react-redux';
 import { addPath, setComponents, setServer } from '../features/projectSlice'
-
+import { Window, } from '../interfaces/Interfaces';
 function ProjectPathModal() {
 
   const dispatch = useDispatch();
@@ -15,7 +15,7 @@ function ProjectPathModal() {
     // window.api.openDialog returns the filepath when the filepath is chosen from the dialog
     // should i add a case where user doesn't actually select a filepath
     const openFileExplorer = async (pathType): Promise<any> => { //FIXME: add to type
-      const {filePaths} = await (window as any).api.openDialog('showOpenDialog', dialogConfig) //TODO: add to type
+      const {filePaths} = await (window as Window).api.openDialog('showOpenDialog', dialogConfig) //TODO: add to type
       // if user chooses cancel then don't do anything
       if (filePaths[0] === '' || !filePaths[0]) return null;
       dispatch(addPath([pathType, filePaths[0]]));
