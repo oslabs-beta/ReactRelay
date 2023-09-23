@@ -56,3 +56,18 @@ export interface Component {
   ajaxRequests: AjaxRequest[];
   id: string;
 }
+
+export interface SendReturnObject {
+  status: number;
+  data: Components | Server
+}
+
+// export type SendData = { id: string; filePath?: never } | { id: never; filePath: string; }
+
+export type SendData = 
+  | {
+    id: string;
+  }
+  | {
+    filePath: string;
+  }

@@ -1,11 +1,12 @@
 import { ElectronAPI } from '@electron-toolkit/preload'
+import { SendReturnObject, SendData } from '../renderer/src/interfaces/stateInterfaces';
 
 declare global {
   interface Window {
     electron: ElectronAPI
     api: {
       openDialog: (action: string, config: DialogConfig) => Promise<OpenDialogResult>;
-      send: (route: string, data: Payload) => Promise<any>;
+      send: (route: string, data: SendData) => Promise<SendReturnObject>;
     };
     openExplorerModal: ExplorerModal;
   }
@@ -21,14 +22,6 @@ interface DialogConfig {
   buttonLabel: string;
   properties: string[];
 }
-
-type Payload = 
-  | {
-    id: string;
-  }
-  | {
-    filePath: string;
-  }
 
 interface ExplorerModal {
   close: () => void;

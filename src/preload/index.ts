@@ -1,18 +1,13 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
-import { Components, Server } from '../renderer/src/interfaces/stateInterfaces';
+import { SendReturnObject, SendData } from '../renderer/src/interfaces/stateInterfaces';
 
-type SendData = { id: string; filePath?: never } | { id: never; filePath: string; }
-
-interface ReturnObject {
-  status: number;
-  data: Components | Server
-}
+// type SendData = { id: string; filePath?: never } | { id: never; filePath: string; }
 
 // Custom APIs for renderer
 const api = {
   openDialog: (method, config) => ipcRenderer.invoke("dialog", method, config),
-  send: (route: string, data: SendData): void | Promise<string | ReturnObject> => {
+  send: (route: string, data: SendData): void | Promise<string | SendReturnObject> => {
     let validRoutes = ['components', 'server', 'code'];
     if (validRoutes.includes(route)) return ipcRenderer.invoke(route, data);
   },
