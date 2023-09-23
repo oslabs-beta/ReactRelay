@@ -24,7 +24,7 @@ import {
 import { setTreeContainerClick,
   setActive,
   setActiveComponentCode } from '../features/detailSlice';
-// import { Window } from '../interfaces/Interfaces';
+import { RootState } from '../interfaces/stateInterfaces';
 
 const nodeTypes = {
   CustomNode,
@@ -118,7 +118,7 @@ type Edge = {
 function Tree({}): JSX.Element {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
-  const reactFlowComponents = useSelector((state: any) => state.project.components);
+  const reactFlowComponents = useSelector((state: RootState) => state.project.components);
   const active = useSelector((state: any) => state.detail.active);
   const dispatch = useDispatch();
   //components that are re-used are given unique id's by adding a number to the end of the AFP. this function converts that id back to the AFP (i.e. as it appears in reactFlowComponents), then return the object associated with this AFP key in reactFlowComponents.

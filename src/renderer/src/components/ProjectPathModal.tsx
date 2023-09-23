@@ -1,11 +1,11 @@
 import { useSelector, useDispatch } from 'react-redux';
 import { addPath, setComponents, setServer } from '../features/projectSlice'
-// import { MyWindow } from '../interfaces/Interfaces';
+import { RootState } from '../interfaces/stateInterfaces';
 function ProjectPathModal() {
 
   const dispatch = useDispatch();
-  const componentPath = useSelector((state: any) => state.project.componentPath)
-  const serverPath = useSelector((state: any) => state.project.serverPath)
+  const componentPath = useSelector((state: RootState) => state.project.componentPath)
+  const serverPath = useSelector((state: RootState) => state.project.serverPath)
 
   const dialogConfig = {
       title: 'Select a project',
@@ -79,7 +79,7 @@ function ProjectPathModal() {
       <div className='flex justify-between items-end'>
         <div className="modal-action">
           {/* if there is a button in form, it will close the modal */}
-          <button className="btn bg-error" onClick={()=>(window as any).openExplorerModal.close()}>Cancel</button>
+          <button className="btn bg-error" onClick={()=> window.openExplorerModal.close()}>Cancel</button>
         </div>
         <div>
           <button onClick={()=>onContinue()} className='btn bg-primary'>Continue</button>
