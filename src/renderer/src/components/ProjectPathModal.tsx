@@ -1,6 +1,6 @@
 import { useSelector, useDispatch } from 'react-redux';
 import { addPath, setComponents, setServer } from '../features/projectSlice'
-import { Window, } from '../interfaces/Interfaces';
+// import { MyWindow } from '../interfaces/Interfaces';
 function ProjectPathModal() {
 
   const dispatch = useDispatch();
@@ -14,21 +14,21 @@ function ProjectPathModal() {
     }
     // window.api.openDialog returns the filepath when the filepath is chosen from the dialog
     // should i add a case where user doesn't actually select a filepath
-    const openFileExplorer = async (pathType): Promise<any> => { //FIXME: add to type
-      const {filePaths} = await (window as Window).api.openDialog('showOpenDialog', dialogConfig) //TODO: add to type
+    const openFileExplorer = async (pathType): Promise<void | null> => { //FIXME: add to type
+      const {filePaths} = await window.api.openDialog('showOpenDialog', dialogConfig) //TODO: add to type
       // if user chooses cancel then don't do anything
       if (filePaths[0] === '' || !filePaths[0]) return null;
       dispatch(addPath([pathType, filePaths[0]]));
   }
 
-  const postPath = async (pathType, path): Promise<any> => {
+  const postPath = async (pathType, path): Promise<void | null> => {
     if (path === '' || !path) return null;
     console.log('componentPath', pathType, path)
     const endpoint = {
       component: `components`,
       server: `server`
     }
-    const response = await (window as any).api.send(endpoint[pathType], { filePath: path })  // sends to the componentController or serverASTController the filepath
+    const response = await window.api.send(endpoint[pathType], { filePath: path })  // sends to the componentController or serverASTController the filepath
     console.log('response', response)
     if (response.status >=200 && response.status < 300) {
       console.log('pathtype:', pathType, 'path:', path, 'res:', response.data)
@@ -41,7 +41,7 @@ function ProjectPathModal() {
     console.log('component', componentPath)
     postPath('component', componentPath);
     postPath('server', serverPath);
-    (window as any).openExplorerModal.close();
+    window.openExplorerModal.close();
   }
 
   return (

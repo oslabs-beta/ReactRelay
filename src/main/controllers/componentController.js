@@ -299,7 +299,7 @@ export const getCode = async (event, args, res) => {
     const decodedId = decodeURIComponent(id);
 
     const fileCode = fs.readFileSync(decodedId, 'utf-8');
-    res.locals.componentCode = fileCode;
+    res.locals.componentCode = fileCode.data;
   } catch(err) {
     console.error(err);
     throw new Error('Error in componentController.getCode')

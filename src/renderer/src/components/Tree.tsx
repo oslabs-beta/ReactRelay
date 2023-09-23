@@ -23,7 +23,9 @@ import {
 } from '../features/projectSlice';
 import { setTreeContainerClick,
   setActive,
-  setActiveComponentCode } from '../features/detailSlice'
+  setActiveComponentCode } from '../features/detailSlice';
+// import { Window } from '../interfaces/Interfaces';
+
 const nodeTypes = {
   CustomNode,
   CustomNode2,
@@ -87,7 +89,13 @@ type Component = {
   id: string;
   data: any;
   children: string[];
-  ajaxRequests: string[];
+  ajaxRequests: AjaxRequest[];
+};
+
+type AjaxRequest = {
+  route: string;
+  fullRoute: string;
+  method: string;
 };
 
 type Node = {
@@ -259,10 +267,10 @@ function Tree({}): JSX.Element {
     });
     dispatch(setActive(element.id));
     const encodedId = encodeURIComponent(component.id);
-    const componentCode = await (window as any).api.send('code', { id: encodedId });
+    const componentCode = await window.api.send('code', { id: encodedId });
     // console.log(componentCode, 'componentCode');
     // console.log('data', data)
-    dispatch(setActiveComponentCode(componentCode.data));
+    dispatch(setActiveComponentCode(componentCode));
     // when clicked, the active node's edges will be highlighted in red,
     // otherwise they will go back to the default black color.
     // the edge.source and edge.target are both selected here to highlight
