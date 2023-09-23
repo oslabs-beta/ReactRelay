@@ -4,18 +4,7 @@ import { Handle } from 'reactflow';
 import 'tailwindcss/tailwind.css';
 import { useSelector } from 'react-redux';
 import { RootState } from '@renderer/interfaces/stateInterfaces';
-
-interface NodeProps {
-  data: {
-    label: string,
-    active: boolean,
-  };
-  sourcePosition: {
-    x: number,
-    y: number,
-  };
-  targetPosition: number,
-}
+import { NodeProps, Position } from 'reactflow';
 
 const checkForSearchMatch = (label: string) => {
   return useSelector((state: RootState) => {
@@ -27,7 +16,7 @@ const checkForSearchMatch = (label: string) => {
 const CustomNode = React.memo<NodeProps>(({ data, sourcePosition, targetPosition }) => {
   const { label } = data;
   const searchValue = checkForSearchMatch(label.toLowerCase());
-
+  console.log('sourcePosition', typeof sourcePosition, 'targetPos', targetPosition)
 
   return (
     <div
@@ -36,7 +25,7 @@ const CustomNode = React.memo<NodeProps>(({ data, sourcePosition, targetPosition
       } cursor-pointer min-h-4 max-h-16 p-1 w-fit shadow-md bg-blend-normal rounded-lg border-2 border-slate-500`}
     >
       {/* Handle are the dotes on the edge of the node where the lines connect */}
-      <Handle type='target' position={targetPosition} />
+      <Handle type='target' position={targetPosition || Position.Left} />
       <p
         className={`custom-node flex flex-column items-center ${
           data.active
@@ -48,7 +37,7 @@ const CustomNode = React.memo<NodeProps>(({ data, sourcePosition, targetPosition
       </p>
       <Handle
         type='source'
-        position={sourcePosition}
+        position={sourcePosition || Position.Right}
         id='a'
         className='source-handle'
       />

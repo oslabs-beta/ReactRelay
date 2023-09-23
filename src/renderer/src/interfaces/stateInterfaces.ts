@@ -30,7 +30,7 @@ interface AjaxRequest {
   method: string;
 }
 
-interface Server {
+export interface Server {
   [key: string]: Endpoint;
 }
 
@@ -46,7 +46,7 @@ interface SchemaObject {
   [key: string]: any;
 }
 
-interface Components {
+export interface Components {
   [key:string]: Component;
 }
 

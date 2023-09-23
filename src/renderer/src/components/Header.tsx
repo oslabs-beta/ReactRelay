@@ -33,7 +33,6 @@ function Header({}): JSX.Element {
         {showSearch && (
           <input
             ref={searchInputRef}
-            id="search-input"
             className="input border p-3 input-sm"
             type="text"
             id='componentSearch'
