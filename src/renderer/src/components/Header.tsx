@@ -4,12 +4,13 @@ import dirUpload from '../assets/images/directory-black.svg';
 import appLogo from '../assets/images/ReactRelay-logos/ReactRelay-logos_white.png';
 import { useDispatch, useSelector } from 'react-redux';
 import { setSearchValue, setShowSearch } from '../features/searchSlice';
+import { RootState } from '../interfaces/stateInterfaces';
 
 
 function Header({}): JSX.Element {
   const dispatch = useDispatch();
-  const searchBar = useSelector((state: any) => state.search.searchValue);
-  const showSearch = useSelector((state: any) => state.search.showSearch);
+  const searchBar = useSelector((state: RootState) => state.search.searchValue);
+  const showSearch = useSelector((state: RootState) => state.search.showSearch);
 
   const searchInputRef = useRef<HTMLInputElement | null>(null);
 

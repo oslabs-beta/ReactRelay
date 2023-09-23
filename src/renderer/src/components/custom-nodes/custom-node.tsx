@@ -1,8 +1,9 @@
 // Path: src/renderer/src/components/CustomNodes.jsx
-import React, { useMemo, useEffect, useState } from 'react';
-import { Handle, Position } from 'reactflow';
+import React from 'react';
+import { Handle } from 'reactflow';
 import 'tailwindcss/tailwind.css';
 import { useSelector } from 'react-redux';
+import { RootState } from '@renderer/interfaces/stateInterfaces';
 
 interface NodeProps {
   data: {
@@ -16,14 +17,8 @@ interface NodeProps {
   targetPosition: number,
 }
 
-const handleStyle = {
-  //why is this decalred but never read
-  left: 10,
-  style: 'bg-primary',
-};
-
 const checkForSearchMatch = (label: string) => {
-  return useSelector((state: any) => {
+  return useSelector((state: RootState) => {
     const searchValue = state.search.searchValue.toLowerCase();
     return label.toLowerCase().includes(searchValue) ? searchValue : null;
   }, (a,b) => a === b)

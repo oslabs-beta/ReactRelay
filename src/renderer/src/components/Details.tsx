@@ -12,7 +12,7 @@ function Details(): JSX.Element {
   const location = useLocation();
   const nodeInfo = useSelector((state: RootState) => state.project.nodeInfo);
   const componentName = useSelector((state: RootState) => state.project.componentName)
-  const treeContainerClick = useSelector((state: any) => state.detail.treeContainerClick)
+  const treeContainerClick = useSelector((state: RootState) => state.detail.treeContainerClick)
 
   useEffect(() => {
       window.innerHeight > 800 ? setHeight('40vh') : setHeight('30vh');

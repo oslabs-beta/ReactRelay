@@ -11,12 +11,15 @@ export interface RootState {
   };
 
   detail: {
-
-
+    active: null | string;
+    activeComponentCode: string;
+    treeContainerClick: boolean;
+    activeRoute: { endPointName: string, methodName: string }
   }
 
   search: {
-
+    searchValue: string;
+    showSearch: boolean;
   }
 
 }
@@ -47,8 +50,8 @@ interface Components {
   [key:string]: Component;
 }
 
-interface Component {
-  data: { label: string };
+export interface Component {
+  data: { label: string, active: boolean };
   children: string[];
   ajaxRequests: AjaxRequest[];
   id: string;

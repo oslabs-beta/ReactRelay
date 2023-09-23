@@ -1,13 +1,11 @@
-import React, { memo } from 'react';
-import { Handle, Position } from 'reactflow';
-const handleStyle = {
-  left: 10,
-};
+import { memo } from 'react';
+import { Handle } from 'reactflow';
 import 'tailwindcss/tailwind.css';
 import { useSelector } from 'react-redux';
+import { RootState } from '../../interfaces/stateInterfaces';
 
 const checkForSearchMatch = (label: string) => {
-  return useSelector((state: any) => {
+  return useSelector((state: RootState) => {
     const searchValue = state.search.searchValue.toLowerCase();
     return label.toLowerCase().includes(searchValue) ? searchValue : null;
   }, (a,b) => a === b)
