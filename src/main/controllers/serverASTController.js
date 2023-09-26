@@ -37,9 +37,7 @@ const traverse = require('@babel/traverse').default;
 
 const CRUDMETHODS = ['get', 'post', 'patch', 'put', 'delete'];
 
-const serverASTController = {};
-
-serverASTController.parseAll = (req, res, next) => {
+export const parseAllServerFiles = (event, args, res) => {
 
   //readFileSync method of the fs module is used to grab all the code from 'filePath',
   //then the parse method in babel parser is used to create and return an AST version of
@@ -77,7 +75,7 @@ serverASTController.parseAll = (req, res, next) => {
     return importLabels;
   };
 
-  addES5Import = (curr, filePath, importLabels) => {
+  const addES5Import = (curr, filePath, importLabels) => {
     const importLabel = findVariableName(curr);
     const currDirectory = path.dirname(filePath);
     const afp = path.resolve(currDirectory, curr.node.value);
@@ -126,7 +124,7 @@ serverASTController.parseAll = (req, res, next) => {
               ? (mongooseLabel = label)
               : null;
             // console.log(expressLabel, 'expressLabel');
-            importExpress = importLabel = false;
+            importExpress = false;
           }
         }
 
@@ -262,15 +260,15 @@ serverASTController.parseAll = (req, res, next) => {
           const callExpPath = curr.findParent((curr) =>
             curr.isCallExpression()
           );
-          const arguments = callExpPath.node.arguments;
+          const args = callExpPath.node.arguments;
 
           //check for links to router files imported above
           if (
-            arguments.length > 1 &&
-            Object.hasOwn(importLabels, arguments[1].name)
+            args.length > 1 &&
+            Object.hasOwn(importLabels, args[1].name)
           ) {
             // linksToRouter[importLabels[arguments[1].name]] = arguments[0].value;
-            linksToRouter[arguments[0].value] = importLabels[arguments[1].name];
+            linksToRouter[args[0].value] = importLabels[args[1].name];
             //    '/auth': '/Users/cush572/Codesmith/TEST/ReacType/server/routers/auth.ts',
             //   '/user-styles': '/Users/cush572/Codesmith/TEST/ReacType/server/routers/stylesRouter.ts'
           }
@@ -289,9 +287,9 @@ serverASTController.parseAll = (req, res, next) => {
           const callExpPath = curr.findParent((curr) =>
             curr.isCallExpression()
           );
-          const arguments = callExpPath.node.arguments;
-          const endpoint = arguments[0].value;
-          arguments.slice(1, -1).forEach((arg) => {
+          const args = callExpPath.node.arguments;
+          const endpoint = args[0].value;
+          args.slice(1, -1).forEach((arg) => {
             if (!arg.object) return;
             if (Object.hasOwn(importLabels, arg.object.name)) {
               //check if import label exists (we found import label arg.object.name inside the imports at top of page)
@@ -320,7 +318,6 @@ serverASTController.parseAll = (req, res, next) => {
                   };
                 }
               } else {
-                // console.log('doesn’t exist');
                 allServerRoutesLeadingToController[filePath] = {
                   [endpoint]: { [method]: [middlewareMethod] },
                 };
@@ -380,9 +377,9 @@ serverASTController.parseAll = (req, res, next) => {
           const callExpPath = curr.findParent((curr) =>
             curr.isCallExpression()
           ); //IRENE:
-          const arguments = callExpPath.node.arguments; //IRENE: trying to find the arguments of router.METHOD()
-          const endpoint = arguments[0].value; //IRENE: we know first arg will always be the endpoint
-          arguments.slice(1, -1).forEach((arg) => {
+          const args = callExpPath.node.arguments; //IRENE: trying to find the arguments of router.METHOD()
+          const endpoint = args[0].value; //IRENE: we know first arg will always be the endpoint
+          args.slice(1, -1).forEach((arg) => {
             if (!arg.object) return;
             //IRENE: we know last arg will be the middleware that handles sending the response back to client. we now need to just look at the arguments between the first and last so we can identify the controller/middleware
             if (Object.hasOwn(importLabels, arg.object.name)) {
@@ -441,11 +438,10 @@ serverASTController.parseAll = (req, res, next) => {
         }
       },
     });
-    console.log('allRouterRoutes....', allRouterRoutesLeadingToController['/Users/cush572/Codesmith/Week4/unit-10-databases/server/routes/api.js']['/character'].post, 'importLabelsssszzz', importLabels);
   };
 
 
-  controllerSchemas = {};
+  const controllerSchemas = {};
 
   //function to traverse controller files, identifying middleware methods and their corresponding interactions with database schemas, and populating this information in the above controllerSchemas object
   const traverseControllerFile = (ast, filePath, label, instance) => {
@@ -770,7 +766,4 @@ serverASTController.parseAll = (req, res, next) => {
   console.log('output', output);
   res.locals.serverRoutes = output;
 
-  return next();
 };
-
-module.exports = serverASTController;

@@ -4,8 +4,6 @@ const parser = require('@babel/parser');
 // const { isIdentifier, isStringLiteral } = require('typescript');
 const traverse = require('@babel/traverse').default;
 
-const componentController = {}
-
 //readFileSync method of the fs module is used to grab all the code from 'filePath',
 //then the parse method in babel parser is used to create and return an AST version of
 //this file. plugins necessary to work with JSX and typescript.
@@ -18,7 +16,7 @@ const parseFile = (filePath) => {
 }
 
 
-componentController.parseAll = (req, res, next) => {
+export const parseAllComponents = (event, args, res) => {
   // const projectPath = req.body.filePath;
   // if (projectPath.length === 0) next();
   let components = {};
@@ -290,20 +288,20 @@ componentController.parseAll = (req, res, next) => {
 
   console.log('components', components)
   res.locals.components = components
-  next();
-
 
 
 }
 
 //used to grab code from the file associated with a component, to be displayed in details section on front end
-componentController.getCode = (req, res, next) => {
-  const { id } = req.query;
-  const decodedId = decodeURIComponent(id);
+export const getCode = async (event, args, res) => {
+  try {
+    const { id } = args;
+    const decodedId = decodeURIComponent(id);
 
-  const fileCode = fs.readFileSync(decodedId, 'utf-8');
-  res.locals.componentCode = fileCode;
-  next()
+    const fileCode = fs.readFileSync(decodedId, 'utf-8');
+    res.locals.componentCode = fileCode;
+  } catch(err) {
+    console.error(err);
+    throw new Error('Error in componentController.getCode')
+  }
 }
-
-module.exports = componentController;
