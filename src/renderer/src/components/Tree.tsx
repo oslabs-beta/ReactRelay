@@ -29,9 +29,6 @@ const nodeTypes = {
   CustomNode2,
 };
 
-const { ipcRenderer } = window.require('electron');
-const port = ipcRenderer.sendSync('get-port');
-
 
 const edgeType = 'smoothstep';
 // declaring both edge styles which we will be using
@@ -262,13 +259,10 @@ function Tree({}): JSX.Element {
     });
     dispatch(setActive(element.id));
     const encodedId = encodeURIComponent(component.id);
-    const componentCode = await fetch(
-      `http://localhost:${port}/code?id=${encodedId}`
-    );
+    const componentCode = await (window as any).api.send('code', { id: encodedId });
     // console.log(componentCode, 'componentCode');
-    const data = await componentCode.json();
     // console.log('data', data)
-    dispatch(setActiveComponentCode(data));
+    dispatch(setActiveComponentCode(componentCode.data));
     // when clicked, the active node's edges will be highlighted in red,
     // otherwise they will go back to the default black color.
     // the edge.source and edge.target are both selected here to highlight

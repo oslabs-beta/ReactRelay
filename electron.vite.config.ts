@@ -8,6 +8,7 @@ export default defineConfig({
     plugins: [externalizeDepsPlugin()],
     build: {
       rollupOptions: {
+        input: 'src/main/index.ts',
         output: {
           dir: 'dist/main'  // Output directory for renderer process
         }

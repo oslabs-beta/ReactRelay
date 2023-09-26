@@ -2,8 +2,10 @@ import { app, shell, BrowserWindow, ipcMain, dialog } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
-const path = require('path');
-const expressApp = require(path.join(app.getAppPath(), 'server', 'server.ts')); //require('../../server/server.js');
+
+import { parseAllServerFiles } from './controllers/serverASTController.js';
+import { parseAllComponents, getCode } from './controllers/componentController.js';
+import { getArrayOfFilePaths } from './controllers/fsController.js';
 
 let server;
 
@@ -19,7 +21,7 @@ function createWindow(): void {
       preload: join(__dirname, '../preload/index.js'),
       sandbox: false,
       nodeIntegration: true,
-      contextIsolation: false
+      contextIsolation: true
     }
   })
 
@@ -49,11 +51,7 @@ function createWindow(): void {
 app.whenReady().then(() => {
   // Set app user model id for windows
   electronApp.setAppUserModelId('com.electron')
-  server = (expressApp as any).listen(0, () => {
-    const port = server.address().port;
-
-    console.log(`server running on port ${port}`);
-  })
+ 
   // Default open or close DevTools by F12 in development
   // and ignore CommandOrControl + R in production.
   // see https://github.com/alex8088/electron-toolkit/tree/master/packages/utils
@@ -71,9 +69,6 @@ app.whenReady().then(() => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
   })
 
-  ipcMain.on('get-port', (e) => {
-    e.returnValue = server ? server.address().port : 3000;
-  })
 })
 
 // ipcMain creates a communication channel between main and renderer --> looks for events regarding dialog
@@ -81,6 +76,43 @@ app.whenReady().then(() => {
 ipcMain.handle('dialog', async (_, method, params) => {
   const result = await dialog[method](params)
   return result;
+})
+
+
+ipcMain.handle('code', async (e, args) => {
+  try {
+    let res = { locals: {componentCode: ''} };
+
+    await getCode(e, args, res)
+    return { status: 200, data: res.locals.componentCode }
+  } catch (err) {
+    console.error(err)
+    return { status: 500, error: "Error in ipcMain handler of 'code' route"}
+  }
+})
+
+ipcMain.handle('components', async (e, args) => {
+  try {
+    let res = { locals: {components: ''} };
+    await getArrayOfFilePaths(e, args, res);
+    await parseAllComponents(e, args, res);
+    return { status: 201, data: res.locals.components }
+  } catch (err) {
+    console.error(err)
+    return { status: 500, error: "Error in ipcMain handler of 'code' route"}
+  }
+})
+
+ipcMain.handle('server', async (e, args) => {
+  try {
+    let res = { locals: {serverRoutes: ''} };
+    await getArrayOfFilePaths(e, args, res);
+    await parseAllServerFiles(e, args, res);
+    return { status: 201, data: res.locals.serverRoutes }
+  } catch (err) {
+    console.error(err)
+    return { status: 500, error: "Error in ipcMain handler of 'code' route"}
+  }
 })
 
 // Quit when all windows are closed, except on macOS. There, it's common

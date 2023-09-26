@@ -1,5 +1,3 @@
-const { ipcRenderer } = window.require('electron');
-const port = ipcRenderer.sendSync('get-port');
 import { useDispatch } from "react-redux";
 import { setActiveRoute } from '../features/detailSlice';
 
