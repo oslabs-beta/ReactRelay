@@ -12,8 +12,9 @@ function MethodButtonContainer() {
   console.log('nodeinfo', nodeInfo)
 
   useEffect(() => {
-    const buttons = nodeInfo.map((nodeObj) => (
+    const buttons = nodeInfo.map((nodeObj, i) => (
       <MethodButton
+        key={i}
         methodName={nodeObj.method}
         endPointName={nodeObj.fullRoute}
       />

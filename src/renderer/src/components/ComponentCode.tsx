@@ -11,7 +11,6 @@ const ComponentCode = () => {
   }, [activeComponentCode])
 
 
-
   return (
     <div className='col-span-12 h-min bg-neutral p-4 rounded-xl'>
       <h3 className="font-bold">Component Code</h3>

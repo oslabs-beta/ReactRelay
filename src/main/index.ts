@@ -84,6 +84,7 @@ ipcMain.handle('code', async (e, args) => {
     let res = { locals: {componentCode: ''} };
 
     await getCode(e, args, res)
+
     return { status: 200, data: res.locals.componentCode }
   } catch (err) {
     console.error(err)
