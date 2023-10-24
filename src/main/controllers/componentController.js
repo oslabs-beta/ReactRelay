@@ -286,7 +286,7 @@ export const parseAllComponents = (event, args, res) => {
     component.children = arrayOfChildFilePaths;
   })
 
-  console.log('components', components)
+  // console.log('components', components)
   res.locals.components = components
 
 
@@ -299,7 +299,8 @@ export const getCode = async (event, args, res) => {
     const decodedId = decodeURIComponent(id);
 
     const fileCode = fs.readFileSync(decodedId, 'utf-8');
-    res.locals.componentCode = fileCode.data;
+
+    res.locals.componentCode = fileCode;
   } catch(err) {
     console.error(err);
     throw new Error('Error in componentController.getCode')

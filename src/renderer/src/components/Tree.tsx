@@ -258,7 +258,7 @@ function Tree({}): JSX.Element {
     const componentCode = await window.api.send('code', { id: encodedId });
     // console.log(componentCode, 'componentCode');
     // console.log('data', data)
-    dispatch(setActiveComponentCode(componentCode));
+    dispatch(setActiveComponentCode(componentCode.data));
     // when clicked, the active node's edges will be highlighted in red,
     // otherwise they will go back to the default black color.
     // the edge.source and edge.target are both selected here to highlight
