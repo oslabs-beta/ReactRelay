@@ -23,7 +23,9 @@ import {
 } from '../features/projectSlice';
 import { setTreeContainerClick,
   setActive,
-  setActiveComponentCode } from '../features/detailSlice'
+  setActiveComponentCode } from '../features/detailSlice';
+import { RootState, Component } from '../interfaces/stateInterfaces';
+
 const nodeTypes = {
   CustomNode,
   CustomNode2,
@@ -83,16 +85,10 @@ const getLayoutedElements = (nodes, edges, direction = 'LR') => {
 
 // setting the types for different components
 
-type Component = {
-  id: string;
-  data: any;
-  children: string[];
-  ajaxRequests: string[];
-};
 
 type Node = {
   id: string;
-  data: any;
+  data: { label: string, active: boolean };
   position: { x: number; y: number };
   type: string;
 };
@@ -110,8 +106,8 @@ type Edge = {
 function Tree({}): JSX.Element {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
-  const reactFlowComponents = useSelector((state: any) => state.project.components);
-  const active = useSelector((state: any) => state.detail.active);
+  const reactFlowComponents = useSelector((state: RootState) => state.project.components);
+  const active = useSelector((state: RootState) => state.detail.active);
   const dispatch = useDispatch();
   //components that are re-used are given unique id's by adding a number to the end of the AFP. this function converts that id back to the AFP (i.e. as it appears in reactFlowComponents), then return the object associated with this AFP key in reactFlowComponents.
   const getComponentFromNodeId = (id: string): Component => {
@@ -164,7 +160,7 @@ function Tree({}): JSX.Element {
     //filter for components that have no parent, then invoke 'gatherChildren' on each of them
     // console.log('list of children and their id ---> ', listOfChildIds);
     const roots = Object.values(reactFlowComponents).filter(
-      (obj: any): obj is Component => !listOfChildIds.has(obj.id)
+      (obj: Component) => !listOfChildIds.has(obj.id)
     );
     // console.log('ROOTS ----> ', roots);
     if (roots.length) roots.forEach((root) => gatherChildren(root)); //iterate thru each root and gather it's children
@@ -259,7 +255,7 @@ function Tree({}): JSX.Element {
     });
     dispatch(setActive(element.id));
     const encodedId = encodeURIComponent(component.id);
-    const componentCode = await (window as any).api.send('code', { id: encodedId });
+    const componentCode = await window.api.send('code', { id: encodedId });
     // console.log(componentCode, 'componentCode');
     // console.log('data', data)
     dispatch(setActiveComponentCode(componentCode.data));

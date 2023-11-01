@@ -2,10 +2,11 @@ import Prism from 'prismjs';
 import '../assets/prism.css';
 import { useEffect } from 'react';
 import { useSelector } from 'react-redux';
+import { RootState } from '../interfaces/stateInterfaces';
 
 function ModelPreview() {
-  const serverSchemas = useSelector((state: any) => state.project.server);
-  const activeRoute = useSelector((state: any) => state.detail.activeRoute);
+  const serverSchemas = useSelector((state: RootState) => state.project.server);
+  const activeRoute = useSelector((state: RootState) => state.detail.activeRoute);
 
   //use Prism API to highlight the displayed schemas
   useEffect(() => {
