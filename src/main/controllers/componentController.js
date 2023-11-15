@@ -6,7 +6,7 @@ const traverse = require('@babel/traverse').default;
 
 //readFileSync method of the fs module is used to grab all the code from 'filePath',
 //then the parse method in babel parser is used to create and return an AST version of
-//this file. plugins necessary to work with JSX and typescript.
+//this file.
 const parseFile = (filePath) => {
   const fileCode = fs.readFileSync(filePath, 'utf-8');
   return parser.parse(fileCode, {
@@ -17,8 +17,6 @@ const parseFile = (filePath) => {
 
 
 export const parseAllComponents = (event, args, res) => {
-  // const projectPath = req.body.filePath;
-  // if (projectPath.length === 0) next();
   let components = {};
 
   const templateLiteralRouteParser = (node) => {
@@ -33,14 +31,12 @@ export const parseAllComponents = (event, args, res) => {
 
   //
   const traverseAST = (ast, filePath) => {
-
-    //variables in closure so they persist as we traverse from node to node (these could probably also be declared between 'traverse' and 'enter')
+    //variables that will persist as we traverse from node to node
     const potentialChildren = [];
     let children = {};
     let current = '';
     let isComponent = false;
     let mightBeComponent = false;
-    const noWayThisWorksCache = {};
     let hardNO = false;
 
     let fetchPrimed = false;
@@ -51,7 +47,7 @@ export const parseAllComponents = (event, args, res) => {
 
     let nextJSLinkImported = false;
     
-    //babel traverse used to traverse the passed in ast
+    //babel traverse is used to traverse the passed in ast
     traverse(ast, {
 
       //for each node (i.e. 'path') in the 'ast', the 'enter' method will be invoked
@@ -170,10 +166,12 @@ export const parseAllComponents = (event, args, res) => {
           let route;
           let method;
           let fullRoute;
+          const callExpressionPath = path.findParent((path) => path.isCallExpression());
+          if (!callExpressionPath.arguments) return
           if (path.parent.type === "MemberExpression") {
-            const callExpressionPath = path.findParent((path) => path.isCallExpression());
             method = path.parent.property.name.toUpperCase();
             const callExpArgsArr = callExpressionPath.node.arguments[0];
+            if (!callExpArgsArr) console.log('FILEPATH:', filePath, 'CEP', callExpressionPath)
             if (callExpArgsArr.type === "StringLiteral") {  
               route = fullRoute = callExpArgsArr.value;
             } else if (callExpArgsArr.type === "TemplateLiteral") {
@@ -261,11 +259,12 @@ export const parseAllComponents = (event, args, res) => {
   }
 
 
-  const allFiles = res.locals.allFiles;
-  console.log(allFiles);
+  const allFiles = res.locals.allFiles.filter((file) => !file.includes('/__tests__/') && file.split('.').length == 2);
+  // console.log('allFiles:', allFiles);
 
-  //iterate through array of files, convert each to AST, and invoke above function to traverse the AST
+  //iterate through array of files, convert the code in each file to an AST, and invoke 'traverseAST' to traverse the AST
   allFiles.forEach((filePath) => {
+
     const ast = parseFile(filePath);
     // console.log('ast');
     traverseAST(ast, filePath);

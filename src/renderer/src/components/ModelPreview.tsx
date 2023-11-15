@@ -29,7 +29,6 @@ function ModelPreview() {
 
   const serverRoutes = Object.keys(serverSchemas).map(route => route);
 
-  console.log(serverRoutes, 'serverRoutes11111', serverSchemas)
 
   //if an endpoint exists and contains no variable, check if there are corresponding server-side interactions with DB schemas. if so, reassign display var to "found".
   if (hasVariable) {

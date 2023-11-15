@@ -13,11 +13,12 @@ const checkForSearchMatch = (label: string) => {
   }, (a,b) => a === b)
 }
 
+
 const CustomNode = React.memo<NodeProps>(({ data, sourcePosition, targetPosition }) => {
   const { label } = data;
   const searchValue = checkForSearchMatch(label.toLowerCase());
   console.log('sourcePosition', typeof sourcePosition, 'targetPos', targetPosition)
-
+  
   return (
     <div
       className={`custom-node flex flex-column items-center font-normal ${

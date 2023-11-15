@@ -74,9 +74,13 @@ const getLayoutedElements = (nodes, edges, direction = 'LR') => {
     node.sourcePosition = isHorizontal ? 'right' : 'bottom';
     // We are shifting the dagre node position (anchor=center center) to the top left
     // so it matches the React Flow node anchor point (top left).
-    node.position = {
+    node.position = isHorizontal ? {
       x: nodeWithPosition.x - nodeWidth / 2,
       y: nodeWithPosition.y - nodeHeight / 2,
+    } :
+    {
+      x: nodeWithPosition.x - nodeHeight / 2,
+      y: nodeWithPosition.y - nodeWidth / 2,
     };
     return node;
   });
