@@ -316,7 +316,7 @@ function Tree({}): JSX.Element {
       nodesDraggable={true}
       fitView={true}
       fitViewOptions={{ padding: 1 }}
-      minZoom={0.1}
+      minZoom={0.08}
       onNodeClick={onNodeClick}
       nodeTypes={nodeTypes}
       onClick={(e) => handleTreeContainerClick(e)}
