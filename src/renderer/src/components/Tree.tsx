@@ -1,5 +1,6 @@
 import { useCallback, useEffect } from 'react';
 import ReactFlow, {
+  ReactFlowProvider,
   addEdge,
   ConnectionLineType,
   Panel,
@@ -7,9 +8,11 @@ import ReactFlow, {
   useEdgesState,
   Controls,
   MiniMap,
+  useReactFlow
 } from 'reactflow';
 
-import dagre from 'dagre';
+// import dagre from 'dagre';
+import ELK from 'elkjs';
 import horizontal from '../assets/images/left-right-solid.svg';
 import vertical from '../assets/images/up-down-solid.svg';
 import CustomNode from './custom-nodes/custom-node';
@@ -45,51 +48,50 @@ const edgeStyle2 = {
   'strokeWidth': 8,
 };
 
-const dagreGraph = new dagre.graphlib.Graph();
-dagreGraph.setDefaultEdgeLabel(() => ({}));
+const elk = new ELK();
 
-// controls spacing between nodes
-const nodeWidth = 300;
-const nodeHeight = 50;
-
-// All you have to do to change the default layout is change 'LR' to 'TB' or 'RL'
-const getLayoutedElements = (nodes, edges, direction = 'LR') => {
-  const isHorizontal = direction === 'LR';
-  dagreGraph.setGraph({ rankdir: direction });
-
-  nodes.forEach((node) => {
-    dagreGraph.setNode(node.id, { width: nodeWidth, height: nodeHeight });
-  });
-
-  edges.forEach((edge) => {
-    dagreGraph.setEdge(edge.source, edge.target);
-    edge.animated = true;
-  });
-
-  dagre.layout(dagreGraph);
-
-  nodes.forEach((node) => {
-    const nodeWithPosition = dagreGraph.node(node.id);
-    node.targetPosition = isHorizontal ? 'left' : 'top';
-    node.sourcePosition = isHorizontal ? 'right' : 'bottom';
-    // We are shifting the dagre node position (anchor=center center) to the top left
-    // so it matches the React Flow node anchor point (top left).
-    node.position = isHorizontal ? {
-      x: nodeWithPosition.x - nodeWidth / 2,
-      y: nodeWithPosition.y - nodeHeight / 2,
-    } :
-    {
-      x: nodeWithPosition.x - nodeHeight / 2,
-      y: nodeWithPosition.y - nodeWidth / 2,
-    };
-    return node;
-  });
-  return { nodes, edges };
+const elkOptions = {
+  'elk.algorithm': 'layered',
+  'elk.layered.spacing.nodeNodeBetweenLayers': '100',
+  'elk.spacing.nodeNode': '80',
 };
 
+const getLayoutedElements = (nodes, edges, options = {}) => {
+  const isHorizontal = options?.['elk.direction'] !== 'RIGHT';
+  const graph = {
+    id: 'root',
+    layoutOptions: options,
+    children: nodes.map((node) => ({
+      ...node,
+      // Adjust the target and source handle positions based on the layout
+      // direction.
+      targetPosition: isHorizontal ? 'left' : 'top',
+      sourcePosition: isHorizontal ? 'right' : 'bottom',
+
+      // Hardcode a width and height for elk to use when layouting.
+      width: 500,
+      height: 200,
+    })),
+    edges: edges,
+  };
+
+  return elk
+    .layout(graph)
+    .then((layoutedGraph) => ({
+      nodes: layoutedGraph.children?.map((node) => ({
+        ...node,
+        // React Flow expects a position property on the node instead of `x`
+        // and `y` fields.
+        position: { x: node.x, y: node.y },
+      })),
+
+      edges: layoutedGraph.edges,
+    }))
+    .catch(console.error);
+};
+
+
 // setting the types for different components
-
-
 type Node = {
   id: string;
   data: { label: string, active: boolean };
@@ -110,10 +112,13 @@ type Edge = {
 function Tree({}): JSX.Element {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+  const { fitView } = useReactFlow();
+
   const reactFlowComponents = useSelector((state: RootState) => state.project.components);
   const active = useSelector((state: RootState) => state.detail.active);
   const dispatch = useDispatch();
-  //components that are re-used are given unique id's by adding a number to the end of the AFP. this function converts that id back to the AFP (i.e. as it appears in reactFlowComponents), then return the object associated with this AFP key in reactFlowComponents.
+
+  //components that are re-used are given unique id's by adding a number to the end of the absolute file path (AFP). this function converts that id back to the AFP (i.e. as it appears in reactFlowComponents), then returns the object associated with this AFP key in reactFlowComponents.
   const getComponentFromNodeId = (id: string): Component => {
     let i = id.length - 1;
     while (/[0-9]/.test(id[i]) && i > 10) i--;
@@ -134,7 +139,6 @@ function Tree({}): JSX.Element {
     const listOfChildIds = new Set();
 
     //create a Set containing all components that are children of other components (used to isolate 'roots' array below)
-
     (Object.values(reactFlowComponents) as Component[]).forEach(
       (obj: Component) => {
         obj.children.forEach((childId) => listOfChildIds.add(childId));
@@ -166,10 +170,9 @@ function Tree({}): JSX.Element {
     const roots = Object.values(reactFlowComponents).filter(
       (obj: Component) => !listOfChildIds.has(obj.id)
     );
-    // console.log('ROOTS ----> ', roots);
+
     if (roots.length) roots.forEach((root) => gatherChildren(root)); //iterate thru each root and gather it's children
 
-    // console.log(childCount, '<---- childCount');
 
     //iterate through all components in reactFlowComponents. Whatever the value of that componentId is in childCount, create that many new nodes for this component. (create just 1 node if it doesn't appear in childCount);
     (Object.values(reactFlowComponents) as Component[]).forEach(
@@ -177,6 +180,7 @@ function Tree({}): JSX.Element {
         // obj.ajaxRequests --> check if this is empty or has values
         // to change the node's styling using custom nodes
         let i = childCount[obj.id] || 1;
+
         // adds the number of components which are present, as there could be multiple copies
         //TODO: determine whether or not we need multiple copies.
         // takes care of a component that is used in more than just 1 component
@@ -192,11 +196,15 @@ function Tree({}): JSX.Element {
       }
     );
 
+    const newNodeIDs = newNodes.map(node => node.id.slice(0,-1));
+
     //for each node, for each of its children, create a connection (edge) between that node and one of the nodes that represents the child. Pick the child node whose id ends with the value of the child node in the 'childCount' object. Then decrement this value in 'childCount' so that no child has multiple parents.
     newNodes.forEach((obj) => {
       const component = getComponentFromNodeId(obj.id);
       component.children.forEach((childId) => {
+        if (!newNodeIDs.includes(childId)) return;
         let child = childCount[childId] || 1;
+        console.log('objid', childId, child)
         newEdges.push({
           id: obj.id.concat(childId + child),
           source: obj.id,
@@ -212,12 +220,15 @@ function Tree({}): JSX.Element {
       });
     });
 
-    const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(
-      newNodes,
-      newEdges
-    );
-    setNodes(layoutedNodes);
-    setEdges(layoutedEdges);
+    getLayoutedElements(newNodes, newEdges).then((result) => {
+      const { nodes: layoutedNodes, edges: layoutedEdges } = result as { nodes: Node[], edges: Edge[] }
+      setNodes(layoutedNodes);
+      setEdges(layoutedEdges);
+
+      window.requestAnimationFrame(() => fitView());
+
+    })
+
   }, [reactFlowComponents]);
 
   const onConnect = useCallback(
@@ -227,7 +238,7 @@ function Tree({}): JSX.Element {
           eds //eds is previous value of the edge's variable
         ) =>
           addEdge(
-            { ...params, type: ConnectionLineType.SmoothStep, animated: true },
+            params,
             eds
           )
       ),
@@ -235,10 +246,12 @@ function Tree({}): JSX.Element {
   );
   const onLayout = useCallback(
     (direction) => {
-      const { nodes: layoutedNodes, edges: layoutedEdges } =
-        getLayoutedElements(nodes, edges, direction);
-      setNodes([...layoutedNodes]);
-      setEdges([...layoutedEdges]);
+      const opts = { 'elk.direction': direction, ...elkOptions };
+      getLayoutedElements(nodes, edges, opts).then(({ nodes: layoutedNodes, edges: layoutedEdges }) => {
+        setNodes([...layoutedNodes]);
+        setEdges([...layoutedEdges]);
+        window.requestAnimationFrame(() => fitView());
+      })
     },
     [nodes, edges]
   );
@@ -313,13 +326,13 @@ function Tree({}): JSX.Element {
         <div id='button-section' className='flex'>
           <button
             className='btn bg-white rounded-full'
-            onClick={() => onLayout('TB')}
+            onClick={() => onLayout({direction: 'DOWN'})}
           >
             <img className='h-4 m-1' src={vertical} alt='vertical layout button' />
           </button>
           <button
             className='btn ml-1 bg-white rounded-full'
-            onClick={() => onLayout('LR')}
+            onClick={() => onLayout({direction: 'RIGHT'})}
           >
             <img
               className='h-4'
@@ -335,4 +348,8 @@ function Tree({}): JSX.Element {
   );
 }
 
-export default Tree;
+export default () =>(
+  <ReactFlowProvider>
+    <Tree />
+  </ReactFlowProvider>
+);
