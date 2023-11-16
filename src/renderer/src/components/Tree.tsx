@@ -57,7 +57,7 @@ const elkOptions = {
 };
 
 const getLayoutedElements = (nodes, edges, options = {}) => {
-  const isHorizontal = options?.['elk.direction'] !== 'RIGHT';
+  const isHorizontal = Object.hasOwn(options, 'elk.direction') ? options?.['elk.direction'] === 'RIGHT' : true;
   const graph = {
     id: 'root',
     layoutOptions: options,
@@ -325,13 +325,13 @@ function Tree({}): JSX.Element {
         <div id='button-section' className='flex'>
           <button
             className='btn bg-white rounded-full'
-            onClick={() => onLayout({direction: 'DOWN'})}
+            onClick={() => onLayout('DOWN')}
           >
             <img className='h-4 m-1' src={vertical} alt='vertical layout button' />
           </button>
           <button
             className='btn ml-1 bg-white rounded-full'
-            onClick={() => onLayout({direction: 'RIGHT'})}
+            onClick={() => onLayout('RIGHT')}
           >
             <img
               className='h-4'
