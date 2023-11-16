@@ -54,7 +54,7 @@ function Details(): JSX.Element {
         </div>
 
         <div className='w-fit'>
-          <p className='relative rounded-t-xl text-2xl bg-primary font-bold mt-[-85px] ml-[40px] pl-5 pr-2 p-2 '>
+          <div className='relative rounded-t-xl text-2xl bg-primary font-bold mt-[-85px] ml-[40px] pl-5 pr-2 p-2 '>
             <div id="label" className="flex w-full items-center	">
               {componentName}
               <div className="tooltip tooltip-secondary tooltip-right" data-tip="toggle component details">
@@ -64,7 +64,7 @@ function Details(): JSX.Element {
 
               </div>
             </div>
-          </p>
+          </div>
         </div>
 
 

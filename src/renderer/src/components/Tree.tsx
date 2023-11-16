@@ -204,7 +204,6 @@ function Tree({}): JSX.Element {
       component.children.forEach((childId) => {
         if (!newNodeIDs.includes(childId)) return;
         let child = childCount[childId] || 1;
-        console.log('objid', childId, child)
         newEdges.push({
           id: obj.id.concat(childId + child),
           source: obj.id,
