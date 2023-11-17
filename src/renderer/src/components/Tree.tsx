@@ -87,7 +87,10 @@ const getLayoutedElements = (nodes, edges, options = {}) => {
 
       edges: layoutedGraph.edges,
     }))
-    .catch(console.error);
+    .catch((error) => {
+      console.error(error);
+      return { nodes: [], edges: [] }
+    });
 };
 
 
@@ -246,9 +249,10 @@ function Tree({}): JSX.Element {
   const onLayout = useCallback(
     (direction) => {
       const opts = { 'elk.direction': direction, ...elkOptions };
-      getLayoutedElements(nodes, edges, opts).then(({ nodes: layoutedNodes, edges: layoutedEdges }) => {
-        setNodes([...layoutedNodes]);
-        setEdges([...layoutedEdges]);
+      getLayoutedElements(nodes, edges, opts).then((result) => {
+        const { nodes: layoutedNodes, edges: layoutedEdges } = result as { nodes: Node[], edges: Edge[] }
+        setNodes(layoutedNodes);
+        setEdges(layoutedEdges);
         window.requestAnimationFrame(() => fitView());
       })
     },
