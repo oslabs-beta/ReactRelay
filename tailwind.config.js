@@ -1,4 +1,11 @@
-/** @type {import('tailwindcss').Config} */
+/**
+ * Tailwind CSS configuration for ReactRelay.
+ * Scans HTML/JS/TS/TSX/JSX under `src/` and the project root, extends the default theme,
+ * and applies DaisyUI with a custom `mytheme` palette and border-width scale.
+ *
+ * @type {import('tailwindcss').Config}
+ */
+
 module.exports = {
   content: [
     './src/**/*.html',
